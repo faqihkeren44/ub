@@ -50,7 +50,7 @@ def health_check():
 Endpoint adalah alamat di server yang bisa diakses lewat URL untuk melakukan sesuatu. Contoh kalau buka `http://127.0.0.1:8000/health` Bagian `/health` itu adalah endpoint.<br>
 Berbeda dengan function biasa yang tidak bisa diakses lewat internet, endpoint bisa diakses lewat browser, postman, atau frontend.
 
-### Kenapa Namanya `/health/
+### Kenapa Namanya `/health/`
 
 Karena itu adalah Health Check Endpoint, artinya endpoint untuk mengecek apakah server sedang sehat atau tidak.
 
@@ -103,4 +103,103 @@ Setelah selesai baru lakukan push
 git add .
 git commit -m "update"
 git push
+```
+
+## 2. Install PostgreSQL
+
+Berikut langkah-langkah cara install PostgreSQL:
+1. Masuk ke [website resmi postgreSQL](https://www.postgresql.org/)
+2. Pilih download
+3. Download sesuai OS
+4. Install postgreSQL
+5. Masukan, ingat, dan catat password user postgres
+6. Default port: `5432`
+
+## 3. Buat Database Baru
+
+Masuk ke PostgreSQL, lalu buat database:
+```
+CREATE DATABASE ub;
+```
+
+## 4. Install Dependency Tambahan
+
+Aktifkan venv lalu install
+```
+pip install sqlalchemy psycopg2-binary python-dotenv
+```
+
+## 5. Struktur Folder Baru
+
+```
+app/
+│
+├── main.py
+├── database.py
+├── models.py
+└── config.py
+```
+
+Bisa gunakan `type nul > nama_file.txt` atau `notepad nama_file.txt`.
+
+## 6. File `.env` di root project
+```
+DATABASE_URL=postgresql://postgres:PASSWORD@localhost:5432/ub
+```
+Ganti `PASSWORD` dengan password kamu
+
+Jangan commit file ini, makanya kita masukan `.env` kedalam `.gitignore`
+
+## 7. File `config.py`
+```
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+```
+
+## 8. Setup Database Connection
+
+```
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+from app.config import DATABASE_URL
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+```
+
+## 9. Model Pertama (Test Table)
+
+```
+from sqlalchemy import Column, Integer, String
+from app.database import Base
+
+class TestTable(Base):
+    __tablename__ = "test_table"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+```
+
+## 10. Buat Table Saat Startup
+
+Edit `main.py`:
+```
+from fastapi import FastAPI
+from app.database import engine, Base
+from app import models
+
+app = FastAPI()
+
+Base.metadata.create_all(bind=engine)
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
 ```
