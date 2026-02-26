@@ -89,3 +89,18 @@ git commit -m "Day 1"
 git branch -M main
 git push -u origin main
 ```
+
+# Day 2
+
+## 1. Hubungkan github
+
+Sebelum memulai bekerja, ambil semua yang ada di github ke lokal dengan
+```
+git pull origin main
+```
+Setelah selesai baru lakukan push
+```
+git add .
+git commit -m "update"
+git push
+```
