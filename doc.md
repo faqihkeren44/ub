@@ -45,16 +45,16 @@ def health_check():
     return {"status": "ok"}
 ```
 
-**Apa Itu Endpoint?**
+### Apa Itu Endpoint?
 
 Endpoint adalah alamat di server yang bisa diakses lewat URL untuk melakukan sesuatu. Contoh kalau buka `http://127.0.0.1:8000/health` Bagian `/health` itu adalah endpoint.<br>
 Berbeda dengan function biasa yang tidak bisa diakses lewat internet, endpoint bisa diakses lewat browser, postman, atau frontend.
 
-**Kenapa Namanya `/health/
+### Kenapa Namanya `/health/
 
 Karena itu adalah Health Check Endpoint, artinya endpoint untuk mengecek apakah server sedang sehat atau tidak.
 
-**Bedah Kode**
+### Bedah Kode
 
 - `@app.get("/health")`: Kalau ada request GET ke `/health`, jalankan fungsi di bawah
 - `return {"status": "ok"}`: Balas dengan menampilkan JSON {"status": "ok}
