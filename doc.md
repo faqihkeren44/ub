@@ -114,6 +114,8 @@ Berikut langkah-langkah cara install PostgreSQL:
 4. Install postgreSQL
 5. Masukan, ingat, dan catat password user postgres
 6. Default port: `5432`
+7. Pilih `PostgreSQL 16 (x64) on port 5432`
+8. Saat ada pilihan "Select applications you would link to install", pilih `Database Server`, dan ceklis `PostgreSQL (64 bit) v 16.12-1`
 
 ## 3. Buat Database Baru
 
