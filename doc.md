@@ -119,10 +119,26 @@ Berikut langkah-langkah cara install PostgreSQL:
 
 ## 3. Buat Database Baru
 
-Masuk ke PostgreSQL dengan `psql -U postgres`.
-Bedah kode:
+Masuk ke PostgreSQL dengan `psql -U postgres`:
 - `psql`: Perintah untuk masuk ke PostgreSQL
 - `-U postgres`: Login sebagai user bernama `postgres`, yaitu superuser default yang dibuat saat install
+
+### Perintah Dasar SQL
+
+- Buat database: `CREATE DATABASE ub_db;`. Kalau sukses akan muncul `CREATE DATABASE`.
+- Lihat daftar database: `\l`
+- Masuk ke database: `\c ub_db`
+- Buat table sederhana:
+```
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(225) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+- Cek table: `\dt`
+
 
 ## 4. Install Dependency Tambahan
 
@@ -145,12 +161,24 @@ app/
 Bisa gunakan `type nul > nama_file.txt` atau `notepad nama_file.txt`.
 
 ## 6. File `.env` di root project
+
+Ini bisa disebut connection string, yaitu alamat untuk backend agar bisa terhubung ke database
 ```
 DATABASE_URL=postgresql://postgres:PASSWORD@localhost:5432/ub
 ```
 Ganti `PASSWORD` dengan password kamu
 
 Jangan commit file ini, makanya kita masukan `.env` kedalam `.gitignore`
+
+### Bedah Kode
+
+- Format umum: `postgresql://USERNAME:PASSWORD@HOST:PORT/DATABASE_NAME`
+- `postgresql://`: Menentukan jenis database. Kalau MySQL biasanya diawali `mysql://`
+- `postgres`: Nama default user saat install PostgreSQL
+- `PASSWORD`: Password untuk user tersebut
+- `@HOST`: Server tempat database berjalan. Isi `localhost` jika berjalan di lokal komputer, atau kalau di server lain `192.168.1.10`, `d.myserver.com`.
+- `PORT`: Secara default postgreSQL selalu berjalan di `5432`, kecuali mau diubah.
+- `DATABASE_NAME`: Nama database.
 
 ## 7. File `config.py`
 
@@ -191,6 +219,24 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 ```
+
+### Apa Itu SQLAlchemy?
+
+SQLAlchemy adalah library Python untuk berinteraksi dengan database menggunakan Python tanpa harus menulis SQL mentah terus menerus.
+
+### Bedah Kode
+
+- `engine = create_engine(DATABASE_URL)`: Membuat mesin koneksi ke database berdasarkan alamat di `DATABASE_URL`.
+- `SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)`: Jembatan antara kode Python dengan database
+- `autocommit=False`: Database tidak otomatis menyimpan perubahan. Harus ada perintah `db.commit()` agar data benar-benar tersimpan.
+- `autoflush=False`: SQLAlchemy tidak otomatis kirim perubahan ke database sebelum waktunya. 
+- `flush` mengirim SQL ke database, sedangkan `commit` yang mempermanenkan SQL itu.
+- `bind=engine`: Session ini menggunakan `engine` tadi untuk koneksi.
+- `Base = declarative_base()`: Parent class untuk semua table di database.
+
+### Kenapa Harus Ada Base?
+
+
 
 ## 9. Model Pertama (Test Table)
 
