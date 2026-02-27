@@ -119,10 +119,10 @@ Berikut langkah-langkah cara install PostgreSQL:
 
 ## 3. Buat Database Baru
 
-Masuk ke PostgreSQL, lalu buat database:
-```
-CREATE DATABASE ub;
-```
+Masuk ke PostgreSQL dengan `psql -U postgres`.
+Bedah kode:
+- `psql`: Perintah untuk masuk ke PostgreSQL
+- `-U postgres`: Login sebagai user bernama `postgres`, yaitu superuser default yang dibuat saat install
 
 ## 4. Install Dependency Tambahan
 
@@ -153,6 +153,8 @@ Ganti `PASSWORD` dengan password kamu
 Jangan commit file ini, makanya kita masukan `.env` kedalam `.gitignore`
 
 ## 7. File `config.py`
+
+Masukan kode berikut:
 ```
 import os
 from dotenv import load_dotenv
@@ -161,6 +163,20 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 ```
+
+### Kenapa Harus Gini?
+
+Untuk menyimpan sebuah variabel, bisa saja dibuat seperti ini:
+```
+DATABASE_URL = "postgresql://postgres:12345@localhost:5432/ub_db"
+```
+Tapi itu tidak aman, dan tidak bisa dipakai saat produksi nanti. Selain itu, password nya bisa ke-commit ke GitHub, dan akhirnya tersebar.
+
+### Bedah kode:
+- `import os`: Module bawaan Python. Di sini untuk mengakses environment variable (variabel rahasia yang disimpan di sistem). Contohnya password database, API key payment, secret JWT.
+- `from dotenv import load_dotenv`: Membaca file `.env`, lalu memasukan isinya ke environment variable. Karena secara default Python tiak bisa otomatis membaca file `.env`.
+- `load_dotenv()`: Membaca file `.env` di folder. Setelah ini dijalankan, Python bisa mengakses nilai yang ada di dalam file `.env` itu.
+- `DATABASE_URL = os.getenv("DATABASE_URL")`: 
 
 ## 8. Setup Database Connection
 
