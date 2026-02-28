@@ -182,7 +182,7 @@ Jangan commit file ini, makanya kita masukan `.env` kedalam `.gitignore`
 
 ## 7. File `config.py`
 
-Masukan kode berikut:
+Buka `app/config.py`, lalu masukan kode berikut:
 ```
 import os
 from dotenv import load_dotenv
@@ -208,6 +208,7 @@ Tapi itu tidak aman, dan tidak bisa dipakai saat produksi nanti. Selain itu, pas
 
 ## 8. Setup Database Connection
 
+Buka `app/database.py`, lalu masukan:
 ```
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -236,10 +237,46 @@ SQLAlchemy adalah library Python untuk berinteraksi dengan database menggunakan 
 
 ### Kenapa Harus Ada Base?
 
+Karena SQLAlchemy perlu tahu class mana yang table, nama table nya apa, kolomnya apa saka, primary key nya yang mana, dsb. Semua itu didaftakan ke `Base`. 
+Contoh, misalkan membuat sebuah model:
+```
+class User(Base):
+    __table__ = "users"
 
+    id = Column(Integer, primary_key=True)
+    email = Column(String)
+```
+Maka, class `User` yang dibuat mewarisi `Base`, dan otomatis SQLAlchemy mendaftarkan `users` ke metadata
+
+Kurang lebih flow nya akan seperti ini:
+```
+Base
+ ├── User
+ ├── Product
+ ├── Order
+ └── Cart
+```
+Semua model terdaftar di satu root, yaitu `Base`.
+
+### Apa Itu Metadata
+
+Metadata itu kayak blueprint semua table. Di dalamnya ada daftar table, nama kolom, tipe data, dll.  Sehingga kita bisa membuat semua table yang terdaftar di Base.
+
+### Database VS Table VS Model
+
+1. **Database**: Wadah besar untuk menyimpan data. Seperti sebuah gedung perpustakaan yang menyimpan banyak buku dalam rak buku.
+2. **Table**: Bagian dari database. Di dalam table ini disimpan berbagai jenis data. Bentuknya sama seperti spreadsheet/excel (Ada kolom dan baris).
+Kalau database itu perpustakannya, table itu rak buku nya.
+3. **Model**: Representasi table dalam bentuk kode Python. Table yang seharusnya berbentuk kotak-kotak menjadi beberapa baris kode.
+```
+Model User  →  Table users
+Model Product → Table products
+Model Order → Table orders
+```
 
 ## 9. Model Pertama (Test Table)
 
+Untuk tes, buka `app/models.py`, lalu buat sebuah model:
 ```
 from sqlalchemy import Column, Integer, String
 from app.database import Base
@@ -249,6 +286,21 @@ class TestTable(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
+```
+
+### Bedah Kode
+
+- `class TetsTable(Base):`: Buat model bernama TestTable yang mewarisi Base. Sehingga model ini akan masuk ke `Base.metadata`.
+- `__tablename__ = "test_table"`: Nama table di database adalah `test_table`.
+- `id = Column(Integer, primary_key=True, index=True)`: Nama kolom `id`, tipe data integer, `primary_key=True` ini kunci utama, `index=True` membuat index.
+- `name = Column(String, index=True)`: Nama kolomnya `name`, tipe data String (VARCHAR).
+- Ketika menjalankan `Base.metadata.create_all(bind=engine), maka akan membuat table di PostgreSQL seperti berikut:
+```
+CREATE TABLE test_table (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR
+    # Plus tambahan index
+);
 ```
 
 ## 10. Buat Table Saat Startup
@@ -265,5 +317,40 @@ Base.metadata.create_all(bind=engine)
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok"}
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        return {"status": "ok", "database": "connected"}
+    except:
+        return {"status": "error", "database": "diconnected"}
 ```
+
+### Cara Kerja `create_all()`
+
+Ketika `Base.metadata.create_all(bind=engine)` dieksekusi, maka SQLAlchemy akan:
+1. Cek semua model turunan `Base` (class/model dibuat menggunakan `Base`)
+2. Lihat __tablename__
+3. Lihat kolom-kolomnya
+4. Cek apakah table sudah ada di database
+5. Jika belum ada maka dibuat, jika sudah ada tidak akan dibuat ulang.
+Karena ini diletakkan di global scope, maka akan berjalan ketika aplikasi dimulai (Saat menjalankan `uvicorn main:app --reload`
+
+### Bedah Kode
+
+- `from app import models`: Karena `models.py` di-import, berarti semua class model akan dijalankan dan terdaftar ke `Base.metadata`. Kalau tidak import `models.py`, `Base` tidak tahu ada model aja saja dan `create_all()` tidak bikin apa-apa.
+- `app = FastAPI()`: Membuat instance aplikasi (Server API kamu)
+- `Base.metadata.create_all(bind=engine)`: Buat semua table yang terdaftar di `Base.metadata` ke database.
+
+### Cek TestTable Lewat Terminal
+
+Untuk memastikan kode berjalan, dan TestTable sudah dibuat, cek table nya lewat psql (terminal). :
+1. Masuk ke PostgreSQL `psql -U postgres`
+2. Masuk ke database `\c ub_db`
+3. Lihat daftar table `dt`
+4. Lihat struktur table `\d test_table`
+
+### Session VS Engine
+
+Dalam SQLAlchemy, ada 2 jalur dalam memberikan perintah
+1. **Jalur ORM (Session)**: Mengikuti aturan session yang dibuat. Kalau `autocommit=False`, maka harus `db.commit()`. Contoh yang harus menggunakan `commit` yaitu `INSERT`, `UPDATE`, `DELETE`.
+2. **Jalur Core/Engine (DDL)**: Langkung kirim SQL ke dtaabase lewat engine, tidak pakai session atau commit manual. Bisa dilihat dari code perintahnya `Base.metadata.create_all(bind=engine)`. Yang termasuk transaksi sendiri (implicit commit) yaitu `CREATE TABLE`, `DROP TABLE`, `ALTER TABLE`.
