@@ -7,3 +7,5 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
+print("DATABASE_URL =", DATABASE_URL)

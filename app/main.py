@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from sqlalchemy import text
 from app.database import engine, Base
 from app import models
 
@@ -12,5 +13,5 @@ def health_check():
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
         return {"status": "ok", "database": "connected"}
-    except:
-        return {"status": "error", "database": "disconnected"}
+    except Exception as e:
+        return {"status": "error", "database": "disconnected", "error": str(e)}

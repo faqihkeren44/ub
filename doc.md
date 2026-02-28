@@ -202,7 +202,7 @@ Tapi itu tidak aman, dan tidak bisa dipakai saat produksi nanti. Selain itu, pas
 
 ### Bedah kode:
 - `import os`: Module bawaan Python. Di sini untuk mengakses environment variable (variabel rahasia yang disimpan di sistem). Contohnya password database, API key payment, secret JWT.
-- `from dotenv import load_dotenv`: Membaca file `.env`, lalu memasukan isinya ke environment variable. Karena secara default Python tiak bisa otomatis membaca file `.env`.
+- `from dotenv import load_dotenv`: Membaca file `.env`, lalu memasukan isinya ke environment variable. Karena secara default Python tidak bisa otomatis membaca file `.env`.
 - `load_dotenv()`: Membaca file `.env` di folder. Setelah ini dijalankan, Python bisa mengakses nilai yang ada di dalam file `.env` itu.
 - `DATABASE_URL = os.getenv("DATABASE_URL")`: 
 
@@ -308,6 +308,7 @@ CREATE TABLE test_table (
 Edit `main.py`:
 ```
 from fastapi import FastAPI
+from sqlalchemy import text
 from app.database import engine, Base
 from app import models
 
@@ -322,7 +323,7 @@ def health_check():
             connection.execute(text("SELECT 1"))
         return {"status": "ok", "database": "connected"}
     except:
-        return {"status": "error", "database": "diconnected"}
+        return {"status": "error", "database": "disconnected"}
 ```
 
 ### Cara Kerja `create_all()`
