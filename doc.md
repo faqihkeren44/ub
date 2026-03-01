@@ -355,3 +355,88 @@ Untuk memastikan kode berjalan, dan TestTable sudah dibuat, cek table nya lewat 
 Dalam SQLAlchemy, ada 2 jalur dalam memberikan perintah
 1. **Jalur ORM (Session)**: Mengikuti aturan session yang dibuat. Kalau `autocommit=False`, maka harus `db.commit()`. Contoh yang harus menggunakan `commit` yaitu `INSERT`, `UPDATE`, `DELETE`.
 2. **Jalur Core/Engine (DDL)**: Langkung kirim SQL ke dtaabase lewat engine, tidak pakai session atau commit manual. Bisa dilihat dari code perintahnya `Base.metadata.create_all(bind=engine)`. Yang termasuk transaksi sendiri (implicit commit) yaitu `CREATE TABLE`, `DROP TABLE`, `ALTER TABLE`.
+
+# Day 3
+
+## 1. Buat Model user
+
+Di `app/models.py` tambahkan:
+```
+class User(Base):
+    __table__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nuliable=False)
+    hashed_password = Column(String, nullable=False)
+    full_name = Column(String, nullable(True)
+```
+
+### Bedah Kode
+
+- `unique=True`: Email tidak boleh sama
+` `index=True`: Buat index
+- `nullable=False`: Tidak boleh kosong
+
+Jika sebelumnya sudah pernah membuat table dengan nama `users` tapi struktur kolomnya beda, hapus table itu dengan `DROP TABLE users;`, agar tidak menimbulkan bentrok ketika insert/select.
+
+## 2. Buat Helper Hashing Password
+
+Di folder `app`, buat file baru bernama `utils.py`:
+```
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_password.verify(plain_password, hashed_password)
+```
+
+Agar program di atas dapat dijalankan, maka perlu install package `pip install passlib[bcrypt]`
+
+## 3. Endpoint Register
+
+Tambahkan di `app/main.py`:
+
+```
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.database import SessionLocal
+from app.models import User
+from app.utils import hash_password
+
+app = FastAPI()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.post("/register")
+def register_user(email: str, password: str, full_name: str = None, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.email == email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    user = User(
+        email=email,
+        hashed_password=hash_password(password),
+        full_name=full_name
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return {"id": user.id, "email": user.email, "full_name": user.full_name}
+```
+
+## 4. Test Register
+
+1. Jalankan FastAPI: `uvicorn app.main:app --reload`
+2. Buka browser ke Swagger UI: `http://127.0.0.1:8000/docs`
+3. Temukan `/register` endpoint, pilih, lalu klik "try it out"
+4. Masukan email, password, full_name, lalu execute
+5. Cek di PostgreSQL: `SELECT * FROM users;`
