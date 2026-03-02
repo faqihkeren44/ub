@@ -1,3 +1,9 @@
+# Table 0f Contents
+
+- [Day 1 - Setup Project](#day-1---setup-project)
+- [Day 2 - Setup Database](#day-2---setup-database)
+- [Day 3]()
+
 # Day 1 - Setup Project
 
 ## 1. Buat Folder Project
@@ -90,7 +96,7 @@ git branch -M main
 git push -u origin main
 ```
 
-# Day 2
+# Day 2 - Setup Database
 
 ## 1. Hubungkan github
 
@@ -374,7 +380,7 @@ class User(Base):
 ### Bedah Kode
 
 - `unique=True`: Email tidak boleh sama
-` `index=True`: Buat index
+- `index=True`: Buat index
 - `nullable=False`: Tidak boleh kosong
 
 Jika sebelumnya sudah pernah membuat table dengan nama `users` tapi struktur kolomnya beda, hapus table itu dengan `DROP TABLE users;`, agar tidak menimbulkan bentrok ketika insert/select.
@@ -396,7 +402,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 Agar program di atas dapat dijalankan, maka perlu install package `pip install passlib[bcrypt]`
 
-## 3. Endpoint Register
+# Day 3
+
+## 99. Endpoint Register
 
 Tambahkan di `app/main.py`:
 
