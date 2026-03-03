@@ -362,7 +362,170 @@ Dalam SQLAlchemy, ada 2 jalur dalam memberikan perintah
 1. **Jalur ORM (Session)**: Mengikuti aturan session yang dibuat. Kalau `autocommit=False`, maka harus `db.commit()`. Contoh yang harus menggunakan `commit` yaitu `INSERT`, `UPDATE`, `DELETE`.
 2. **Jalur Core/Engine (DDL)**: Langkung kirim SQL ke dtaabase lewat engine, tidak pakai session atau commit manual. Bisa dilihat dari code perintahnya `Base.metadata.create_all(bind=engine)`. Yang termasuk transaksi sendiri (implicit commit) yaitu `CREATE TABLE`, `DROP TABLE`, `ALTER TABLE`.
 
-# Day 3
+# Day 3 - Register User
+
+![register-user-workflow](register-user-workflow.jpg)
+
+## 1. Membuat Schemas
+
+Schema berfungsi sebagai cetakan data yang memastikan input dari user sudah benar. Misalnya email tidak pakai simbol @, password kosong, maka FastAPI otomatis menolaknya.
+Berikut kode yang dimasukan ke dalam file `schemas.py`:
+```
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: Optional[str] = None
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    full_name: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+```
+
+`EmailStr` butuh package tambahan bernama `email-validator`, yang tidak ikut ter-install saat install biasa. Jika tidak di-install terlebih dahulu, akan muncul error:
+`ImportError: email-validator is not installed`.
+Oleh karena itu, install dependency yang kurang : `pip install "pydantic[email]"`
+
+### Perbedaan `UserCreate` Dengan `UserOut`
+
+- `UserCreate`: Menerima input data dari user, lalu disimpan ke server.
+- `UserOut`: Respon yang diberikan server ke aplikasi user itu sendiri agar tahu bahwa pendaftaran berhasil.
+*"Akun dengan ID ..., email ..., dan namamu ... sudah terdaftar!"*
+- **Mengapa dipisah?**: Jika data yang masuk dan data yang dikeluarkan untuk memberitahu user tidak dibedakan, secara tidak sengaja server bisa saja mengirimkan kembali `password`. Meskipun sudah di-hash, tapi ini kurang aman.
+- `class Config: from_attributes = True`: Saat mengambil data dari database menggunakan `db.query`, hasilnya berupa objek Python, seperti `user.full_name`. Sedangkan Pydantic bekerja dengan data Dictionary yang diakses dengan kurung siku `user["full_name"]`. `from_attributes = True` adalah penerjemahnya.
+
+## 2. Kelola Koneksi `SessionLocal`
+
+Bayangkan database adalah gedung kantor. Setiap kali ada orang yang ingin daftar (requset), sebuah pintu terbuka. Jika lupa menutup pintu setelah daftar selesai, pintu ini akan terus terbuka. Akhirnya, gedung jadi penuh sesak, dan orang baru tidak bisa masuk lagi.
+
+Oleh karena itu, sekarang buat fungsi kecil bernama `get_db` yang bertugas untuk membuka dan menutup pintu setelah selesai:
+```
+...
+Base.metadata.create_all(bind=engine)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+### Bedah Kode
+
+- `db = SessionLocal`: Di dalam `database.py`, sudah dibuat `SessionLocal = sessionmaker(...)`. Ini pembuatan session. Setiap kali ini dipanggil, maka akan membuat koneksi baru (session) ke database.
+- `yield db`: Endpoint pakai db.
+
+### Generator Function `yield`
+
+Seperti `return`, `yield` juga mengembalikan nilai dari sebuah fungsi. Perbedaannya yaitu:
+
+**`return`**: Fungsi selesai, langung keluar, baris setelahnya tidak dijalankan. Contoh:
+```
+def contoh():
+    return 5
+   print("Halo")
+```
+Maka, `"Halo"` tidak akan tercetak
+
+**`yield`**: Fungsi tidak selesai, tapi berhenti sementara. Ketika dipanggil kembali, baru lanjut. Contoh:
+```
+def contoh()
+    print("A")
+    yield 5
+    print("B")
+```
+Maka, fungsi `contoh()` dijalankan sampai bertemu `yield`, lalu mengirim nilai 5. Fungsi berhenti sementara. Ketika dipanggil lagi, baru `"B"` jalan.
+
+### Visualisasi Tanpa API
+
+Perhatikan contoh di bawah, dan tebak urutan yang akan muncul
+```
+def contoh()
+    print("A")
+    yield "DATA"
+    print("B")
+
+gen = contoh()
+
+print("Step 1")
+value = next(gen)
+print("Step 2:", value)
+next(gen)
+```
+
+Berikut urutan yang akan berjalan:
+1. `gen = contoh()`: Inilah perbedaan generator function `yield` dengan fungsi biasa. Di sini, fungsi `contoh()` tidak akan dijalankan sampai ada perintah `next`.
+2. `print("Step 1")`: Menampilkan string `"Step 1"`
+3. `value = next(gen)`: Artinya jalankan fungsi. Maka `print("A")` dijalankan, ketika bertemu `yield "DATA"`, berhenti (pause), lalu return sementara nilai `"DATA"`.
+4. `print("Step 2:", value)`: Sesuai kode sebelumnya, nilai variabel `value` adalah `"DATA"`. Maka, akan menampilkan `"Step 2: DATA"`.
+5. `next(gen)`: Fungsi berlanjut, baru `print("B")` dijalankan
+
+## 3. Membuat Endpoint `/register`
+
+Tambahkan endpoint baru di `app/main.py`. Tempatkan setelah koneksi `SessionLocal`:
+```
+@app.post("/register", response_model=schemas.UserOut):
+```
+
+## 4. Membuat Fungsi Register
+
+Tambahkan dalam endpoint `/register` yang sudah dibuat:
+```
+def register_user(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
+```
+
+### Bedah Kode
+
+- `user_data: schemas.UserCreate`: FastAPI tau ini Pydantic model, berarti ambil data dari request body. Jadi, saat client kirim request:
+    ```
+    {
+        "email":"a@mail.com",
+        "password": "123",
+        "full_name": "Alif"
+    }
+    ```
+FastAPI akan:
+    1. Ambil JSON
+    2. Validasi menggunakan `schemas.UserCreate`
+    3. Buat objek `UserCreate`
+    4. Masukkan ke parameter `user_data`
+- `db: Session`: `db` adalah parameter fungsi `register_user` yang berisi objek session (parameter yang di-inject oleh FastAPI). Adapun `: Session`, itu adalah hint tipe data. Sama seperti `x: int = 5`.
+- `Dependes(get_db)`: Membuat session.
+
+### Kenapa Import `sqlalchemy.orm import Session`
+
+Memang seandainya tidak menambahkan `: Session`, kode tetap akan jalan. Namun, ini alasan kenapa tetap pakai:
+- Untuk editor/autocomplete seperti VSCode/PyCharm, bisa kasih suggestion seperti `.query()`, `.add()`, `.commit()` karena editor tau `db` itu apa.
+- Tools seperti mypy/pyright akan memakai type hint untuk cek error sebelum runtime
+- Dokumentasi dan clean code agar orang lain yang baca langsung tau *"Oh, ini SQLAlchemy Session"*.
+
+### Dependency Injection
+
+Kenapa tidak ada `next(gen)`? Karena kita menyuruh FastAPI untuk membuatnya (dependency injection).
+Ketika kita memasukan `db: Session = Depends(get_db)` ke dalam parameter fungsi `register_user`, sama saja kita menyuruh FastAPI untuk menyiapkan `db` dari `get_db` terlebih dahulu. Makanya, sebelum masuk baris pertama, di dalam FastAPI membuat kode:
+```
+gen = get_db()
+db = next(gen)
+```
+Akhirnya, parameter fungsi menjadi lengkap (`register_user(user_data, db)`. Setelah selesai, otomatis FastAPI menjalankan:
+```
+next(gen)
+```
+
+Tetap ada
+
+### Bedah Kode
+
+- `EmailStr`: Otomatis memvalidasi apakah format email benar
+- `password: str`: Menerima string polos di sini, yang nanti akan diubah menjadi hash.
+- `Optional`: `full_name` boleh dikosongkan.
 
 ## 1. Buat Model user
 
