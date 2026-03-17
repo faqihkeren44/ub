@@ -1,8 +1,8 @@
-# Table 0f Contents
+# Table of Contents
 
 - [Day 1 - Setup Project](#day-1---setup-project)
 - [Day 2 - Setup Database](#day-2---setup-database)
-- [Day 3]()
+- [Day 3 - Register User](#day-3---register-user)
 
 # Day 1 - Setup Project
 
@@ -519,15 +519,7 @@ Akhirnya, parameter fungsi menjadi lengkap (`register_user(user_data, db)`. Sete
 next(gen)
 ```
 
-Tetap ada
-
-### Bedah Kode
-
-- `EmailStr`: Otomatis memvalidasi apakah format email benar
-- `password: str`: Menerima string polos di sini, yang nanti akan diubah menjadi hash.
-- `Optional`: `full_name` boleh dikosongkan.
-
-## 1. Buat Model user
+## 5. Buat Model user
 
 Di `app/models.py` tambahkan:
 ```
@@ -535,7 +527,7 @@ class User(Base):
     __table__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nuliable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     full_name = Column(String, nullable(True)
 ```
@@ -548,7 +540,7 @@ class User(Base):
 
 Jika sebelumnya sudah pernah membuat table dengan nama `users` tapi struktur kolomnya beda, hapus table itu dengan `DROP TABLE users;`, agar tidak menimbulkan bentrok ketika insert/select.
 
-## 2. Buat Helper Hashing Password
+## 6. Buat Helper Hashing Password
 
 Di folder `app`, buat file baru bernama `utils.py`:
 ```
@@ -565,46 +557,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 Agar program di atas dapat dijalankan, maka perlu install package `pip install passlib[bcrypt]`
 
-# Day 3
-
-## 99. Endpoint Register
-
-Tambahkan di `app/main.py`:
-
-```
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
-from app.database import SessionLocal
-from app.models import User
-from app.utils import hash_password
-
-app = FastAPI()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-@app.post("/register")
-def register_user(email: str, password: str, full_name: str = None, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.email == email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    user = User(
-        email=email,
-        hashed_password=hash_password(password),
-        full_name=full_name
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return {"id": user.id, "email": user.email, "full_name": user.full_name}
-```
-
-## 4. Test Register
+## 7. Test Register
 
 1. Jalankan FastAPI: `uvicorn app.main:app --reload`
 2. Buka browser ke Swagger UI: `http://127.0.0.1:8000/docs`
