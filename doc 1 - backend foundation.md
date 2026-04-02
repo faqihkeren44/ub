@@ -3,6 +3,7 @@
 - [Day 1 - Setup Project](#day-1---setup-project)
 - [Day 2 - Setup Database](#day-2---setup-database)
 - [Day 3 - Register User](#day-3---register-user)
+- [Day 4 - JWT Login](#day-4---jwt-login)
 
 # Day 1 - Setup Project
 
@@ -564,3 +565,138 @@ Agar program di atas dapat dijalankan, maka perlu install package `pip install p
 3. Temukan `/register` endpoint, pilih, lalu klik "try it out"
 4. Masukan email, password, full_name, lalu execute
 5. Cek di PostgreSQL: `SELECT * FROM users;`
+
+# Day 4 - JWT Login
+
+## 1. Apa itu JWT
+
+JWT adalah singkatan jadi JSON Web Token. Sederhananya, JWT itu kartu identitas /ID card digital yang dikasih ke user setelah login. Sama seperti masuk ke gedung, kalau kita punya IDc card, setiap mau masuk ruangan tinggal tunjukin ID cardnya (Gak perlu login ulang).
+
+Di dalam JWT, cuman ada string panjang, yang dibagi menjadi 3 bagian:
+```
+header.payload.signature
+```
+
+### Payload
+
+Isinya:
+```
+{
+    "sub": "user@email.com",
+    "exp": 1710000000
+}
+```
+- sub = siapa usernya
+- exp = kapan token kadaluarsa
+
+## 2. Install Dependency JWT
+
+```
+pip install python-jose[cryptography]
+```
+
+## 3. Setup JWT Config
+
+Buat file baru `app/core/security.py`
+```
+from jose import JWTError, jwt
+from datetime import datetime, timedelta
+
+SECRET_KEY = "secretenv"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES =30
+
+def create_access_token(data: dict):
+    to_encode = data.copy
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    to_decode.update({"exp": expire})
+    encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm= ALGORITHM)
+
+    return encoded_jwt
+```
+
+## 4. Verify Token
+
+Masih di file `app.core.security.py`, tambahkan fungsi ini:
+```
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithm=[ALGORITHM])
+        return payload
+    except JWTError:
+        return None
+```
+
+# 5. Endpoint Login 
+
+Di `routes/auth.py`:
+```
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app import models, schemas
+from app.database import get_db
+from app.core.security import create_access_token
+from passlib.context import CryptContext
+
+router = APIRouter()
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+@router.post("/login")
+def login(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == user_data.email).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not pwd_context.verify(user_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Wrong password")
+
+    access_token = create_access_token(data={"sub": user.email})
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+```
+
+## 6. Schema Login
+
+Di `schemas.py` tambahkan:
+```
+from pydantic import BaseModel
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+```
+
+## 7. Proteksi Route (JWT Required)
+
+Di `dependencies.py`:
+```
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from app.core.security import verify_token
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    payload = verify_token(token)
+
+    if payload is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    return payload
+```
+
+## 8. Pakai di Route
+
+```
+@router.get("/me")
+def get_me(current_user: dict = Depends(get_current_user)):
+    return current_user
+```
