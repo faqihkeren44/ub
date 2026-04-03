@@ -582,12 +582,106 @@ header.payload.signature
 Isinya:
 ```
 {
-    "sub": "user@email.com",
-    "exp": 1710000000
+    "sub": user.id,
+    "exp": exp
 }
 ```
 - sub = siapa usernya
 - exp = kapan token kadaluarsa
+
+`user.id` cukup untuk JWT, tidak perlu email dan password. Karena:
+- `id` itu unik, dan bisa dipakai untuk query ke database.
+- JWT bisa di-decode. Jadi, jangan sampai menyimpan data sensitif.
+- Kalau email berubah, JWT lama jadi ngaco.
+- Single source of truth: Semua data tetap di database. JWT hanya menjadi identitas, bukan sumber data.
+Jadi, ketika ada yang nanya ke JWT "Ini siapa?" dijawab dengan `user.id`, bukan memberitahu semua data user.
+
+### Signature
+
+JWT tidak hanya payload, tapi juga harus di-encode (ditandatangai) menggunakan secret key dan algorithm (biasanya `HS256`). Oleh karena itu, kita perlu fungsi untuk mengubahnya menjadi JWT string. Biasanya di library JWT manapun, polanya selalu `encode(payload, secret_key, algorithm=...)`.
+
+Maka, tambahkan:
+```
+from jose import jwt
+
+token = jwt.encode(payload, SECRET_KEY, algorith="HS256")
+```
+
+### Expired
+
+User sudah memilki password, kenapa harus menggunakan JWT? Inilah perbedaan antara JWT dengan password biasa. Selain agar tidak harus mengisi password berkali kali ketika ganti halaman, JWT memiliki batas waktu penggunaan. Ketika masa berlaku itu sudah selesai (expired), maka JWT yang diberikan tidak bisa digunakan kembali.
+
+Oleh karena itu, perlu ditambahkan:
+```
+from datetime import datetime, timedelta
+
+now = datetime.utcnow() # Mengambil waktu saat ini
+exp = now + timedelta(minutes=30) # Waktu expired JWT 30 menit
+```
+
+### Response endpoint `./login`
+
+```
+{
+    "access_token": "...",
+    "token_type": "bearer"
+}
+```
+
+## 2. Membuat schema baru
+
+Untuk login, kita harus mengambil data dari database untuk mencocokan input login dengan yang ada di database. Maka, kita butuh schema baru di `schemas.py`:
+```
+class UserLogin(BaseModel):
+    email: EmailStr,
+    password: str
+```
+
+## 3. Membuat endpoint `/login`
+
+Sekarang kita buat endpoint untuk login:
+```
+@app.post("/login")
+def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
+    user = db.query(model.User).filter(models.User.email == user_data.email).first()
+
+    if user is None:
+        raise HTTPException(status_code=401, detail="Email atau password salah")
+    
+    plain_password = user_data.password
+    hashed_password = user.password
+
+    if not pwd_context.verify(plain_password, hashed_password):
+        raise HTTPException(status_code=401, detail="Email atau password salah")
+
+    exp = datetime.utcnow() + timedelta(minutes=30)
+    payload = {"sub": str(user.id), "exp": exp}
+
+    token = jwt.encode(payload, SECRET_KEY, algorithm=HS256)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
+```
+
+### Bedah Kode
+
+- `@app.post("/login")`: Login berarti user memasukan data. Karenanya, menggunakan metode post.
+- `user_data: schemas.UserLogin`: Mengambil data dari request body menggunakan format `schemas.UserLogin`.
+- `db: Session = Depends(get_db)`: Membuka pintu agar user bisa mengakses database  untuk login, dan otomatis menutupnya kembali ketika sudah selesai.
+- `user == ...`: Untuk memfilter email yang dimasukan user ada di database atau tidak
+- `if user is None:`: `None` itu singleton (objek unik di Python). Untuk membandingkannya bisa menggunakan `is`, sehingga tidak hanya sekedar cek value, tapi juga identity check. Maka, jika `user` tidak ada di database, jalankan kode di bawahnya.
+- `raise HTTPException(...)`: Menampilkan pesan error dengan status kode 401 (Permintaan gagal karena kredensial autentikasi tidak valid), dan pesan detail.
+- `plain_password`: Diambil dari password yang diisi oleh user (Dari `user_data).
+- `hashed_password`: Diambil dari password yang sudah di hash di database.
+- `if not pwd_context.verify(...)`: Verifikasi apakah `plain_password` yang dimasukan sama dengan `hashed_password`. Jika tidak, jalankan kode di bawahnya.
+
+## 4. Endpoint khusus untuk melihat profil sendiri
+
+Bayangkan di sebuah area gym, kamu sudah datang ke resepsionis, menyerahkan KTP dan memvalidasi dengan password. Resepsionis juga sudah membenarkan, bahwa kamu member gym bernama Fulan. Sebagai ganti KTP, resepsionis memberikan kartu member gym yang bisa dipakai untuk akses masuk ke kamar gym. Kartu member gym itulah yang sudah dibuat barusan (Token JWT/ access token).
+
+Agar kartu member/Token JWT/access token yang di dapat dari resepsionis bisa dikenali, kita perlu membuat alat (endpoint) yang bisa membacanya. Sehingga ketika di depan ruang gym, tidak perlu menyebutkan *"Nama saya Fulan, dengan ID 5"*. Cukup berikan kartu member/access token itu. Endpoint ini biasa dinamakan `/me`, karena singkat, jelas, dan ini nama standar industri di hampir semua API besar.
 
 ## 2. Install Dependency JWT
 
@@ -615,6 +709,11 @@ def create_access_token(data: dict):
 
     return encoded_jwt
 ```
+
+### Bedah Kode
+
+- `datetime.utcnow()`: Mengambil waktu saat ini.
+- `jwt.encode(...)`
 
 ## 4. Verify Token
 
