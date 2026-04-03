@@ -3,6 +3,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.database import engine, SessionLocal, Base
 from app import models, schemas, utils
+from datetime import datetime, timedelta
+from jose import jwt
 
 app = FastAPI ()
 
@@ -48,3 +50,26 @@ def register_user(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return new_user
+
+@app.post("/login")
+def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == user_data.email).first()
+
+    if user is None:
+        raise HTTPException(status_code=401, detail="Email atau password salah")
+
+    plain_password = user_data.password
+    hashed_password = user.password
+
+    if not pwd_context.verify(plain_password, hashed_password):
+        raise HTTPException(status_code=401, detail="Email atau password salah")
+
+    exp = datetime.utcnow()+ timedelta(minutes=30)
+    payload = {"sub": str(user.id), "exp": exp}
+    
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
