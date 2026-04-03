@@ -73,3 +73,21 @@ def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
         "access_token": token,
         "token_type": "bearer"
     }
+
+@app.get("/me")
+def get_me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    user_id = payload["sub"]
+
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+
+    return {
+        "id": user.id,
+        "email": user.email
+    }
