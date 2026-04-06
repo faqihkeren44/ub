@@ -662,7 +662,7 @@ def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
     
     plain_password = user_data.password
     hashed_password = user.password
-
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     if not pwd_context.verify(plain_password, hashed_password):
         raise HTTPException(status_code=401, detail="Email atau password salah")
 
@@ -697,6 +697,7 @@ Agar kartu member/Token JWT/access token yang di dapat dari resepsionis bisa dik
 
 ```
 from fastapi.security import OAuth2PasswordBearer
+# pip install python-jose
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -759,7 +760,7 @@ Dalam standar industri, status kode 401 dapat digunakan untuk memberitahu bahwa 
 ### Manual menggunakan Swagger FastAPI
 
 1. Buka `http://127.0.0.1:8000/docs`.
-2. Test `/register` dengan memasukan email dan password.
+2. Test `/register`, klik "Try it out". Masukan email dan password ke dalam dictionary yang tampil. Klik "Execute"
 3. Pastikan sudah masuk di database.
 4. Test `/login` dengan memasukan email dan password yang tadi dibuat.
 5. Cek output, lalu copy:
