@@ -25,7 +25,7 @@ Ketika user menekan tombol daftar, berikut hal yang terjadi di balik layar:
 5. Membuat objek baru untuk disimpan di dalam database dengan nama `new_user`.
 6. Menyimpan objek `new_user` ke dalam database
 
-Atau seperi inilah jika dianalogikan:<br>
+Atau seperi inilah jika dianalogikan:
 - Ketika ada user yang datang ingin mendaftar (masuk endpoint `/register`), terjadilah prosedur `register_user`.
 - Saat itu juga datanglah `schemas` membawa selembar formulir pendaftaran (`UserCreate`) untuk diisi oleh user. Di dalam lembaran itu sudah ada ketentuan apa saja yang harus diisi, yaitu `email`, `password`, dan `full_name`. Dalam pengisian form tersebut, ada aturan yang wajib dipenuhi user agar formulir nya tidak ditolak.
 - Jika user selesai mengisi form, `schemas` otomatis mengecek form tersebut menggunakan `pydantic`. Kalau formulir sesuai aturan, pintu `Session` terbuka, lalu menyerahkan lembaran formulir itu ke manajer (`main`). Tapi, kalau isi formulir itu ada yang tidak sesuai aturan tadi, otomatis lembaran form itu langsung ditolak di tempat.
@@ -33,3 +33,65 @@ Atau seperi inilah jika dianalogikan:<br>
 - Balik lagi ke divisi `models`. Setelah dapet password baru dari `utils`, `models` bikin baris baru di excel `database`, terus ngetik ulang form ke database (dibuat `new_user`).
 - Kalau mau, di sini bisa dilakukan pengecekan lagi sebelum disimpan di `database`. Kalau yakin, baru manajer memerintahkan `add`, `commit` untuk menyimpan di `database`. 
 - Kalo nanti `schemas` minta jawaban form tadi, bagian `models` bisa ngasih sesuai yang diminta `schemas` (misal minta gak pake `password`). `schemas` bisa datang lagi ke user buat ngasih tau kalo pendaftarannya udah selesai, dan dapet nomor id sekian.
+
+# Day 5 - 
+
+## 1. Model Database Produk
+
+Kita membutuhkan tabel untuk menyimpan detail setiap produk. Oleh karena itu, kita harus mendefinisikannya di `app/models.py`:
+```
+from sqlalchemy import Column, Integer, String, Float
+from .database import Base
+
+class Product(Base):
+    __tablename__ = "product"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    description = Column(String)
+    price = Column(Float)
+    stock = Column(Integer)
+```
+
+## 2. Skema Pydantic
+
+Selanjutnya, definisikan bagaimana data produk dikirim dan diterima melalui API di file `app/schemas.py`:
+```
+from pydantic import BaseModel
+
+class ProductBase(BaseModel):
+    name: str
+    description: str
+    price: float
+    stock: int
+
+class ProductCreate(ProductBase):
+    pass
+
+class ProductOut(ProductBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+```
+
+## 3. Endpoint `/products`
+
+Untuk menampilkan produk, tambahkan fungsionalitas:
+```
+@app.get("/products", response_model=list[schemas.ProductOut])
+def get_products(db: Session = Depends(get_db)):
+    products = db.query(models.Product).all()
+    return products
+```
+
+Untuk menambah produk, tambahkan:
+```
+@app.post("/products", response_model=schemas.ProductOut)
+def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+    new_product = models.Product(**product.dict())
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+    return new_product
+```

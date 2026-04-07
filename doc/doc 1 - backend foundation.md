@@ -1,8 +1,9 @@
-# Table of Contents
+# Table 0f Contents
 
 - [Day 1 - Setup Project](#day-1---setup-project)
 - [Day 2 - Setup Database](#day-2---setup-database)
 - [Day 3 - Register User](#day-3---register-user)
+- [Day 4 - JWT Login](#day-4---jwt-login)
 
 # Day 1 - Setup Project
 
@@ -243,7 +244,7 @@ SQLAlchemy adalah library Python untuk berinteraksi dengan database menggunakan 
 
 ### Kenapa Harus Ada Base?
 
-Karena SQLAlchemy perlu tahu class mana yang table, nama table nya apa, kolomnya apa saka, primary key nya yang mana, dsb. Semua itu didaftakan ke `Base`. 
+Karena SQLAlchemy perlu tahu class mana yang table, nama table nya apa, kolomnya apa saja, primary key nya yang mana, dsb. Semua itu didaftakan ke `Base`. 
 Contoh, misalkan membuat sebuah model:
 ```
 class User(Base):
@@ -564,3 +565,232 @@ Agar program di atas dapat dijalankan, maka perlu install package `pip install p
 3. Temukan `/register` endpoint, pilih, lalu klik "try it out"
 4. Masukan email, password, full_name, lalu execute
 5. Cek di PostgreSQL: `SELECT * FROM users;`
+
+# Day 4 - JWT Login
+
+## 1. Apa itu JWT
+
+JWT adalah singkatan jadi JSON Web Token. Sederhananya, JWT itu kartu identitas /ID card digital yang dikasih ke user setelah login. Sama seperti masuk ke gedung, kalau kita punya IDc card, setiap mau masuk ruangan tinggal tunjukin ID cardnya (Gak perlu login ulang).
+
+Di dalam JWT, cuman ada string panjang, yang dibagi menjadi 3 bagian:
+```
+header.payload.signature
+```
+
+### Payload
+
+Isinya:
+```
+{
+    "sub": user.id,
+    "exp": exp
+}
+```
+- sub = siapa usernya
+- exp = kapan token kadaluarsa
+
+`user.id` cukup untuk JWT, tidak perlu email dan password. Karena:
+- `id` itu unik, dan bisa dipakai untuk query ke database.
+- JWT bisa di-decode. Jadi, jangan sampai menyimpan data sensitif.
+- Kalau email berubah, JWT lama jadi ngaco.
+- Single source of truth: Semua data tetap di database. JWT hanya menjadi identitas, bukan sumber data.
+Jadi, ketika ada yang nanya ke JWT "Ini siapa?" dijawab dengan `user.id`, bukan memberitahu semua data user.
+
+### Signature
+
+JWT tidak hanya payload, tapi juga harus di-encode (ditandatangai) menggunakan secret key dan algorithm (biasanya `HS256`). Oleh karena itu, kita perlu fungsi untuk mengubahnya menjadi JWT string. Biasanya di library JWT manapun, polanya selalu `encode(payload, secret_key, algorithm=...)`.
+
+Maka, tambahkan:
+```
+from jose import jwt
+
+token = jwt.encode(payload, SECRET_KEY, algorith="HS256")
+```
+
+### Expired
+
+User sudah memilki password, kenapa harus menggunakan JWT? Inilah perbedaan antara JWT dengan password biasa. Selain agar tidak harus mengisi password berkali kali ketika ganti halaman, JWT memiliki batas waktu penggunaan. Ketika masa berlaku itu sudah selesai (expired), maka JWT yang diberikan tidak bisa digunakan kembali.
+
+Oleh karena itu, perlu ditambahkan:
+```
+from datetime import datetime, timedelta
+
+now = datetime.utcnow() # Mengambil waktu saat ini
+exp = now + timedelta(minutes=30) # Waktu expired JWT 30 menit
+```
+
+### Alur sebenarnya
+
+1. Ketika user selesai login dan berhasil, server (`POST /login`) return token:
+```
+{
+    "access_token": "...",
+    "token_type": "bearer"
+}
+```
+2. Frontend menyimpan token itu. Biasanya di localStorage, memory, atau cookie.
+3. Saat user klik sesuatu (Misalkan klik profile), frontend request `GET /me`, dan frontend otomatis menambahkan header menjadi `Authorization: Bearer <token>` (Ini bukan otomatis dari HTTP, tapi otomatis dari kode frontend).
+
+Contohnya, kalau pakai JavaScript:
+```
+fetch("/me", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+})
+```
+
+## 2. Membuat schema baru
+
+Untuk login, kita harus mengambil data dari database untuk mencocokan input login dengan yang ada di database. Maka, kita butuh schema baru di `schemas.py`:
+```
+class UserLogin(BaseModel):
+    email: EmailStr,
+    password: str
+```
+
+## 3. Membuat endpoint `/login`
+
+Sekarang kita buat endpoint untuk login:
+```
+@app.post("/login")
+def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
+    user = db.query(model.User).filter(models.User.email == user_data.email).first()
+
+    if user is None:
+        raise HTTPException(status_code=401, detail="Email atau password salah")
+    
+    plain_password = user_data.password
+    hashed_password = user.password
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    if not pwd_context.verify(plain_password, hashed_password):
+        raise HTTPException(status_code=401, detail="Email atau password salah")
+
+    exp = datetime.utcnow() + timedelta(minutes=30)
+    payload = {"sub": str(user.id), "exp": exp}
+
+    token = jwt.encode(payload, SECRET_KEY, algorithm=HS256)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
+```
+
+### Bedah Kode
+
+- `@app.post("/login")`: Login berarti user memasukan data. Karenanya, menggunakan metode post.
+- `user_data: schemas.UserLogin`: Mengambil data dari request body menggunakan format `schemas.UserLogin`.
+- `db: Session = Depends(get_db)`: Membuka pintu agar user bisa mengakses database  untuk login, dan otomatis menutupnya kembali ketika sudah selesai.
+- `user == ...`: Untuk memfilter email yang dimasukan user ada di database atau tidak
+- `if user is None:`: `None` itu singleton (objek unik di Python). Untuk membandingkannya bisa menggunakan `is`, sehingga tidak hanya sekedar cek value, tapi juga identity check. Maka, jika `user` tidak ada di database, jalankan kode di bawahnya.
+- `raise HTTPException(...)`: Menampilkan pesan error dengan status kode 401 (Permintaan gagal karena kredensial autentikasi tidak valid), dan pesan detail.
+- `plain_password`: Diambil dari password yang diisi oleh user (Dari `user_data).
+- `hashed_password`: Diambil dari password yang sudah di hash di database.
+- `if not pwd_context.verify(...)`: Verifikasi apakah `plain_password` yang dimasukan sama dengan `hashed_password`. Jika tidak, jalankan kode di bawahnya.
+
+## 4. Endpoint khusus untuk melihat profil sendiri
+
+Bayangkan di sebuah area gym, kamu sudah datang ke resepsionis, menyerahkan KTP dan memvalidasi dengan password. Resepsionis juga sudah membenarkan, bahwa kamu member gym bernama Fulan. Sebagai ganti KTP, resepsionis memberikan kartu member gym yang bisa dipakai untuk akses masuk ke kamar gym. Kartu member gym itulah yang sudah dibuat barusan (Token JWT/ access token).
+
+Agar kartu member/Token JWT/access token yang di dapat dari resepsionis bisa dikenali, kita perlu membuat alat (endpoint) yang bisa membacanya. Sehingga ketika di depan ruang gym, tidak perlu menyebutkan *"Nama saya Fulan, dengan ID 5"*. Cukup berikan kartu member/access token itu. Endpoint ini biasa dinamakan `/me`, karena singkat, jelas, dan ini nama standar industri di hampir semua API besar.
+
+```
+from fastapi.security import OAuth2PasswordBearer
+# pip install python-jose
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+@app.get("/me")
+def get_me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    user_id = payload["sub"]
+
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+
+    return {
+        "id": user.id,
+        "email": user.email
+    }
+```
+
+### Bedah Kode
+- `token: str`: Penanda bahwa isi dari variabel token adalah str.
+- `Depends(oauth2_scheme)`: Ambil header `Authorization`, ambil bagian `<token>`nya, simpan ke variabel `token`. Jika user tidak mengimkan header, otomatis FastAPI (`OAuth2PasswordBearer`) langsung kirim `{"detail": "Not authenticated"}`, status `401 Unauthorized`.
+- `db = Depends(get_db)`: Karena nanti akan mengambil data yang ada di database, maka otomatis harus membuka pintu akses ke databasenya.
+- `try:... except:...`: Melakukan pengujian membongkar isi token. Jika invalid, maka akan menampilkan bagian `except` (error).
+- `jwt.decode(...)`: Decode token yang didapat. Maka, isi yang didapat adalah dictionary payload `{"sub": str(user.id), "exp": exp}`. Lalu kita simpan ke dalam variabel `payload`.
+- `payload["sub"]`: Dari dict `payload`, ambil isi dengan kata kunci `"sub"`.
+- `db.query(models.User)`: Memberitahu SQLAlchemy untuk mencari di `models.User`.
+- `.filter(models.User.id == user_id)`: Pilih dengan nomor id yang sama dengan `user_id` (seperti `WHERE` di bahasa SQL).
+- `.first`: Mengambil data pertama yang didapat.
+- `if user in None`: Kalau `user` tidak ada di database, maka jalankan kode di bawahnya (menampilkan pesan error).
+
+### Fungsi `try-except`
+
+Fungsi `jwt.decode` didesain untuk meledak (menampilkan error) ketika tokennya salah. Bayangkan 2 skenario saat seseorang masuk dengan token palsu:
+1. Tanpa `try-except`: Server akan mengirimkan pesan error asli
+`AttributeError: 'NoneType' object has no attribute 'get' in jwt_decoder.py line 45`.
+Akibatnya, hacker jadi tahu *Oh, ini pakai library JWT versi ini, dan kodenya pecah di bagian ini*
+2. Pakai `try-except`: Server mengirim `{"detail": "Invalid credentials"}`. Hacker  cuma bisa gigit jari, gak tahu kenapa kodenya gagal.
+
+Dalam membongkar brangkas (decode token JWT), ada banyak hal yang bisa terjadi:
+- Brangkasnya palsu (Invalid token)
+- Kuncinya salah (Wrong secret key)
+- Isi brangkasnya kadaluarsa (Expired token)
+Jika ditulis `except Exception:`, maka artinya sama saja bilang ke Python
+*Apapun masalahnya (Entah kuncinya salah atau palus), kalau ada error di bagian `try`, langsung jalankan `raise HTTPException`.*
+
+### Status 401
+
+Dalam standar industri, status kode 401 dapat digunakan untuk memberitahu bahwa authentication gagal:
+- User tidak dapat ditemukan di database saat login
+- Password salah
+- Token invalid
+- Token benar, tapi user di database sudah dihapus
+
+## 5. Cek Hasil
+
+### Manual menggunakan Swagger FastAPI
+
+1. Buka `http://127.0.0.1:8000/docs`.
+2. Test `/register`, klik "Try it out". Masukan email dan password ke dalam dictionary yang tampil. Klik "Execute"
+3. Pastikan sudah masuk di database.
+4. Test `/login` dengan memasukan email dan password yang tadi dibuat.
+5. Cek output, lalu copy:
+```
+{
+    "access_token": "...",
+    "token_type": "bearer"
+}
+```
+6. Test `/me`. Di Swagger, klik Authorize, lalu isi `Bearer <token>`. Jalankan `/me`. Maka harus keluar:
+```
+{
+    "id": 1,
+    "email": ...
+}
+```
+
+# Result
+
+## Fase 1: Register (Pembuatan akun)
+
+1. User kirim email dan password
+2. Server hash password, lalu simpan di database, dan kasih respon *"Akun berhasil dibuat*
+
+## Fase 2: Login
+
+1. User kirim email dan password
+2. Server cek ke database, kalau benar membuat JWT
+
+## Fase 3: Akses data
+
+1. User kirim `Authorization: Bearer <token>`
+2. Server decode JWT, ambil `user_id`, terus dicari di database. Kalau ketemu kasih data ke user.

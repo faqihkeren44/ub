@@ -2,12 +2,12 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.database import engine, SessionLocal, Base
+from app.config import SECRET_KEY
 from app import models, schemas, utils
 from datetime import datetime, timedelta
 from jose import jwt
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
-import os
 
 app = FastAPI ()
 
@@ -20,8 +20,6 @@ def get_db():
     finally:
         db.close()
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-
 @app.get("/health")
 def health_check():
     try:
@@ -31,7 +29,6 @@ def health_check():
     except Exception as e:
         return {"status": "error", "database": "disconnected", "error": str(e)}
 
-#ENDPOINT PENDAFTARAN
 @app.post("/register", response_model=schemas.UserOut)
 def register_user(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     # Cek apakah email sudah terdaftar
@@ -56,7 +53,7 @@ def register_user(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
 
     return new_user
 
-@app.post("/cek")
+@app.post("/login")
 def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == user_data.email).first()
     if user is None:
@@ -71,38 +68,6 @@ def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
     exp = datetime.utcnow()+ timedelta(minutes=30)
     payload = {"sub": str(user.id), "exp": exp}
     
-    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-from fastapi.security import OAuth2PasswordRequestForm # 1. Import ini
-
-@app.post("/login")
-# 2. Ganti schemas.UserLogin jadi OAuth2PasswordRequestForm
-def login_user(user_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    
-    # 3. OAuth2 menggunakan istilah 'username', jadi kita panggil user_data.username
-    # (Tenang, user tetap bisa ngetik email di kotak username itu)
-    user = db.query(models.User).filter(models.User.email == user_data.username).first()
-    
-    if user is None:
-        raise HTTPException(status_code=401, detail="Email atau password salah")
-
-    plain_password = user_data.password
-    hashed_password = user.hashed_password
-    
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    if not pwd_context.verify(plain_password, hashed_password):
-        raise HTTPException(status_code=401, detail="Email atau password salah")
-
-    # Bagian Token JWT sudah mantap!
-    exp = datetime.utcnow() + timedelta(minutes=30)
-    payload = {"sub": str(user.id), "exp": exp}
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
     return {
