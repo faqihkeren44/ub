@@ -57,13 +57,15 @@ class Product(Base):
 
 Selanjutnya, definisikan bagaimana data produk dikirim dan diterima melalui API di file `app/schemas.py`:
 ```
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Optional
+from decimal import Decimal
 
 class ProductBase(BaseModel):
-    name: str
-    description: str
-    price: float
-    stock: int
+    name: str = Field(..., min_length=3)
+    description: Optional[str] = None
+    price: Decimal = Field(..., gt=0)
+    stock: int = Field(default=0, ge=0)
 
 class ProductCreate(ProductBase):
     pass
@@ -74,6 +76,13 @@ class ProductOut(ProductBase):
     class Config:
         from_attributes = True
 ```
+
+### Bedah Kode:
+- `from decimal import Decimal`: Karena di `models.py` menggunakan `Numeric`, di sini menggunakan `Decimal`. Ini jauh lebih aman untuk perhitungan uang daripada `float`.
+- `ProductBase`: Fondasi yang berisi semua informasi umum produk
+- `ProductCreate`: 
+- `pass`: Turunan dari `ProductBase`. Jadi mengikuti semua field dari `ProductBase` tanpa tambahan apapun.
+- `ProductOut`: Digunakan untuk mengirim data dari server ke aplikasi user.
 
 ## 3. Endpoint `/products`
 
@@ -88,10 +97,25 @@ def get_products(db: Session = Depends(get_db)):
 Untuk menambah produk, tambahkan:
 ```
 @app.post("/products", response_model=schemas.ProductOut)
-def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
-    new_product = models.Product(**product.dict())
+def input_product(product_data:schemas.ProductCreate, db: Session = Depends(get_db)):
+    new_product = models.Product(**product_data.dict())
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
     return new_product
+```
+
+### Bedah Kode `**product.dict()`
+
+Pada `product_data.dict()`, data dalam schema Pydantic diubah menjadi dictionary: `{"name": "Laptop", "price": 5000, ...}.
+
+Simbol `**` disebut Dictionary Unpacking, fungsinya untuk membongkar isi dictionary tersebut menjadi argumen untuk model SQLAlchemy: `name="Laptop", price=500, ...`.
+
+Ini jauh lebih ringkas daripada menulis satu-satu: 
+```
+new_product = models.Product(
+    name=product_data.name, 
+    price=product_data.price, 
+    ...
+)
 ```

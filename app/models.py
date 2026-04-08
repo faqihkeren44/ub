@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text, Numeric
 from app.database import Base
 
 class TestTable(Base):

@@ -48,3 +48,77 @@ Inilah bahasa universal internet. Semua perangkat (Mobile, PC, Smart TV, dll) me
   "price": 5000.0
 }
 ```
+
+Secara visual, JSON mirip dengan Python Dictionary. Keduanya menggunakan kurung kurawal `{}`, memiliki key (kunci) dan value (nilai). Namun, ada perbedaan mendasar dalam status mereka di program:
+- Dictionary: Struktur data internal Python yang hidup di RAM saat program berjalan. Bisa langsung menambah data, menghapus, atau diterapkan fungsi.
+- JSON: Teks string biasa yang mengikuti aturan penulisan tertentu. Karena bentuknya teks biasa, JSON bisa dibaca oleh bahasa pemrograman apa pun.
+
+Selain itu, ada beberapa aturan penulisan yang berbeda:
+| Fitur | Python Dictionary | JSON (Teks) |
+| :---: | :---: | :---: |
+| Tanda Kutip | Boleh tunggal (`'`) atau ganda (`"`) | Wajib tanda kutip ganda (`"`) |
+| Nilain Boolean | Ditulis `True` atau `False` (Huruf besar) | Ditulis `true` atau `false` (Huruf kecil) |
+| Nilai Kosong | Ditulis `None` | Ditulis `null` |
+| Trailing Comma | Boleh ada koma di item terakhir | Tidak boleh ada koma di item terakhir |
+
+### Kenapa Ini Penting?
+
+Di backend e-commerce, prosesnya akan seperti inii:
+1. Database: Menyimpan data (Format Tabel).
+2. SQLAlchemy: Begitu menjalankan `db.query()`, SQLAlchemy menarik data ke Python (Format Object).
+3. Pydantic: FastAPI menggunakan Schema (Pydantic) untuk membedah objek tersebut. Pydantic mengambil atribut-atributnya dan mengubahnya menjadi Python Dictionary.
+4. FastAPI (JSON String): Mengambil dictionary tersebut dan melakukan JSON Encoding (mengubah `{}` menjadi teks `"{"..."}"`) untuk dikirim melalui internet.
+4. Aplikasi Mobile/PC: Menerima string JSON, lalu mengubahnya kembali menjadi objek di bahasa mereka masing-masing (misal menjadi Map di Flutter atau Object di JavaScript).
+
+# Format Penulisan
+
+### `BaseModel`
+
+Dalam Pydantic, kita menggunakan class yang mewarisi (turunan) dari `BaseModel`. Ini adalah syarat mutlak agar class yang dibuat bisa melakukan validasi otomatis dan mengubahnya menjadi dictionary.
+Untuk menggunakannya, perlu menginstall library Pydantic dengan:
+```
+pip install pydantic
+```
+Selanjutnya, di dalam file `schemas.py`, panggil dengan perintah:
+```
+from pydantic import BaseModel
+```
+
+## Simbol
+
+### 1. Titik Dua (`:`) - Type Hinting
+
+Digunakan untuk menentukan Tipe Data. Ini memberi tahu Python dan Pydantic *"Variabel ini harus berupa tipe ini"*. Contoh:
+- `id: int`: Artinya `id` harus berupa angka bulat.
+- `name: str`: Artinya `name` harus berupa teks.
+
+### 2. Sama Dengan (`=`) - Default Value
+
+Digunakan untuk memberikan Nilai Awal (Default). Jika user tidak mengirimkan data, maka nilai inilah yang akan digunakan. Contoh:
+- `is_active: bool = True`: Jika tidak diisi, otomatis dianggap True.
+- `price: float = 0.0`: Jika tidak diisi, otomatis dianggap 0.0.
+
+### 3. Kurung Siku (`[]`) - Generic Types
+
+Memberikan detail tambahan pada sebuah tipe data. Contoh:
+- `full_name: Optional[str]`: Artinya `full_name` berupa sting. Tapi, kalau user mengirim `null` atau `None`, itu boleh-boleh saja. Tanpa `Optional`, jika kamu hanya menulis `full_name: str = None`, beberapa alat pengecek kode (linter) mungkin akan protes: 
+*"Lho, katanya tipe datanya string (`str`), kok kamu kasih nilai default `None`? `None` kan bukan string!"*
+- `tags: list[str]`: Artinya field `tags` berisi kumpulan teks (contoh: `["elektornik", "laptop"]`.
+
+# Parameter
+
+- `Field(..., ...)`: Titik tiga (Ellipsis) berarti wajib diisi. Bisa ditambah argumen `default=...`.
+- `min_length=3`/`max_length=255`: Minimal memiliki 3 karakter, maksimal 255 karakter.
+- `Decimal`: 
+- `gt=0`: Singkatan dari Greater Than. Harga wajib di atas 0. Tidak boleh gratis atau minus.
+- `ge=0`: Singkatan dari Greater or Equal. Stok boleh 0, tapi tidak boleh -1.
+
+# Akhir
+
+```
+class Config:
+    from_attributes = True
+```
+
+Baris itulah yang memberikan instruksi kepada Pydantic:
+*"Ambil Object dari SQLAlchemy, lalu preteli isinya menjadi Dictionary supaya bisa kita jadikan JSON."*

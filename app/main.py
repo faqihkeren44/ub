@@ -75,6 +75,8 @@ def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
         "token_type": "bearer"
     }
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
 @app.get("/me")
 def get_me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
@@ -92,3 +94,16 @@ def get_me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
         "id": user.id,
         "email": user.email
     }
+
+@app.get("/products", response_model=list[schemas.ProductOut])
+def get_products(db: Session = Depends(get_db)):
+    products = db.query(models.Product).all()
+    return products
+
+@app.post("/products", response_model=schemas.ProductOut)
+def input_product(product_data:schemas.ProductCreate, db: Session = Depends(get_db)):
+    new_product = models.Product(**product_data.dict())
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+    return new_product
