@@ -1,6 +1,6 @@
 # Role Management
 
-# Day 1 - Memperbarui Database
+# Day 6 - Memperbarui Database
 
 ## 1. Urgensi
 
@@ -83,7 +83,7 @@ def upgrade() -> None:
     op.add_column('users', sa.Column('is_admin', sa.Boolean(), nullable=False, server_default='true'))
 ```
 
-##. 5. Eksekusi
+## 5. Eksekusi
 
 Jalankan di terminal:
 ```
@@ -105,6 +105,6 @@ Jika ingin mengubah nilai `is_admin` pada data user yang sudah dimasukan, gunaka
 UPDATE users SET is_admin = false WHERE email = user@example.com;
 ```
 
-## Day 2 - Penerapan
+## Day 7 - Penerapan
 
 ### 
