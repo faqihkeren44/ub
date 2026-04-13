@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
 class UserOut(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
+    is_admin: bool
     
     class Config:
         from_attributes = True

@@ -95,6 +95,12 @@ def get_me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
         "email": user.email
     }
 
+def check_admin_role(db: Session = Depends(get_db)):
+     if current_user == True:
+          pass
+     else:
+          raise HTTPException(status_code=304, detail="Access is forbidden")
+
 @app.get("/products", response_model=list[schemas.ProductOut])
 def get_products(db: Session = Depends(get_db)):
     products = db.query(models.Product).all()
