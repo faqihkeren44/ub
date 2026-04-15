@@ -107,4 +107,25 @@ UPDATE users SET is_admin = false WHERE email = user@example.com;
 
 ## Day 7 - Penerapan
 
-### 
+### Struktur Folder Proyek
+
+├── app/                      # Folder utama aplikasi (Python Package)
+│   ├── __init__.py           # Menandakan folder ini adalah package
+│   ├── main.py               # Titik masuk utama (Entry point) API
+│   ├── models.py             # Definisi tabel database (SQLAlchemy)
+│   ├── schemas.py            # Definisi validasi data (Pydantic)
+│   ├── database.py           # Pengaturan koneksi database
+│   ├── config.py             # Pengaturan environment (.env)
+│   ├── oauth2.py             # Logika keamanan & JWT Token
+│   ├── dependencies.py       # Fungsi "Satpam" (Role checker)
+│   └── routers/              # Folder khusus rute/endpoint
+│       ├── __init__.py
+│       ├── users.py          # Endpoint terkait User (Register, Login)
+│       └── products.py       # Endpoint terkait Produk
+├── alembic/                  # Folder migrasi database
+│   ├── versions/             # File histori perubahan tabel
+│   ├── env.py                # Konfigurasi penghubung Alembic & App
+│   └── script.py.mako        # Template migrasi
+├── .env                      # File rahasia (Password & URL DB)
+├── alembic.ini               # Konfigurasi utama Alembic
+└── requirements.txt          # Daftar library yang diinstal
