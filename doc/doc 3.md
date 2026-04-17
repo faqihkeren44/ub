@@ -105,19 +105,21 @@ Jika ingin mengubah nilai `is_admin` pada data user yang sudah dimasukan, gunaka
 UPDATE users SET is_admin = false WHERE email = user@example.com;
 ```
 
-## Day 7 - Penerapan
+# Day 7 - Penerapan
 
-### Struktur Folder Proyek
+## 1. Struktur Folder Proyek
 
+```
 ├── app/                      # Folder utama aplikasi (Python Package)
 │   ├── __init__.py           # Menandakan folder ini adalah package
+│   ├── config.py             # Pengaturan environment (.env)
+│   ├── database.py           # Pengaturan koneksi database
 │   ├── main.py               # Titik masuk utama (Entry point) API
 │   ├── models.py             # Definisi tabel database (SQLAlchemy)
 │   ├── schemas.py            # Definisi validasi data (Pydantic)
-│   ├── database.py           # Pengaturan koneksi database
-│   ├── config.py             # Pengaturan environment (.env)
 │   ├── oauth2.py             # Logika keamanan & JWT Token
-│   ├── dependencies.py       # Fungsi "Satpam" (Role checker)
+│   ├── dependencies.py       # Fungsi role checker
+│   ├── utils/                # Fungsi untuk enkripsi password
 │   └── routers/              # Folder khusus rute/endpoint
 │       ├── __init__.py
 │       ├── users.py          # Endpoint terkait User (Register, Login)
@@ -129,3 +131,101 @@ UPDATE users SET is_admin = false WHERE email = user@example.com;
 ├── .env                      # File rahasia (Password & URL DB)
 ├── alembic.ini               # Konfigurasi utama Alembic
 └── requirements.txt          # Daftar library yang diinstal
+```
+
+## 2. `app/routers/products.py`
+
+Pindahkan logika terkait produk dari `main.py` ke sini. Sebagai pengganti `@app`, gunakan `.APIRouter`:
+```
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List
+from .. import models, schemas, database
+
+router = APIRouter(
+    profix="/products",
+    tags=['Products']
+)
+
+get_db = database.get_db
+
+@app.get("/products", response_model=list[schemas.ProductOut])
+def get_products(db: Session = Depends(get_db)):
+    products = db.query(models.Product).all()
+    return products
+
+@app.post("/products", response_model=schemas.ProductOut)
+def input_product(product_data:schemas.ProductCreate, db: Session = Depends(get_db)):
+    new_product = models.Product(**product_data.dict())
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+    return new_product
+```
+
+### Bedah Kode
+- `prefix="/products"`: Artinya, semua fungsi di dalam file ini secara otomatis akan dimulai dengan `/products`. 
+Jika membuat `@router.get("/")`, alamat aslinya jadi `/products/`.
+Jika membuat `@router.get("/{id}")`, alamat aslinya jadi `/products/{id}`.
+- `tags=['Products']`: Ini untuk estetika dan organisasi di Dokumentasi Swagger (`/docs`). Semua rute di file ini akan dikelompokkan dalam folder `Products`.
+
+### API Router
+
+Dalam sebuah proyek kecil, biasanya semua rute/endpoint (`/login`, `/register`, `/products`) ditulis menumpuk dalam satu file `main.py`. Masalahnya, kalau aplikasi terus berkembang menjadi puluhan atau ratusan rute, tentu akan pusing mencarinya.
+
+Sekarang bayangkan mall besar seperti Granda Indonesia atau Pakuwon Mall. Dalam operasionalnya, dibagi menjadi beberapa departemen atau sayap (wing).
+- Sayap A: Khusus Fashion.
+- Sayap B: Khusung Food Court.
+- Sayap C: Khusus ELektronik.
+`APIRouter` adalah gambaran dari departemen atau sayap tersebut. Mereka mengatur urusan masing-masing tanpa mengganggu sayap lain. `main.py` bertugas sebagai Lobi Utama yang menghubungkan semua sayap tersebut agar pengunjung bisa masuk ke mana saja.
+
+Ketika terjadi kesalahan di bagian Produk, tidak perlu menyentuh kode User. Cukup pergi ke sayap produk (`app/routers/products.py`) dan memperbaikinya di sana.
+
+Dalam kerja sama tim, satu orang bisa fokus di `products.py`, orang lain di `users.py`, tanpa harus rebutan mengedit file `main.py` yang sama.
+
+### Router, Route, Endpoint
+
+1. Router (`router = APIRouter(...))`: Objek untuk mengelompokan tugas.
+2. Endpoint (`POST /products/`): Gabungan lengkap dari Route (`/products/`) dan HTTP Method (`POST`). Inilah titik akhir di mana data data `product` diterima dan diproses oleh fungsi (misal oleh `create_product`).
+3. Route / Rute (`/products/`) : Jalur atau alamat URL yang dituju. Karena di router `prefix="/products"` dan menggunakan `"/"` di dekorator fungsi, maka route-nya atau alamat yang diketik user di browser adalah gabungan keduanya (`/products/`). 
+
+## 3. `app/routers/user.py`
+
+Seperti sebelumnya, pertama definisikan dulu `APIRouter`:
+```
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from .. import models, schemas, database, utils
+
+router = APIRouter(
+    prefix="/users",
+    tags=['Users']
+)
+```
+
+Selanjutnya tinggal copy endpoint `/register` dari file `main.py` ke `routers/users.py`.
+```
+@router.post("/", response_model=schemas.UserOut)
+def register_user(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
+    ...
+```
+
+## 4. Hubungan Antar File
+
+Sekarang, hapus kode itu dari `main.py`, ganti dengan memanggil router yang dibuat:
+```
+from .routers import products
+
+app = FastAPI()
+
+app.include_router(products.router)
+
+@app.get("/")
+def root():
+    return {"message": "Selamat datang di API UB!"}
+```
+
+### Bedah kode
+
+- `from .router import products`: Import departemen atau rute nya.
+- `app.include_router(products.router)`: Agar FastAPI tau rute-rute di file `products.py`.

@@ -1,0 +1,167 @@
+/* --- 1. CSS Reset & Dasar --- */
+:root {
+    --stripe-purple: #635bff;
+    --stripe-blue: #00d4ff;
+    --stripe-dark: #0a2540;
+    --text-light: #ffffff;
+    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--stripe-dark);
+    background-color: #ffffff;
+    overflow-x: hidden; /* Mencegah scroll horizontal karena gradient */
+}
+
+/* --- 2. Komponen Umum --- */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.btn-dark {
+    background-color: var(--stripe-dark);
+    color: var(--text-light);
+}
+
+.btn-dark:hover {
+    background-color: #1a3a5a;
+    transform: translateY(-1px);
+}
+
+.btn-light {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-light);
+    margin-left: 10px;
+}
+
+.btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* --- 3. Header / Navigasi (Sederhana) --- */
+header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    z-index: 10; /* Di atas gradient */
+}
+
+.nav-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-light);
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-light);
+    font-weight: 500;
+    font-size: 15px;
+    opacity: 0.9;
+}
+
+.nav-links a:hover {
+    opacity: 1;
+}
+
+/* --- 4. Hero Section (Kunci Desain Stripe) --- */
+.hero {
+    position: relative;
+    padding-top: 200px; /* Ruang untuk header */
+    padding-bottom: 150px;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+/* Efek Gradient Diagonal Stripe */
+.hero-bg-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Warna gradient khas Stripe */
+    background: linear-gradient(
+        150deg, 
+        var(--stripe-purple) 15%, 
+        #5333ed 40%, 
+        var(--stripe-blue) 70%, 
+        #44ff9a 95%
+    );
+    /* Membuat potongan diagonal */
+    transform: skewY(-6deg);
+    transform-origin: top left;
+    z-index: -1; /* Di bawah konten */
+}
+
+.hero-content {
+    text-align: left;
+    color: var(--text-light);
+    max-width: 650px;
+    z-index: 1;
+}
+
+.hero h1 {
+    font-size: 70px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+}
+
+.hero p {
+    font-size: 19px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+/* --- 5. Responsif (Mobile) --- */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 40px;
+    }
+    .hero p {
+        font-size: 17px;
+    }
+    .nav-links {
+        display: none; /* Sembunyikan menu di mobile */
+    }
+}

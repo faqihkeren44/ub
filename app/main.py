@@ -8,8 +8,11 @@ from datetime import datetime, timedelta
 from jose import jwt
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
+from .routers import products
 
 app = FastAPI ()
+
+app.include_router(products.router)
 
 Base.metadata.create_all(bind=engine)
 
@@ -20,6 +23,10 @@ def get_db():
     finally:
         db.close()
 
+@app.get("/")
+def root():
+    return {"message": "Selamat datang di API UB!"}
+
 @app.get("/health")
 def health_check():
     try:
@@ -28,30 +35,6 @@ def health_check():
         return {"status": "ok", "database": "connected"}
     except Exception as e:
         return {"status": "error", "database": "disconnected", "error": str(e)}
-
-@app.post("/register", response_model=schemas.UserOut)
-def register_user(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
-    # Cek apakah email sudah terdaftar
-    user_exist = db.query(models.User).filter(models.User.email == user_data.email).first()
-    if user_exist:
-        raise HTTPException(status_code=400, detail="Email sudah terdaftar")
-
-    # Hashing password
-    hashed_password = utils.hash_password(user_data.password)
-
-    #Objek User baru untuk disimpan
-    new_user = models.User(
-        email=user_data.email,
-        hashed_password=hashed_password,
-        full_name=user_data.full_name
-    )
-
-    # Simpan ke database
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
 
 @app.post("/login")
 def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
@@ -100,16 +83,3 @@ def check_admin_role(db: Session = Depends(get_db)):
           pass
      else:
           raise HTTPException(status_code=304, detail="Access is forbidden")
-
-@app.get("/products", response_model=list[schemas.ProductOut])
-def get_products(db: Session = Depends(get_db)):
-    products = db.query(models.Product).all()
-    return products
-
-@app.post("/products", response_model=schemas.ProductOut)
-def input_product(product_data:schemas.ProductCreate, db: Session = Depends(get_db)):
-    new_product = models.Product(**product_data.dict())
-    db.add(new_product)
-    db.commit()
-    db.refresh(new_product)
-    return new_product
