@@ -1,11 +1,13 @@
 ```
-/website
-├── index.html
-├── assets/
+/UB
+├── templates/
+│   └── index.html
+├── static/
 │   ├── css/
 │   │   └──style.css
 │   └── js/
 │       └── script.js
+├── ...
 └── README.md
 ```
 
@@ -64,3 +66,4 @@ Pernahkah kamu membagikan link di WhatsApp atau Facebook dan muncul gambar beser
 ## 3. `<header>`
 
 `<header>` adalah elemen yang digunakan untuk membungkus konten pembuka atau sekumpulan link navigasi dalam website.
+

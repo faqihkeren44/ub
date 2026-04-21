@@ -1,0 +1,432 @@
+/* --- 1. CSS Reset & Dasar --- */
+:root {
+    --stripe-purple: #635bff;
+    --stripe-blue: #00d4ff;
+    --stripe-dark: #0a2540;
+    --text-light: #ffffff;
+    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--stripe-dark);
+    background-color: #ffffff;
+    overflow-x: hidden; /* Mencegah scroll horizontal karena gradient */
+}
+
+/* --- 2. Komponen Umum --- */
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.btn-dark {
+    background-color: var(--stripe-dark);
+    color: var(--text-light);
+}
+
+.btn-dark:hover {
+    background-color: #1a3a5a;
+    transform: translateY(-1px);
+}
+
+.btn-light {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-light);
+    margin-left: 10px;
+}
+
+.btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+/* --- 3. Header / Navigasi --- */
+
+ header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    z-index: 10; /* Di atas gradient */
+}
+
+.nav-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-light);
+    text-decoration: none;
+}
+
+.accent-box img {
+    max-width: 100%;
+    height: auto;
+    display: block; 
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-light);
+    font-weight: 500;
+    font-size: 15px;
+    opacity: 0.9;
+}
+
+.nav-links a:hover {
+    opacity: 1;
+}
+
+/* --- 4. Hero Section (Kunci Desain Stripe) --- */
+
+.hero {
+    position: relative;
+    padding-top: 200px; /* Ruang untuk header */
+    padding-bottom: 150px;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Efek Gradient Diagonal Stripe */
+.hero-bg-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 120%;
+    /* Warna gradient khas Stripe */
+    background: linear-gradient(
+        150deg, 
+        var(--stripe-purple) 15%, 
+        #5333ed 40%, 
+        var(--stripe-blue) 70%, 
+        #44ff9a 95%
+    );
+    /* Membuat potongan diagonal */
+    transform: skewY(-6deg);
+    transform-origin: top left;
+    z-index: -1; /* Di bawah konten */
+}
+
+.hero-content {
+    text-align: left;
+    color: var(--text-light);
+    max-width: 650px;
+    z-index: 1;
+}
+
+.hero h1 {
+    font-size: 70px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+}
+
+.hero p {
+    font-size: 19px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+.profile-section {
+    padding: 100px 0;
+    background-color: #f8fbfd; /* Warna background tipis agar beda dengan Hero */
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Membagi 2 kolom sama besar */
+    gap: 50px;
+    align-items: center;
+}
+
+.tagline {
+    color: var(--stripe-purple);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+.profile-text h2 {
+    color: var(--stripe-dark);
+    font-size: 36px;
+    margin: 15px 0 25px;
+}
+
+.profile-text p {
+    text-align: justify;
+}
+
+.stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.stat-item h3 {
+    color: var(--stripe-purple);
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+/* --- 5. Responsif (Mobile) --- */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 40px;
+    }
+    .hero p {
+        font-size: 17px;
+    }
+    .nav-links {
+        display: none; /* Sembunyikan menu di mobile */
+    }
+}
+
+.activities {
+    padding: 100px 0;
+    background-color: #ffffff;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.section-title {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--stripe-dark);
+}
+
+.section-subtitle {
+    font-size: 20px;
+    color: #86868b; /* Warna abu-abu khas Apple */
+}
+
+/* Grid Layout */
+.activities-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 350px);
+    gap: 20px;
+}
+
+/* Card Styling */
+.activity-card {
+    background-color: #f5f5f7; /* Background abu-abu muda Apple */
+    border-radius: 28px; /* Sudut sangat melengkung */
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.activity-card:hover {
+    transform: scale(1.02); /* Sedikit membesar saat disentuh */
+}
+
+/* Kartu Besar memakan 2 baris */
+.activity-card.large {
+    grid-row: span 2;
+}
+
+.card-content {
+    padding: 40px;
+    z-index: 2;
+}
+
+.label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--stripe-purple);
+    margin-bottom: 10px;
+    display: block;
+}
+
+.activity-card h3 {
+    font-size: 28px;
+    color: var(--stripe-dark);
+    margin-bottom: 10px;
+}
+
+.activity-card p {
+    color: #424245;
+    font-size: 17px;
+    line-height: 1.4;
+}
+
+/* Placeholder Warna Gambar */
+.card-image {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60%;
+    background-size: cover;
+    z-index: 1;
+}
+
+.card-image img {
+    max-width: 100%;
+}
+
+.placeholder-green { background: linear-gradient(to top, #e2f9e1, transparent); }
+.placeholder-blue { background: linear-gradient(to top, #e1f5fe, transparent); }
+.placeholder-purple { background: linear-gradient(to top, #f3e5f5, transparent); }
+
+/* Styling Badge */
+.badge-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-gold {
+    background-color: #fff9e6;
+    color: #b38600;
+    border: 1px solid #ffe699;
+}
+
+.badge-green {
+    background-color: #e6fdf5;
+    color: #008a52;
+    border: 1px solid #b3f5e1;
+}
+
+/* Styling Footer Gaya Apple */
+.footer {
+    background-color: #f5f5f7;
+    padding: 60px 0 30px;
+    color: #1d1d1f;
+    font-size: 12px; /* Font kecil khas footer apple */
+}
+
+.footer-legal-name {
+    margin-bottom: 40px;
+    border-bottom: 1px solid #d2d2d7;
+    padding-bottom: 20px;
+}
+
+.footer-legal-name h3 {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h4 {
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #1d1d1f;
+}
+
+.footer-col ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-col ul li {
+    color: #6e6e73;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.footer-bottom {
+    border-top: 1px solid #d2d2d7;
+    padding-top: 20px;
+    color: #86868b;
+    text-align: center;
+}
+
+.card-image-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Sesuai desain awal kita */
+    overflow: hidden; /* Memotong bagian gambar yang berlebih */
+    z-index: 1;
+}
+
+.larger {
+    height: 100%;
+}
+
+.activity-img {
+    width: 100%;
+    height: 100%;
+    /* INI KUNCINYA: */
+    object-fit: cover; 
+    /* Mengatur fokus gambar ke tengah agar bagian penting tidak terpotong */
+    object-position: center; 
+}
+
+/* Tambahkan overlay tipis agar teks di atas gambar tetap terbaca jelas */
+.card-image-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Gradasi dari Putih Pekat ke Transparan */
+    background: linear-gradient(
+        to bottom, 
+        rgba(245, 245, 247, 1) 0%,    /* Warna background kartu (Solid) */
+        rgba(245, 245, 247, 0.8) 30%, /* Mulai memudar di area teks */
+        rgba(245, 245, 247, 0) 100%   /* Benar-benar transparan di bawah */
+    );
+    z-index: 2; /* Di atas gambar, tapi di bawah teks */
+}

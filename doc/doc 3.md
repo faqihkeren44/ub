@@ -143,18 +143,23 @@ from typing import List
 from .. import models, schemas, database
 
 router = APIRouter(
-    profix="/products",
+    prefix="/products",
     tags=['Products']
 )
 
-get_db = database.get_db
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-@app.get("/products", response_model=list[schemas.ProductOut])
+@router.get("/", response_model=list[schemas.ProductOut])
 def get_products(db: Session = Depends(get_db)):
     products = db.query(models.Product).all()
     return products
 
-@app.post("/products", response_model=schemas.ProductOut)
+@router.post("/", response_model=schemas.ProductOut)
 def input_product(product_data:schemas.ProductCreate, db: Session = Depends(get_db)):
     new_product = models.Product(**product_data.dict())
     db.add(new_product)
