@@ -33,6 +33,7 @@ body {
     padding: 10px 20px;
     border-radius: 50px;
     text-decoration: none;
+    text-align: center;
     font-weight: 600;
     font-size: 15px;
     transition: all 0.2s ease;
@@ -171,8 +172,8 @@ body {
 
 .profile-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Membagi 2 kolom sama besar */
-    gap: 50px;
+    grid-template-columns: 1.2fr 0.8fr; /* Membagi 2 kolom sama besar */
+    gap: 4rem;
     align-items: center;
 }
 
@@ -204,19 +205,6 @@ body {
     color: var(--stripe-purple);
     font-size: 28px;
     margin-bottom: 5px;
-}
-
-/* --- 5. Responsif (Mobile) --- */
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 40px;
-    }
-    .hero p {
-        font-size: 17px;
-    }
-    .nav-links {
-        display: none; /* Sembunyikan menu di mobile */
-    }
 }
 
 .activities {
@@ -429,4 +417,35 @@ body {
         rgba(245, 245, 247, 0) 100%   /* Benar-benar transparan di bawah */
     );
     z-index: 2; /* Di atas gambar, tapi di bawah teks */
+}
+
+/* --- 5. Responsif (Mobile) --- */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 40px;
+    }
+    .hero p {
+        font-size: 17px;
+    }
+    .nav-links {
+        display: none; /* Sembunyikan menu di mobile */
+    }
+    .hero-btns {
+        display: flex;
+    }
+    .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 4rem;
+    }
+    .activities-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        gap: 15px;
+    }
+    .activities-grid > div {
+        height: 350px; /* Jika kamu ingin tetap mempertahankan tinggi kotak per item */
+    }
+    .activity-img {
+        opacity: 20%;
+    }
 }

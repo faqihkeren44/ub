@@ -43,7 +43,14 @@ app.include_router(auth.router)
 
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request}
+    return templates.TemplateResponse("index.html", {"request": request})
 ```
 
 Hasilnya, pada saat membuka `/`, FastAPI akan memberikan file `index.html`.
+
+## Ngrok
+
+### 1. Install Ngrok
+
+1. Download Ngrok di ngrok.com
+2. Ekstrak file zip

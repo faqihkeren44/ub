@@ -16,11 +16,10 @@
 <body>
     <header>
         <div class="container nav-wrapper">
-            <a href="#" class="logo">home</a>
+            <a href="#" class="logo">Home</a>
             <nav class="nav-links">
                 <a href="#profil">Profil Usaha</a>
-                <a href="#">Layanan Utama</a>
-                <a href="#">Kegiatan</a>
+                <a href="#kegiatan">Kegiatan</a>
             </nav>
             <a href="#" class="btn btn-light" style="margin:0;">Masuk</a>
         </div>
@@ -49,6 +48,12 @@
                     <div class="profile-text">
                         <span class="tagline">Tentang Kami</span>
                         <h2>Membangun Ekonomi Syariah dari Masjid</h2>
+
+                        <div class="badge-container">
+                            <span class="badge badge-gold">Klasifikasi: A</span>
+                            <span class="badge badge-green">Status: Aktif</span>
+                        </div>
+
                         <p>UB Mandiri Sejahtera lahir dari semangat kebersamaan untuk menciptakan ekosistem ekonomi yang mandiri bagi jamaah. Kami percaya bahwa masjid bukan hanya tempat ibadah, tapi juga pusat pemberdayaan umat.</p>
                         
                         <div class="stats">
@@ -65,27 +70,91 @@
 
                     <div class="profile-image">
                         <div class="image-placeholder">
-                            <div class="accent-box"></div>
+                            <div class="accent-box"><img src="../static/img/logo_1.png" alt="Home"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section>
+        <section id="kegiatan" class="activities">
             <div class="container">
-                <h2>Layanan Utama</h2>
-            </div>
-        </section>
+                <div class="section-header">
+                    <h2 class="section-title">Kegiatan</h2>
+                    <p class="section-subtitle">Membangun ekonomi umat melalui langkah nyata.</p>
+                </div>
 
-        <section>
-            <div class="container">
-                <h2>Kegiatan</h2>
+                <div class="activities-grid">
+                    <article class="activity-card large">
+                        <div class="card-content">
+                            <span class="label">Travel</span>
+                            <h3>Tour Wali Barokah Kediri</h3>
+                            <p>Kegiatan tour mengunjungi berbagai pondok pesantren dan destinasi liburan.</p>
+                        </div>
+                        <div class="card-image-wrapper larger">
+                            <img src="../static/img/wali barokah.jpg" alt="" class="activity-img">
+                        </div>
+                    </article>
+
+                    <article class="activity-card small">
+                        <div class="card-content">
+                            <span class="label">Ibadah</span>
+                            <h3>Hewan Kurban</h3>
+                            <p>Penyediaan hewan kurban sapi dan kambing.</p>
+                        </div>
+                        <div class="card-image-wrapper">
+                            <img src="../static/img/kambing.jpg" alt="" class="activity-img">
+                        </div>
+                    </article>
+
+                    <article class="activity-card small">
+                        <div class="card-content">
+                            <span class="label">Sosial</span>
+                            <h3>Sembako Murah</h3>
+                            <p>Menyediakan bahan pokok untuk yang terjangkau.</p>
+                        </div>
+                        <div class="card-image-wrapper">
+                            <img src="../static/img/parcel.jpg" alt="" class="activity-img">
+                        </div>
+                    </article>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer></footer>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-legal-name">
+                    <h3>Koperasi Usaha Bersama Mandiri Sejahtera</h3>
+                    <p>( Koperasi UB Mandiri Sejahtera )</p>
+                </div>
+                
+                <div class="footer-grid">
+                    <div class="footer-col">
+                        <h4>Identitas</h4>
+                        <ul>
+                            <li>Jenis: Unit Konsumen</li>
+                            <li>Bentuk: Primer Kota Bogor</li>
+                            <li>Kelompok: Koperasi Masyarakat (DKM)</li>
+                            <li>Berdiri: 20 Agustus 2018</li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Kontak & Lokasi</h4>
+                        <ul>
+                            <li>Jl. Lodaya Ujung Nomor 6, RT 003 RW 007</li>
+                            <li>Kel. Babakan, Bogor</li>
+                            <li>Email: kop.ub.mandiri.sejahtera@gmail.com</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="footer-bottom">
+                <p>&copy; 2024 UB Mandiri Sejahtera. Hak Cipta Dilindungi.</p>
+            </div> -->
+        </div>
+    </footer>
 </body>
 
 </html>
