@@ -1,4 +1,55 @@
-# 1. CSS Reset & Dasar
+# 0. Struktur File
+
+## Penjelasan
+
+Menggunakan satu file raksasa akan menjadi mimpi buruk dalam menggunakan Vanilla CSS. Pendekatan paling umum yang digunakan adalah pola 7-1 architecture (versi sederhana). Berikut contoh struktur folder:
+
+```
+static/
+└── css/
+    └── base/
+    │   ├── reset.css       # Reset margin/padding bawaan browser
+    │   ├── typography.css  # Aturan font, ukuran heading, link
+    │   └── variables.css   # Variabel warna, sapcing, shadow (:root)
+    ├── componnets/
+    │   ├── buttons.css     # Semua jenis tombol
+    │   ├── cards.css       # Kartu produk (product grid)
+    │   ├── forms.css       # Input, checkbox, login form
+    │   └── navbar.css      # Desain navigasi utama
+    ├── layouts/
+    │   ├── footer.css
+    │   ├── grid.css        # Sistem layout (Flexbox/Grid)
+    │   └── section.css     # Aturan padding antar seksi
+    ├── pages/
+    │   ├── home.css
+    │   ├── products.css
+    │   └── cart.css
+    └── main.css
+```
+
+## Penamaan Class (BEM)
+
+BEM adalah singkatan dari Block, Element, Modifier. Ini merupakan metodologi penamaan class pada CSS. Berikut penjelasan detailnya:
+- Block: Komponen mandiri yang bermakna secara fungsional (misalnya `nav`, `button`, `card`).
+- Element: Bagian dari blok yang tidak mmeiliki arti sendiri, dan terikat pada bloknya secara semantik (misalnya `item`, `title`, `image`). Penulisannya dihubungkan dengan dua garis bawah (`__`).
+- Modifier: Flag pada blok atau elemen yang digunakan untuk mengubah tampilan atau prilaku (misalnya `large`, `red`, `disable`). Penulisannya dihubungkan dengan dua garis tengah (`--`).
+
+Contoh:
+```
+/* Block */
+.product-card {...}
+
+/* Element */
+.product-card__title {...}
+.product-card__price {...}
+
+/* Modifier */
+.product-card--featured {...}
+```
+
+# 1. `reset.css `
+
+Tujuan utama `reset.css` adalah menghapus default styling yang diberikan browser. Jika tidak direset, tampilan akan terlihat berbeda-beda atau berantakan di setiap perangkat.
 
 ## `:root {...}`
 
@@ -51,9 +102,13 @@ Dalam desain modern, seringkali ada elemen yang ukurannya melebihi lebar layar. 
 
 Bayangkan jika ada sebuah gambar yang lebarnya 1500px, padahal layar HP pengunjung hanya 400px. Akan muncul batang geser (scroll bar) di bagian bawah layar yang biasanya merusak estetika desain profesional, dan pengunjung bisa menggeser halaman ke arah kanan secara tidak sengaja. Pengunjung akan melihat ruang kosong putih di sebelah kanan konten utama, karena browser mencoba mengakomodasi gambar 1500px tersebut meskipun layarnya sempit.
 
-# 2. Komponen Umum
+## `text-decoration: none; color: inherit;`
 
-## `.container`
+Ketika membuat link (`<a>`), secara default browser memberikan warna biru terang dan garis bawah. Saat di klik, warnanya berubah menjadi ungu.
+
+Elemen formulir seperti `button`, `input`, dan `select` umumnya tidak mengikuti jenis font atau warna teks yang diatur di `body`. Itulah alasannya menggunakan `inherit`. Fungsinya memaksa elemen tersebut menggunakan warna teks yang sama dengan lingkungannya.
+
+# 2. `.container`
 
 Dalam desain web, class ini adalah sebuah pembatas agar tidak berantakan dan mudah dibaca di layar yang lebar. Berikut penjelasan detailnya:
 - `max-width: 1100px;`: Menjaga agar tidak melebar tanpa batas. Di monitor yang sangat besar (misal monitor 27 inci), jika teks memanjang dari ujung kiri ke ujung kanan, mata pembaca akan cepat lelah. Angka 1100px adalah standar kenyamanan untuk pandangan manusia agar tetap fokus.
@@ -63,7 +118,9 @@ Dalam desain web, class ini adalah sebuah pembatas agar tidak berantakan dan mud
     Hasilnya, Kotak kontainer akan selalu berada di tengah, tidak peduli seberapa lebar layar monitor.
 - `padding: 0 20px;`: Saat website dibuka di ponsel (layar kecil), lebar layar mungkin hanya 360px. Tanpa padding ini, teks kamu akan menempel ke pinggir casing HP. Memberikan jarak aman sebesar 20px di sisi kiri dan kanan ini membuat website terlihat rapi dan profesional di perangkat mobile.
 
-### `.btn`
+# 3. `buttons.css`
+
+## `.btn`
 
 Class untuk tombol:
 - `display: inline-block;`: Secara default, tag link (`<a>`) bersifat inline (tidak bisa mengubah lebar/tinggi). Dengan mengubahnya menjadi inline-block, tombol bisa memiliki padding dan margin dan tetap bisa duduk berdampingan dengan elemen lain.
@@ -74,11 +131,11 @@ Class untuk tombol:
 - `font-size: 15px;`: Ukuran teks yang ideal—tidak terlalu besar sehingga merusak layout, tapi cukup jelas untuk dibaca.
 - `transition: all 0.2s ease;`: Artinya semua perubahan (seperti warna latar atau bayangan (`all`)) akan dianimasikan. Durasinya 0,2 detik (`0.2s`), dengan gerakan animasi yang halus (mulai perlahan, cepat di tengah, melambat di akhir) (`ease`). Tanpa ini, saat ada efek hover (misalnya warna berubah saat kursor menyentuh tombol), perubahannya akan terasa kaku dan tiba-tiba.
 
-### `btn-dark`
+## `btn-dark`
 
 Class ini digunakan untuk tombol utama. Warna tombol diambil dari variabel `stripe-dark`, dan tulisannya berwarna `text-light`. Saat kursor di tombol, warnanya berubah dan naik ke atas 1 pixel (`transform: translateY(-1px);`).
 
-### `btn-light`
+## `btn-light`
 
 Tombol dengan class ini digunakan untuk tombol sekunder. Dengan opacity 20% (`rgba(255, 255, 255, 0.2)`), tombol terlihat menyatu dengan latar belakang. Agar tidak menempel jika diletakkan tepat di sebelah tombol utama (`.btn-dark`), diberi jarak 10 pixel.
 
@@ -98,3 +155,6 @@ Tombol dengan class ini digunakan untuk tombol sekunder. Dengan opacity 20% (`rg
 - `justify-content: space-between;`: Elemen pertama (logo) akan dipaksa ke ujung kiri, dan elemen terakhir (menu navigasi) dipaksa ke ujung kanan. 
 - `align-items: center;`: Menjaga agar logo dan teks menu tetap sejajar di tengah secara vertikal.
 - `width: 100%;`: Memastikan `.nav-wrapper` mengambil seluruh lebar yang tersedia. Ini krusial agar `space-between` punya ruang yang cukup untuk mendorong logo dan menu ke ujung-ujung layar.
+
+# `main.css`
+

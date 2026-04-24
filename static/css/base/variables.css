@@ -1,0 +1,10 @@
+:root {
+    --stripe-purple: #635bff;
+    --stripe-blue: #00d4ff;
+    --stripe-dark: #0a2540;
+    --text-light: #ffffff;
+    --brand-dark: #0a2540;
+    --text-main: #1d1d1f;
+    --text-muted: #86868b;    
+    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}

@@ -1,119 +1,14 @@
-/* --- 1. CSS Reset & Dasar --- */
-:root {
-    --stripe-purple: #635bff;
-    --stripe-blue: #00d4ff;
-    --stripe-dark: #0a2540;
-    --text-light: #ffffff;
-    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: var(--font-main);
-    color: var(--stripe-dark);
-    background-color: #ffffff;
-    overflow-x: hidden; /* Mencegah scroll horizontal karena gradient */
-}
-
-/* --- 2. Komponen Umum --- */
-
-.container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    border-radius: 50px;
-    text-decoration: none;
-    text-align: center;
-    font-weight: 600;
-    font-size: 15px;
-    transition: all 0.2s ease;
-}
-
-.btn-dark {
-    background-color: var(--stripe-dark);
-    color: var(--text-light);
-}
-
-.btn-dark:hover {
-    background-color: #1a3a5a;
-    transform: translateY(-1px);
-}
-
-.btn-light {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: var(--text-light);
-    margin-left: 10px;
-}
-
-.btn-light:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
-}
-
-/* --- 3. Header / Navigasi --- */
-
- header {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    z-index: 10; /* Di atas gradient */
-}
-
-.nav-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-.logo {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--text-light);
-    text-decoration: none;
-}
-
-.accent-box img {
-    max-width: 100%;
-    height: auto;
-    display: block; 
-}
-
-.nav-links {
-    display: flex;
-    gap: 30px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: var(--text-light);
-    font-weight: 500;
-    font-size: 15px;
-    opacity: 0.9;
-}
-
-.nav-links a:hover {
-    opacity: 1;
-}
+@import 'reset.css';
+@import 'variables.css';
+@import 'buttons.css';
+@import 'container.css';
+@import 'navbar-0.css';
 
 /* --- 4. Hero Section (Kunci Desain Stripe) --- */
 
 .hero {
     position: relative;
-    padding-top: 200px; /* Ruang untuk header */
+    padding-top: 200px;
     padding-bottom: 150px;
     min-height: 80vh;
     display: flex;
@@ -121,14 +16,12 @@ body {
     overflow: hidden;
 }
 
-/* Efek Gradient Diagonal Stripe */
 .hero-bg-gradient {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 120%;
-    /* Warna gradient khas Stripe */
     background: linear-gradient(
         150deg, 
         var(--stripe-purple) 15%, 
@@ -136,10 +29,9 @@ body {
         var(--stripe-blue) 70%, 
         #44ff9a 95%
     );
-    /* Membuat potongan diagonal */
     transform: skewY(-6deg);
     transform-origin: top left;
-    z-index: -1; /* Di bawah konten */
+    z-index: -1;
 }
 
 .hero-content {
@@ -436,6 +328,13 @@ body {
     .profile-grid {
         grid-template-columns: 1fr;
         gap: 4rem;
+    }
+    .profile-image {
+        /* Memastikan gambar ada di urutan bawah secara visual */
+        order: 1; 
+    }
+    .profile-text {
+        order: 2;
     }
     .activities-grid {
         grid-template-columns: 1fr;

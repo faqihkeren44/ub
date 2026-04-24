@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="../static/css/pages/login.css">    
+</head>
+<body>
+    <main class="login-page">
+        <div class="hero-bg-gradient"></div>
+
+        <div class="container">
+            <div class="login-card">
+                <div class="login-header">
+                    <h2>Masuk ke Akun Anda</h2>
+                    <p>Silakan masukkan detail akun Koperasi UB Mandiri Sejahtera Anda.</p>
+                </div>
+                
+                <form action="/login" method="post" class="login-form">
+                    <div class="form-group">
+                        <label for="email">Alamat Email</label>
+                        <input type="email" id="email" name="username" placeholder="nama@email.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="label-wrapper">
+                            <label for="password">Kata Sandi</label>
+                            <a href="#" class="forgot-link">Lupa kata sandi?</a>
+                        </div>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">Masuk</button>
+                </form>
+                
+                <div class="login-footer">
+                    <p>Belum punya akun? <a href="#">Daftar sekarang</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
