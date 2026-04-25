@@ -1,30 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from .. import models, schemas, database, utils
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-from app.config import DATABASE_URL
 
-engine = create_engine(DATABASE_URL)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-        
 router = APIRouter(
     prefix="/users",
     tags=['Users']
 )
 
 @router.post("/register", response_model=schemas.UserOut)
-def register_user(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
+def register_user(user_data: schemas.UserCreate, db: Session = Depends(database.get_db)):
     user_exist = db.query(models.User).filter(models.User.email == user_data.email).first()
     if user_exist:
         raise HTTPException(status_code=400, detail="Email sudah terdaftar")
