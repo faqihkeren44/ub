@@ -7,6 +7,8 @@ from app.database import engine, SessionLocal, Base
 from fastapi.security import OAuth2PasswordBearer
 from .routers import products, auth, users, members
 
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI ()
 
 templates = Jinja2Templates(directory="templates")
@@ -17,8 +19,6 @@ app.include_router(products.router)
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(members.router)
-
-Base.metadata.create_all(bind=engine)
 
 def get_db():
     db = SessionLocal()

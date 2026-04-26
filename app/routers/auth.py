@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi import APIRouter, Depends, status, Response, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.security import OAuth2PasswordRequestForm
@@ -17,19 +17,38 @@ router = APIRouter(
 templates = Jinja2Templates(directory="templates")
 
 @router.get("/login", response_class=HTMLResponse)
-def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+def login_page(request: Request, msg: str = None, status: str = "peringatan"):
+    display_message = ""
+    tipe_pesan = status
+
+    if msg == "success_logout":
+        display_message = "Anda telah berhasil keluar secara aman."
+        tipe_pesan = "sukses"
+    elif msg == "not_login":
+        display_message = "Silahkan Login terlebih dahulu."
+    elif msg == "invalid":
+        display_message = "Username atau Password salah. Silahkan coba kembali."
+    elif msg == "expired":
+        display_message = "Sesi Anda telah berakhir demi keamanan. Silakan masuk kembali."
+    elif msg:
+        display_message = msg
+
+    return templates.TemplateResponse("login.html", {
+        "request": request, 
+        "pesan": display_message,
+        "status": tipe_pesan
+    })
 
 @router.post("/login")
 def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.email == user_data.username).first()
     
     if user is None:
-        raise HTTPException(status_code=401, detail="Email atau password salah")
+        return RedirectResponse(url="/auth/login?msg=invalid", status_code=303)
 
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     if not pwd_context.verify(user_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Email atau password salah")
+        return RedirectResponse(url="/auth/login?msg=invalid", status_code=303)
 
     exp = datetime.utcnow() + timedelta(minutes=30)
     payload = {"sub": str(user.id), "exp": exp}
@@ -45,4 +64,10 @@ def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depend
         samesite="lax" 
     )
 
+    return response
+
+@router.get("/logout")
+def logout():
+    response = RedirectResponse(url="/auth/login?msg=success_logout", status_code=303)
+    response.delete_cookie("access_token")
     return response

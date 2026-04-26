@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 
-    <link rel="stylesheet" href="../static/css/pages/login.css">    
+    <link rel="stylesheet" href="../static/css/pages/login.css">
 </head>
 <body>
     <main class="login-page">
@@ -17,7 +17,22 @@
                     <h2>Masuk ke Akun Anda</h2>
                     <p>Silakan masukkan detail akun Koperasi UB Mandiri Sejahtera Anda.</p>
                 </div>
-                
+
+                {% if pesan %}
+                    <div style="
+                        padding: 15px; 
+                        margin-bottom: 20px; 
+                        border-radius: 4px;
+                        {% if status == 'sukses' %}
+                            background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+                        {% else %}
+                            background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;
+                        {% endif %}
+                    ">
+                        {{ pesan }}
+                    </div>
+                {% endif %}
+
                 <form action="/auth/login" method="post" class="login-form">
                     <div class="form-group">
                         <label for="email">Alamat Email</label>
@@ -27,7 +42,7 @@
                     <div class="form-group">
                         <div class="label-wrapper">
                             <label for="password">Kata Sandi</label>
-                            <a href="#" class="forgot-link">Lupa kata sandi?</a>
+                            <a href="#" class="forgot-link" onclick="alertBelumTersedia()">Lupa kata sandi?</a>
                         </div>
                         <input type="password" id="password" name="password" placeholder="••••••••" required>
                     </div>
@@ -41,5 +56,11 @@
             </div>
         </div>
     </main>
+
+    <script>
+        function alertBelumTersedia() {
+            alert("Mohon maaf, fitur ini belum tersedia. Silakan hubungi admin.");
+        }
+    </script>
 </body>
 </html>

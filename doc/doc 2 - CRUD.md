@@ -1,6 +1,7 @@
 # Table of Contents
 
 - [Review](#review)
+- [Day 5 - Database Produk](#day-5---database-produk)
 
 # Review
 
@@ -34,7 +35,7 @@ Atau seperi inilah jika dianalogikan:
 - Kalau mau, di sini bisa dilakukan pengecekan lagi sebelum disimpan di `database`. Kalau yakin, baru manajer memerintahkan `add`, `commit` untuk menyimpan di `database`. 
 - Kalo nanti `schemas` minta jawaban form tadi, bagian `models` bisa ngasih sesuai yang diminta `schemas` (misal minta gak pake `password`). `schemas` bisa datang lagi ke user buat ngasih tau kalo pendaftarannya udah selesai, dan dapet nomor id sekian.
 
-# Day 5 - 
+# Day 5 - Database Produk
 
 ## 1. Model Database Produk
 

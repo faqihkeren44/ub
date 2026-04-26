@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Anggota - Koperasi Desa</title>
+    <link rel="stylesheet" href="../static/css/pages/register.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Pendaftaran Anggota</h2>
+            <p>Silakan lengkapi data untuk bergabung dengan Koperasi</p>
+
+            {% if pesan %}  <div class="alert {% if status == 'sukses' %}alert-success{% else %}alert-danger{% endif %}">
+                    {{ pesan }}
+                </div>
+            {% endif %}
+
+            <form action="/users/register" method="post">
+                <div class="form-group">
+                    <label for="full_name">Nama Lengkap</label>
+                    <input type="text" id="full_name" name="full_name" required placeholder="Masukkan nama sesuai KTP">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Alamat Email</label>
+                    <input type="email" id="email" name="username" required placeholder="contoh@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Kata Sandi</label>
+                    <input type="password" id="password" name="password" required placeholder="Minimal 8 karakter">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Konfirmasi Kata Sandi</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required placeholder="Ulangi kata sandi">
+                </div>
+
+                <button type="submit" class="btn-login">Daftar Sekarang</button>
+            </form>
+
+            <div class="footer-links">
+                <p>Sudah punya akun? <a href="/auth/login">Masuk di sini</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

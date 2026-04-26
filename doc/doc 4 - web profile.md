@@ -13,9 +13,12 @@ UB\
 │   ├── main.py
 │   ├── routers/
 │   └── ...
+├── static/
+│   ├── css/
+│   ├── img/
+│   └── js/
 ├── templates/
 │   └── index.html
-├── templates/
 └── ...
 ```
 
@@ -31,7 +34,7 @@ Lalu, di `app/main.py`, perlu memberitahu FastAPI cara menyajikan file HTML ters
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from .routers import products, users, auth
+from .routers import products, users, auth, members
 
 app = FastAPI()
 
@@ -40,6 +43,7 @@ templates = Jinja2Templates(directory="templates")
 app.included_router(products.router)
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(members.router)
 
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):

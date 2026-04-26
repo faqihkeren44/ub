@@ -1,6 +1,11 @@
-# Role Management
+# Table 0f Contents
 
-# Day 6 - Memperbarui Database
+- [Day 6 - Update Database](#day-6---update-database)
+- [Day 7 - Penerapan](#day-7---penerapan)
+- [Day 8 - Waktu Sesi Cookie](#day-8---waktu-sesi-cookie)
+- [Day 9 - Update Register](#day-9---update-register)
+
+# Day 6 - Update Database
 
 ## 1. Urgensi
 
@@ -389,4 +394,267 @@ def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depend
     )
 
     return response
+```
+
+# Day 8 - Waktu Sesi Cookie
+
+## 1. Logout
+
+### Tambah `/logout`
+
+Untuk logout, cukup suruh browser user untuk membuang kartu aksesnya (cookie), dan mengarahkannya kembali ke halaman login:
+```
+@router.get("/logout")
+def logout():
+    response = RedirectResponse(url="/auth/login?msg=success_logout", status_code=303)
+    response.delete_cookie("access_token")
+    return response
+```
+
+Saat memanggil `response.delete_cookie("access_token")`, FastAPI mengirimkan instruksi ke browser untuk mengatur masa berlaku cookie tersebut menjadi expired. Browser yang patuh akan langsung menghapusnya dari penyimpanan seketika itu.
+
+Mekanisme `?msg=succeecc_logout` disebut dengan query parameters. Sederhananya, ini adalah cara mengirim informasi tambahan melalui alamat URL setelah tanda tanya.
+- `?`: Penanda bahwa setelah ini ada data tambahan (parameter)/
+- `msg`: Kunci
+- `success_logout`: Nilai
+
+### Perbarui Endpoint `/login`
+
+Di endpoint `/login` harus diberitahu untuk menangkap kunci `msg` tersebut dari URL. Lalu, masukan hasil pesannya ke dalam `return`:
+```
+@router.get("/login", response_class=HTMLResponse)
+def login_page(msg: str = None, request: Request):
+    display_message = ""
+
+    if msg == "success_logout":
+        display_message = "Anda telah berhasil keluar."
+
+    return templates.TemplateResponse("login.html", {
+        "request": request,
+        "pesan": display_message
+    })
+```
+
+### Cara Menampilkan di HTML
+
+Di dalam file `login.html`, Harus disiapkan tempat untuk menampilkan isi `pesan` yang dibuat. Biasanya ditaruh di atas form login:
+```
+{% if pesan %}
+    <div style="color: green; border: 1px solid green; padding: 10px; margin-bottom: 10px;">
+        {{ pesan }}
+    </div>
+{% endif %}
+
+<form action="/login" method="post">
+...
+</form>
+```
+
+`{% if pesan %}` adalah logika Jinja2. Jika `display_message` kosong (`""`), kotak hijau tidak akan muncul.
+
+## 2. Expired Token
+
+### Pengecekan Parameter `expired`
+
+Di `routers/auth.py`, tambahkan pengecekan parameter `expired` di fungsi `login_page`. Bisa tambahkan juga `tipe_pesan` untuk membedakan warna nantinya.
+```
+@router.get("/login", response_class=HTMLResponse)
+def login_page(request: Request, msg: str = None):
+    display_message = ""
+    tipe_pesan = "" # Tambahan untuk membedakan warna nanti
+
+    if msg == "success_logout":
+        display_message = "Anda telah berhasil keluar secara aman."
+        tipe_pesan = "sukses"
+    elif msg == "expired":
+        display_message = "Sesi Anda telah berakhir demi keamanan. Silakan masuk kembali."
+        tipe_pesan = "peringatan"
+
+    return templates.TemplateResponse("login.html", {
+        "request": request, 
+        "pesan": display_message,
+        "status": tipe_pesan
+    })
+```
+
+### Redirect Dari `members.py`
+
+Saat menangkap error token habis, melempar URL yang tepat:
+```
+from jose import ExpiredSignatureError
+
+...
+try:
+    token = access_token.split(" ")[1]
+    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    user_id = payload.get("sub")
+
+exceprt ExpiredSignatureError:
+    response = RedirectResponse(url="/login?msg=expired", status_code=303)
+    response.delete_cookie("access_token")
+    return response
+```
+
+Dimana pengecekan kadaluarsa token? Di dalam JWT (JSON Web Tokwn), terdapat bagian bernama Payload yang menyimpan `exp`. Saat memanggil `jwt.decode(token, ...)`, library Python-Jose (atau PyJWT) akan secara otomatis membandingkan waktu `exp` di dalam token dengan waktu sekarang di server. Jika waktu sekarang sudah melewati waktu `exp`, maka library tersebut akan melemparkan pengecualian (exception) bernama `ExpiredSignatureError`.
+
+### Tampilan HTML
+
+Agar user tahu bedanya Logout dan Expired, bedakan warna menggunakan logika `if`:
+```
+{% if pesan %}
+    <div style="
+        padding: 15px; 
+        margin-bottom: 20px; 
+        border-radius: 4px;
+        {% if status == 'sukses' %}
+            background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+        {% else %}
+            background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;
+        {% endif %}
+    ">
+        {{ pesan }}
+    </div>
+{% endif %}
+```
+
+### Lainnya
+
+Karena sudah sampai ini, sekalian ubah respon yang ditampilkan ketika salah memasukan `username` dan `password` di `/login`. Ubah `return HTTPException(...) menjadi
+```
+return RedirectResponse(url="/auth/login?msg=invalid", status_code=303)
+```
+Termasuk `status_code` harus diubah jangan pakai `401`. Karena browser bisa mengira akan berhenti di sana dan tidak mau pindah ke halaman login.
+
+# Day 9 - Update Register
+
+## 1. Mengambil Data Dari Form
+
+Sebelumnya, data dimasukan menggunakan `user_data: schemas.UserCreate`. Namun, karena saat ini menggunakan HTML, hal itu tidak bisa. Mau tidak mau, harus mengambil data dari form HTML menggunakan `Form`:
+```
+from fastapi import Form
+
+def register_user(
+    full_name: str = Form(full_name),
+    email: str = Form(email),
+    password: str = Form(password),
+    confirmation_password: str = Form(confirmation_password),
+    db: Session = Depends(database.get_db)):
+```
+
+### Hapus `response_model`
+
+`response_model` memberitahu FastAPI untuk memvalidasi bahwa data yang keluar harus berupa data user (JSON). Tapi, karena sekarang mengembalikan `RedirectResponse`, FastAPI akan bingung dan melempar error karena sebuah pengalihan halaman bukanlah data user.
+
+## 2. Validasi
+
+Pertama, validasi kecocokan antara `password` dengan `confirmation_password`.
+```
+if password != confirmation_password:
+    return RedirecResponse(url="/users/register?msg=password_mismatch", status_code=303)
+```
+
+Selanjutnya, Validasi menggunakan `schemas.UserCreate`:
+```
+try:
+    user_data = schemas.UserCreate(
+        full_name=full_name,
+        email=email,
+        password=password
+    )
+except ValueError as e:
+    return RedirectResponse(url="/users/register?msg=invalid_data", status_code=303)
+
+user_exist = db.query(models.User).filter(model.User.email == user_data.email).first():
+    if user_exist:
+        return RedirectResponse(url="/users/register?msg=already_exists", status_code=303)
+```
+
+Terakhir, ganti return menjadi
+```
+return RedirectResponse(url="/login?msg=register_success", status_code=303)
+```
+
+## 3. Keterangan Message
+
+Masih di `routers/users.py`. Tambahkan:
+```
+@router.get("/register", response_class=HTMLResponse)
+def register_page(request: Request, msg: str = None):
+    display_message = ""
+    tipe_pesan = ""
+
+    if msg == "password_mismatch":
+        display_message = "Password dan Confirmation Password berbeda. Pastikan isi keduanya dengan nilai yang sama"
+        tipe_pesan = "peringatan"        
+    elif msg == "invalid_data":
+        display_message = "Data tidak sesuai. Pastikan memasukan data sesuai instruksi"
+        tipe_pesan = "peringatan"        
+    elif msg == "already_exists":
+        display_message = "Email yang dimasukan sudah ada. Silahkan coba menggunakan email yang lain"
+        tipe_pesan = "peringatan"    
+
+    return template.TemplateResponse("register.html",{
+        "request": request, 
+        "pesan": display_message,
+        "status": tipe_pesan
+    })
+```
+
+Di file `routers/auth.py`, tambahkan message ketika berhasil mendaftar/register:
+```
+elif msg == "register_success":
+    display_message = "Anda telah berhasil keluar secara aman."
+    tipe_pesan = "sukses"
+```
+
+## 4. Menambahkan Nama
+
+### Menambahkan kalimat sambutan secara dinamis
+
+```
+from urllib.parse import quote
+
+...
+teks_sambutan = f"Selamat, {new_user.full_name} sudah berhasil mendaftar!"
+pesan_sukses = quote(teks_sambutan)
+
+return RedirectResponse(
+    url=f"/auth/login?msg={pesan_sukses}&status=sukses", 
+    status_code=303
+)
+```
+
+### Ubah Fungsi `login_page`
+
+```
+@router.get("/login", response_class=HTMLResponse)
+def login_page(request: Request, msg: str = None, status: str = "peringatan"):
+    display_message = ""
+    tipe_pesan = status # Ambil status langsung dari URL (sukses/peringatan)
+
+    if msg == "success_logout":
+        display_message = "Anda telah berhasil keluar secara aman."
+        tipe_pesan = "sukses"
+    
+    elif msg == "not_login":
+        display_message = "Silahkan Login terlebih dahulu."
+        
+    elif msg == "invalid":
+        display_message = "Username atau Password salah. Silahkan coba kembali."
+        
+    elif msg == "expired":
+        display_message = "Sesi Anda telah berakhir demi keamanan. Silakan masuk kembali."
+    
+    # --- PERBAIKAN DI SINI ---
+    elif msg:
+        # Jika msg berisi teks panjang (seperti pesan selamat dari register)
+        # Kita tampilkan teks itu apa adanya
+        display_message = msg
+    # --------------------------
+
+    return templates.TemplateResponse("login.html", {
+        "request": request, 
+        "pesan": display_message,
+        "status": tipe_pesan
+    })
 ```

@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from app.config import SECRET_KEY
-from jose import jwt
+from jose import jwt, ExpiredSignatureError
 from .. import models, database
 
 router = APIRouter(
@@ -17,23 +17,26 @@ templates = Jinja2Templates(directory="templates")
 def get_me(request: Request, access_token: str = Cookie(None), db: Session = Depends(database.get_db)):
     print(f"Token yang diterima: {access_token}")
     if not access_token:
-        return RedirectResponse(url="/login")
+        return RedirectResponse(url="/auth/login?msg=not_login")
     
     try:
         token = access_token.split(" ")[1]
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-    except Exception:
-        return RedirectResponse(url="users/login")
+        user_id = payload.get("sub")
 
-    user_id = payload.get("sub")
+    except ExpiredSignatureError:
+        response = RedirectResponse(url="/auth/login?msg=expired", status_code=303)
+        response.delete_cookie("access_token")
+        return response
+
+    except Exception:
+        return RedirectResponse(url="/auth/login?msg=invalid", status_code=303)
 
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user is None:
-        return RedirectResponse(url="users/login")
+        return RedirectResponse(url="/auth/login")
 
     return templates.TemplateResponse("profile.html", {
         "request": request, 
         "user": user
     })
-
-# Cara menghandle jika token expired
