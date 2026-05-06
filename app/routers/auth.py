@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from app.config import SECRET_KEY
 from jose import jwt
-from .. import database, models
+from .. import database, models,utils
 
 router = APIRouter(
     prefix="/auth",
@@ -42,6 +42,19 @@ def login_page(request: Request, msg: str = None, status: str = "peringatan"):
 
 @router.post("/login")
 def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
+    # Pengecekan Admin
+    admin = db.query(models.Admin).filter(models.Admin.admin_id == user_data.username).first()
+        
+    if admin:
+        if utils.verify_password(user_data.password, admin.hashed_password):
+            exp = datetime.utcnow() + timedelta(minutes=30)
+            payload = {"sub": str(admin.admin_id), "role": "superadmin", "exp": exp}
+            token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")            
+            response = RedirectResponse(url="/admin/dashboard", status_code=303)
+            response.set_cookie(key="access_token", value=f"Bearer {token}", httponly=True)
+            return response
+
+    # Pengecekan Anggota
     user = db.query(models.User).filter(
         or_(
             models.User.identity_number == user_data.username,
@@ -57,7 +70,7 @@ def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depend
         return RedirectResponse(url="/auth/login?msg=invalid", status_code=303)
 
     exp = datetime.utcnow() + timedelta(minutes=30)
-    payload = {"sub": str(user.id), "exp": exp}
+    payload = {"sub": str(user.id), "role": "user", "exp": exp}
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
     response = RedirectResponse(url="/dashboard/me", status_code=status.HTTP_303_SEE_OTHER)

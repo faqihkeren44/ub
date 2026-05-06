@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <title>Admin Dashboard - Koperasi UB</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Admin: {{ admin.full_name }}</h3>
+        <a href="/auth/logout">Keluar</a>
+    </div>
+
+    <div class="main-content">
+        <h1>Daftar Anggota Koperasi</h1>
+        <table border="1" style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th>ID Anggota</th>
+                    <th>Nama</th>
+                    <th>NIK</th>
+                    <th>Kelompok DKM</th>
+                    <th>Setoran</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in all_users %}
+                <tr>
+                    <td>{{ user.member_id }}</td>
+                    <td>{{ user.full_name }}</td>
+                    <td>{{ user.identity_number }}</td>
+                    <td>{{ user.dkm_group }}</td>
+                    <td>Rp {{ "{:,.0f}".format(user.mandatory_savings) }}</td>
+                    <td>
+                        <button onclick="location.href='/admin/edit/{{user.id}}'">Edit</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

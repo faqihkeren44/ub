@@ -61,6 +61,15 @@ class User(Base):
     status_flags = Column(Integer, default=UserStatus.PENDING.value)
     approved_by = Column(String, nullable=True)
 
+class Admin(Base):
+    __tablename__ = "admins"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    admin_id = Column(String, unique=True, nullable=False, index=True)
+    full_name = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    role = Column(String, default="superadmin")
+
 class Product(Base):
     __tablename__ = "products"
 

@@ -417,3 +417,73 @@ login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depends(),
         )
     ).first()
 ```
+
+# Day 11 - Akun Pengurus
+
+## 1. Pembuatan Tabel `admins`
+
+Tambahkan tabel `Admin` di file `models.py`:
+```
+class Admin(Base):
+    __tablename__ = "admins"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    admin_id = Column(String, unique=True, nullable=False, index=True)
+    full_name = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    role = Column(String, default="superadmin")
+```
+
+## 2. Logic Login
+
+Agar ketika yang dimasukan `admin_id` dilempar ke dashboard amin, tambahkan di file `auth.py`:
+```
+def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
+    admin = db.query(models.Admin).filter(models.Admin.username == user_data.username).first()
+    
+    if admin:
+        if utils.verify_password(user_data.password, admin.hashed_password):
+            token = create_access_token(data={"sub": str(admin.id), "role": "admin"})
+            response = RedirectResponse(url="/admin/dashboard", status_code=303)
+            response.set_cookie(key="access_token", value=f"Bearer {token}", httponly=True)
+            return response
+```
+
+Jika bukan admin, maka dilempar ke dashboard anggota:
+```
+user = db.query(models.User).filter(
+        or_(models.User.identity_number == user_data.username, models.User.member_id == user_data.username)
+    ).first()
+
+    if user and utils.verify_password(user_data.password, user.hashed_password):
+        token = create_access_token(data={"sub": str(user.id), "role": "user"})
+        response = RedirectResponse(url="/dashboard/me", status_code=303)
+        response.set_cookie(key="access_token", value=f"Bearer {token}", httponly=True)
+        return response
+
+    return RedirectResponse(url="/auth/login?msg=invalid", status_code=303)
+```
+
+## 3. Buat Admin Pertama
+
+Untuk alasan keamanan, tidak ada form pembuatan akun. Semua akun admin yang ingin didaftarkan harus dilakukan oleh pemegang database langsung. Untuk mempermudah, simpan skrip dengan nama `create_admin.py`. Ketika mau bikin akun admin tinggal jalankan skrip nya:
+```
+# Jalankan ini di terminal: python create_admin.py
+from app.database import SessionLocal
+from app import models, utils
+
+def create_initial_admin():
+    db = SessionLocal()
+    hashed_pw = utils.hash_password("admin123") # Ganti password ini!
+    admin = models.Admin(
+        username="admin_ub",
+        full_name="Administrator Utama",
+        hashed_password=hashed_pw
+    )
+    db.add(admin)
+    db.commit()
+    print("Admin berhasil dibuat! Username: admin_ub, Pass: admin123")
+
+if __name__ == "__main__":
+    create_initial_admin()
+```

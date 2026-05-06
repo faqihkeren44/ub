@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from app.database import engine, SessionLocal, Base
 from fastapi.security import OAuth2PasswordBearer
-from .routers import products, auth, users, members
+from .routers import products, auth, users, members, admin
 
 Base.metadata.create_all(bind=engine)
 
@@ -19,6 +19,7 @@ app.include_router(products.router)
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(members.router)
+app.include_router(admin.router)
 
 def get_db():
     db = SessionLocal()
