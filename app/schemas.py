@@ -1,22 +1,60 @@
 from pydantic import BaseModel, EmailStr, Field
+from fastapi import Form
 from typing import Optional
 from decimal import Decimal
 
 class UserCreate(BaseModel):
-    email: EmailStr
+    full_name: str
+    birth_info: str
+    gender: str
+    address: str
+    family_card_number: str
+    identity_number: str
+    phone_number: str
+    spouse_name: Optional[str] = None
+    dkm_group: str
+    mandatory_savings: int
     password: str
-    full_name: Optional[str] = None
+
+    @classmethod
+    def as_form(
+        cls,
+        full_name: str = Form(...),
+        birth_info: str = Form(...),
+        gender: str = Form(...),
+        address: str = Form(...),
+        family_card_number: str = Form(...),
+        identity_number: str = Form(...),
+        phone_number: str = Form(...),
+        spouse_name: Optional[str] = Form(None),
+        dkm_group: str = Form(...),
+        mandatory_savings: int = Form(...),
+        password: str = Form(...)
+    ):
+        return cls(
+            full_name=full_name,
+            birth_info=birth_info,
+            gender=gender,
+            address=address,
+            family_card_number=family_card_number,
+            identity_number=identity_number,
+            phone_number=phone_number,
+            spouse_name=spouse_name,
+            dkm_group=dkm_group,
+            mandatory_savings=mandatory_savings,
+            password=password
+        )
 
 class UserOut(BaseModel):
-    email: EmailStr
+    identity_number: str
+    member_id: str
     full_name: Optional[str] = None
-    is_admin: bool
     
     class Config:
         from_attributes = True
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
     class Config:

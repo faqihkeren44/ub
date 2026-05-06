@@ -54,7 +54,7 @@ class User(Base):
     mandatory_savings = Column(Enum(SetoranWajib), nullable=False)
 
     # Akun Anggota
-    member_id = Column(String, unique=True, nullable=True) 
+    member_id = Column(String, unique=True, nullable=True, index=True) 
     hashed_password = Column(String, nullable=True)
 
     # Status

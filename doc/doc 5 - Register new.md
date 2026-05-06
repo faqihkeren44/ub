@@ -2,6 +2,7 @@
 
 - [Review](#review)
 - [Day 9 - Update Database](#day-9---update-database)
+- [Day 10 - Update Register Form](#day-10---update-register-form)
 
 # Review
 
@@ -99,9 +100,9 @@ class GenderType(enum.Enum):
     FEMALE = "Wanita"
 
 class UserStatus(IntFlag):
-    PENDING = 1    # 001
-    APPROVED = 2   # 010
-    REJECTED = 4   # 100
+    PENDING = 1
+    APPROVED = 2
+    REJECTED = 4
 ```
 
 ### Enum
@@ -179,4 +180,240 @@ Jika berhasil, akan muncul:
 ```
 INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
 INFO  [alembic.runtime.migration] Will assume transactional DDL.
+```
+
+# Day 10 - Update Register Form
+
+## 1. Penyesuaian `schemas.py`
+
+Karena kode akan panjang di `users.py`, tambahkan metode pembantu agar skema `UserCreate` bisa membaca data dari form. Berikut kode nya:
+```
+class UserCreate(BaseModel):
+    full_name: str
+    birth_info: str
+    gender: str
+    address: str
+    family_card_number: str
+    identity_number: str
+    phone_number: str
+    spouse_name: Optional[str] = None
+    dkm_group: str
+    mandatory_savings: int
+    password: str
+
+    @classmethod
+    def as_form(
+        cls,
+        full_name: str = Form(...),
+        birth_info: str = Form(...),
+        gender: str = Form(...),
+        address: str = Form(...),
+        family_card_number: str = Form(...),
+        identity_number: str = Form(...),
+        phone_number: str = Form(...),
+        spouse_name: Optional[str] = Form(None),
+        dkm_group: str = Form(...),
+        mandatory_savings: int = Form(...),
+        password: str = Form(...)
+    ):
+        return cls(
+            full_name=full_name,
+            birth_info=birth_info,
+            gender=gender,
+            address=address,
+            family_card_number=family_card_number,
+            identity_number=identity_number,
+            phone_number=phone_number,
+            spouse_name=spouse_name,
+            dkm_group=dkm_group,
+            mandatory_savings=mandatory_savings,
+            password=password
+        )
+```
+
+### Bedah Kode
+
+- Bagian pertama mendefinisikan skema Pydantic, yang memastikan bahwa setiap data yang masuk memiliki tipe yang benar. Field yang wajib diisi seperti `full_name`,`identity_number`, dll. Atau field opsional seperti `spouse_name`.
+- `as_form`: Secara bawaan, FastAPI tidak bisa langsung membaca model Pydantic dari input form HTML biasa (`application/x-www-form-urlencoded`). Metode `@classmethod def as_form(...)` berfungsi sebagai pembantu untuk mengumpulkan data dari setiap kolom input di file `register.html`, dan membungkus semua data itu ke dalam objek `UserCreate`.
+- `@classmethod`: Fungsi itu milik kelas itu sendiri, bukan milik objek (instance) tertentu.
+- `cls`: Parameter yang merujuk pada kelas `UserCreate` itu sendiri.
+- `as_form`: Nama fungsi buatan (bisa diganti). Fungsinya sebagai jembatan dengan FastAPI. Dengan mendaftarkan semua parameter (`full_name: str = Form(..)`), sama saja memberitahu FastAPI *"Tolong ambil data dari input HTML yang bernama `full_name`"*
+- `return cls`: Setelah semua data terkumpul, Pydantic mengecek tipe datanya. Jika ada yang salah, Pydantic langsung memberikan error sebelum data diproses.
+
+## 2. Penyesuaian `users.py`
+
+Parameter `user_data` diambil dari `schemas.UserCreate.as_form` menggunakan `Depends`:
+```
+@router.post("/register")
+def register_user(
+    confirm_password: str = Form(...),
+    user_data: schemas.UserCreate = Depends(schemas.UserCreate.as_form),
+    db: Session = Depends(database.get_db)
+):
+```
+
+Pertama, cek apakah password dan confirmation_password sama:
+```
+if user_data.password != confirm_password:
+        return RedirectResponse(url="/users/register?msg=password_mismatch", status_code=303)
+```
+
+Kode pengecekan data yang seperti berikut sudah tidak dibutuhkan, dihapus saja:
+```
+    try:
+        user_data = schemas.UserCreate(
+            ...
+        )
+    except ValueError as e: return RedirectResponse(...)
+```
+
+Yang kedua, pengecekan dengan no KTP. Apakah KTP yang didaftarkan sudah ada dalam database? Jika sudah ada, kirim pesan `already_exist`:
+```
+    if db.query(models.User).filter(models.User.identity_number == user_data.identity_number).first():
+        return RedirectResponse(url="/users/register?msg=already_exists", status_code=303)
+```
+
+Setelah semua pengecekan, buka `user_data` (kecuali nilai `password`) dengan `.model_dump(exclude={'password'})`. Simpan nilai ini dalam variabel `data`:
+```
+    data = user_data.model_dump(exclude={'password'})
+
+    data['dkm_group'] = models.KelompokDKM(data['dkm_group'])
+    data['mandatory_savings'] = models.SetoranWajib(data['mandatory_savings'])
+```
+
+Selanjutnya, simpan password yang dimasukan kedalam database dengan si enkripsi terlebih dahulu. Sekaligus membuat `member_id` secara otomatis:
+- `f"UB-"`: Ini adalah awalan (prefix) tetap yang menandakan identitas "Unit Bisnis" agar ID terlihat formal.
+- `user_data.identity_number[-4:]`: Bagian ini mengambil 4 digit terakhir dari Nomor KTP (NIK) yang diinput oleh pengguna.
+- `random.randint(10, 99)`: Ini menambahkan bumbu acak berupa angka antara 10 sampai 99. Hal ini berguna untuk memperkecil kemungkinan adanya dua orang yang memiliki 4 digit NIK terakhir yang sama mendapatkan ID yang persis serupa.
+```
+    hashed_pw = utils.hash_password(user_data.password)
+    gen_id = f"UB-{user_data.identity_number[-4:]}{random.randint(10, 99)}"
+```
+
+Terakhir, masukan ke dalam variabel `new_user`, lalu disimpan dalam database untuk meminta persetujuan pengurus:
+```
+    new_user = models.User(
+        **data,
+        member_id=gen_id,
+        hashed_password=hashed_pw
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    teks_sambutan = f"Selamat, {new_user.full_name} sudah berhasil mendaftar!"
+    pesan_sukses = quote(teks_sambutan)
+
+    return RedirectResponse(
+        url=f"/auth/login?msg={pesan_sukses}&status=sukses", 
+        status_code=303
+    )
+```
+
+## 3. Pembaruan `register.html`
+
+Tambahkan semua input (field) yang diwajibkan oleh database. Sesuaikan persis opsi `select` dengan nilai `Enum` yang ada di `models.py`:
+```
+{% if pesan %}  
+    <div class="alert {% if status == 'sukses' %}alert-success{% else %}alert-danger{% endif %}">
+        {{ pesan }}
+    </div>
+{% endif %}
+
+<form action="/users/register" method="post">
+    <div class="form-group">
+        <label for="full_name">Nama Lengkap (Sesuai KTP)</label>
+        <input type="text" id="full_name" name="full_name" required>
+    </div>
+
+    <div class="form-group">
+        <label for="identity_number">Nomor KTP (NIK)</label>
+        <input type="text" id="identity_number" name="identity_number" required placeholder="16 digit angka">
+    </div>
+
+    <div class="form-group">
+        <label for="family_card_number">Nomor Kartu Keluarga (KK)</label>
+        <input type="text" id="family_card_number" name="family_card_number" required>
+    </div>
+
+    <div class="form-group">
+        <label for="birth_info">Tempat, Tanggal Lahir</label>
+        <input type="text" id="birth_info" name="birth_info" required placeholder="Contoh: Bogor, 17 Agustus 1990">
+    </div>
+
+    <div class="form-group">
+        <label for="gender">Jenis Kelamin</label>
+        <select id="gender" name="gender" required>
+            <option value="Pria">Pria</option>
+            <option value="Wanita">Wanita</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="address">Alamat Domisili Lengkap</label>
+        <textarea id="address" name="address" rows="3" required></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="phone_number">Nomor Telepon / WhatsApp</label>
+        <input type="text" id="phone_number" name="phone_number" required>
+    </div>
+
+    <div class="form-group">
+        <label for="spouse_name">Nama Suami/Istri (Kosongkan jika belum menikah)</label>
+        <input type="text" id="spouse_name" name="spouse_name">
+    </div>
+
+    <div class="form-group">
+        <label for="dkm_group">Kelompok DKM</label>
+        <select id="dkm_group" name="dkm_group" required>
+            <option value="DKM DARUSSALAM - Gunung Gede">DKM DARUSSALAM - Gunung Gede</option>
+            <option value="DKM AL BAROKAH - Pondok Rumput">DKM AL BAROKAH - Pondok Rumput</option>
+            <option value="DKM DARUL HIKMAH - Green Arofah">DKM DARUL HIKMAH - Green Arofah</option>
+            <option value="DKM AR-RAUDHOH - Pakuan">DKM AR-RAUDHOH - Pakuan</option>
+            <option value="DKM BAITUL IZZA - Tajur">DKM BAITUL IZZA - Tajur</option>
+            <option value="DKM AN-NASHR - Cikaret">DKM AN-NASHR - Cikaret</option>
+            <option value="DKM AR-ROHMAN - Ciapus">DKM AR-ROHMAN - Ciapus</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="mandatory_savings">Pilihan Setoran Wajib / Bulan</label>
+        <select id="mandatory_savings" name="mandatory_savings" required>
+            <option value="25000">Rp 25.000</option>
+            <option value="50000">Rp 50.000</option>
+            <option value="100000">Rp 100.000</option>
+            <option value="250000">Rp 250.000</option>
+            <option value="500000">Rp 500.000</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Kata Sandi</label>
+        <input type="password" id="password" name="password" required placeholder="Minimal 8 karakter">
+    </div>
+
+    <div class="form-group">
+        <label for="confirm_password">Konfirmasi Kata Sandi</label>
+        <input type="password" id="confirm_password" name="confirm_password" required placeholder="Ulangi kata sandi">
+    </div>
+
+    <button type="submit" class="btn-login">Kirim Pendaftaran</button>
+</form>
+```
+
+## 4. Perbarui `auth.py`
+
+Karena sekarang tidak menggunakan `email, tapi bisa menggunakan `identity_number` atau `member_id`, perlu ada penyesuaian:
+```
+from sqlalchemy import or_
+
+login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(
+        or_(
+            models.User.identity_number == user_data.username,
+            models.User.member_id == user_data.username
+        )
+    ).first()
 ```

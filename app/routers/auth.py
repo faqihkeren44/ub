@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from app.config import SECRET_KEY
@@ -41,7 +42,12 @@ def login_page(request: Request, msg: str = None, status: str = "peringatan"):
 
 @router.post("/login")
 def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.email == user_data.username).first()
+    user = db.query(models.User).filter(
+        or_(
+            models.User.identity_number == user_data.username,
+            models.User.member_id == user_data.username
+        )
+    ).first()
     
     if user is None:
         return RedirectResponse(url="/auth/login?msg=invalid", status_code=303)

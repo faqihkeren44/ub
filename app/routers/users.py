@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from urllib.parse import quote
 from .. import models, schemas, database, utils
+import random
 
 router = APIRouter(
     prefix="/users",
@@ -35,34 +36,28 @@ def register_page(request: Request, msg: str = None):
 
 @router.post("/register")
 def register_user(
-    full_name: str = Form(...),
-    username: str = Form(...),
-    password: str = Form(...),
     confirm_password: str = Form(...),
+    user_data: schemas.UserCreate = Depends(schemas.UserCreate.as_form),
     db: Session = Depends(database.get_db)):
     
-    if password != confirm_password:
+    if user_data.password != confirm_password:
         return RedirectResponse(url="/users/register?msg=password_mismatch", status_code=303)
 
-    try:
-        user_data = schemas.UserCreate(
-            full_name=full_name,
-            email=username,
-            password=password
-        )
-    except ValueError as e:
-        return RedirectResponse(url="/users/register?msg=invalid_data", status_code=303)
-
-    user_exist = db.query(models.User).filter(models.User.email == user_data.email).first()
-    if user_exist:
+    if db.query(models.User).filter(models.User.identity_number == user_data.identity_number).first():
         return RedirectResponse(url="/users/register?msg=already_exists", status_code=303)
 
-    hashed_password = utils.hash_password(user_data.password)
+    data = user_data.model_dump(exclude={'password'})
+
+    data['dkm_group'] = models.KelompokDKM(data['dkm_group'])
+    data['mandatory_savings'] = models.SetoranWajib(data['mandatory_savings'])
+
+    hashed_pw = utils.hash_password(user_data.password)
+    gen_id = f"UB-{user_data.identity_number[-4:]}{random.randint(10, 99)}"
 
     new_user = models.User(
-        email=user_data.email,
-        hashed_password=hashed_password,
-        full_name=user_data.full_name
+        **data,
+        member_id=gen_id,
+        hashed_password=hashed_pw
     )
 
     db.add(new_user)
