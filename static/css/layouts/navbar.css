@@ -22,7 +22,7 @@ header {
 }
 
 .nav-links a {
-    color: var(--text-light);
+    color: var(--text-main);
     font-weight: 500;
     font-size: 15px;
     opacity: 0.9;
@@ -35,5 +35,5 @@ header {
 .nav-logo {
     font-size: 24px;
     font-weight: 800;
-    color: var(--text-light);
+    color: var(--text-main);
 }
