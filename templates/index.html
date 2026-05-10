@@ -8,98 +8,252 @@
     <link rel="stylesheet" href="../static/css/pages/index.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="#">Beranda</a>
-            <ul>
-                <li><a href="#">Tentang Kami</a></li>
-                <li><a href="#">Struktur Organisasi</a></li>
-                <li><a href="#">Bidang Usaha</a></li>
-                <li><a href="#">Kontak</a></li>
+    <header id="main-header" class="header-mobile">
+        <nav class="nav-container">
+            <a href="#" class="nav-logo">
+                UB <span>Mandiri Sejahtera</span>
+            </a>
+
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <ul class="nav-menu" id="nav-list">
+                <li><a href="#tentang" class="nav-link">Tentang</a></li>
+                <li><a href="#usaha" class="nav-link">Unit Usaha</a></li>
+                <li><a href="#struktur" class="nav-link">Organisasi</a></li>
+                <li><a href="auth/login" class="nav-btn">Masuk</a></li>
             </ul>
         </nav>
     </header>
 
-    <img src="../static/img/logo_1.png" alt="Logo Koperasi UB Mandiri Sejahtera" 
-         style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-         
-    <main>
-        <section>
-            <h1>Koperasi Usaha Bersama Mandiri Sejahtera</h1>
-            <p>Disingkat: Koperasi UB Mandiri Sejahtera [cite: 4]</p>
-            <p>Menjadi usaha syariah yang profesional, mandiri, sukses dan barokah[cite: 7].</p>
-        </section>
-
-        <section>
-            <h2>Tentang Kami</h2>
-            <p>Koperasi UB Mandiri Sejahtera didirikan pada tanggal 18 Agustus 2018[cite: 3].</p>
-            <p>
-                Berdirinya koperasi ini tidak terlepas dari visi Pendiri, Pengurus DKM, dan seluruh Jamaah Masjid untuk 
-                memberdayakan pengurus dan Jamaah Masjid dalam bidang perekonomian[cite: 4].
-            </p>
-            <h3>Data Umum & Legalitas</h3>
-            <ul>
-                <li><strong>Badan Hukum:</strong> 009532/BH/M.KUKM.2/IX/2018 (04 September 2018) [cite: 3, 23]</li>
-                <li><strong>NIK:</strong> 3271040020142 [cite: 24]</li>
-                <li><strong>NPWP:</strong> 65.026.259.5-404.000 [cite: 25]</li>
-                <li><strong>Alamat:</strong> Jl. Lodaya Ujung Nomor 6, RT 003 RW 007, Kel Babakan - Bogor [cite: 22]</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2>Visi & Misi</h2>
-            <h3>Visi</h3>
-            <p>Menjadi usaha syariah yang profesional, mandiri, sukses dan barokah[cite: 7].</p>
-            <h3>Misi</h3>
-            <ol>
-                <li>Membentuk usaha yang syariah [cite: 9]</li>
-                <li>Menumbuhkan kemandirian usaha yang profesional [cite: 10]</li>
-                <li>Menjadi usaha yang menguntungkan [cite: 11]</li>
-                <li>Mewujudkan kesejahteraan anggota [cite: 12]</li>
-            </ol>
-        </section>
-
-        <section>
-            <h2>Struktur Organisasi</h2>
+    <main id="hero" class="hero-section">
+        <section class="container">
+            <div class="hero-logo-wrapper">
+                <img src="../static/img/logo_1.png" alt="Logo Koperasi UB" class="hero-logo">
+            </div>
             
-            <h3>Penasehat</h3>
-            <ul>
-                <li>H. Ir. Hermanu Widjaja, MSc [cite: 29]</li>
-                <li>H. Ir. Agus Effendy [cite: 30]</li>
-            </ul>
-
-            <h3>Pengawas</h3>
-            <ul>
-                <li><strong>Ketua:</strong> Riwan Taufid [cite: 32, 35]</li>
-                <li><strong>Anggota:</strong> H. Ir. Gelar Setya Budi, MSc. [cite: 33, 36]</li>
-                <li><strong>Anggota:</strong> H. Drs. Asep Ahmad Subagio, MM [cite: 34, 37]</li>
-            </ul>
-
-            <h3>Pengurus</h3>
-            <ul>
-                <li><strong>Ketua:</strong> Ismail Jayaperkasa [cite: 39, 42]</li>
-                <li><strong>Bendahara:</strong> H. Adhi Prayudi Maulana, SE [cite: 40, 43]</li>
-                <li><strong>Sekretaris:</strong> M. Nur Rahmadi [cite: 41, 44]</li>
-            </ul>
+            <div class="hero-content">
+                <h1>Koperasi Usaha Bersama Mandiri Sejahtera</h1>
+                <p>Menjadi usaha syariah yang profesional, mandiri, sukses dan barokah[cite: 7, 194].</p>
+                <div class="hero-actions">
+                    <a href="#daftar" class="btn btn-primary">Gabung Anggota</a>
+                </div>
+            </div>
         </section>
 
-        <section>
-            <h2>Bidang Usaha</h2>
-            <ul>
-                <li>Toko Sembako [cite: 46]</li>
-                <li>Pengadaan Hewan Ternak / Hewan Qurban [cite: 48]</li>
-                <li>Jasa Pembayaran Listrik Online / PPOB [cite: 49]</li>
-                <li>Jasa Travel dan Umroh [cite: 50]</li>
-                <li>Usaha Simpan Pinjam Pembiayaan Syariah [cite: 51]</li>
-                <li>Ikut Penanaman Modal [cite: 52]</li>
-            </ul>
+        <section id="tentang" class="about-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="badge">Tentang Kami</span>
+                    <h2>Membangun Ekonomi Syariah dari Masjid</h2>
+                </div>
+
+                <div class="about-content">
+                    <p>
+                        Koperasi UB Mandiri Sejahtera didirikan pada 18 Agustus 2018 dengan semangat memberdayakan pengurus dan Jamaah Masjid dalam bidang perekonomian. Kami hadir sebagai solusi mandiri untuk kebutuhan ibadah dan pelayanan jasa jamaah.
+                    </p>
+
+                    <div class="legal-card">
+                        <h3>Informasi Legalitas</h3>
+                        <ul class="legal-list">
+                            <li>
+                                <strong>Badan Hukum</strong>
+                                <span>009532/BH/M.KUKM.2/IX/2018</span>
+                            </li>
+                            <li>
+                                <strong>NIK</strong>
+                                <span>3271040020142</span>
+                            </li>
+                            <li>
+                                <strong>NPWP</strong>
+                                <span>65.026.259.5-404.000</span>
+                            </li>
+                            <li>
+                                <strong>Lokasi</strong>
+                                <span>Kel. Babakan, Bogor</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="visi-misi" class="vision-mission-section">
+            <div class="container">
+                <div class="vision-container">
+                    <span class="badge-white">Visi Kami</span>
+                    <h2>"Menjadi usaha syariah yang profesional, mandiri, sukses dan barokah"</h2>
+                </div>
+
+                <div class="mission-grid">
+                    <div class="mission-card">
+                        <div class="icon-box">01</div>
+                        <p>Membentuk usaha yang syariah</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="icon-box">02</div>
+                        <p>Menumbuhkan kemandirian usaha yang profesional</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="icon-box">03</div>
+                        <p>Menjadi usaha yang menguntungkan</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="icon-box">04</div>
+                        <p>Mewujudkan kesejahteraan anggota</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="struktur" class="org-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="badge">Kepemimpinan</span>
+                    <h2>Struktur Organisasi</h2>
+                    <p>Dikelola oleh tenaga profesional yang berdedikasi untuk kemajuan jamaah.</p>
+                </div>
+
+                <div class="org-grid">
+                    <div class="org-group">
+                        <h3>Penasehat</h3>
+                        <div class="member-list">
+                            <div class="member-item">
+                                <span class="member-name">H. Ir. Hermanu Widjaja, MSc</span>
+                            </div>
+                            <div class="member-item">
+                                <span class="member-name">H. Ir. Agus Effendy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="org-group">
+                        <h3>Pengawas</h3>
+                        <div class="member-list">
+                            <div class="member-item">
+                                <span class="member-role">Ketua</span>
+                                <span class="member-name">Riwan Taufid</span>
+                            </div>
+                            <div class="member-item">
+                                <span class="member-role">Anggota</span>
+                                <span class="member-name">H. Ir. Gelar Setya Budi, MSc.</span>
+                            </div>
+                            <div class="member-item">
+                                <span class="member-role">Anggota</span>
+                                <span class="member-name">H. Drs. Asep Ahmad Subagio, MM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="org-group">
+                        <h3>Pengurus</h3>
+                        <div class="member-list">
+                            <div class="member-item">
+                                <span class="member-role">Ketua</span>
+                                <span class="member-name">Ismail Jayaperkasa</span>
+                            </div>
+                            <div class="member-item">
+                                <span class="member-role">Bendahara</span>
+                                <span class="member-name">H. Adhi Prayudi Maulana, SE</span>
+                            </div>
+                            <div class="member-item">
+                                <span class="member-role">Sekretaris</span>
+                                <span class="member-name">M. Nur Rahmadi</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="usaha" class="service-section">
+            <div class="container">
+                <div class="section-header center">
+                    <span class="badge">Unit Bisnis</span>
+                    <h2>Bidang Usaha Kami</h2>
+                    <p>Melayani berbagai kebutuhan anggota dengan prinsip syariah dan profesionalisme.</p>
+                </div>
+
+                <div class="service-grid">
+                    <div class="service-card">
+                        <div class="service-icon">🛒</div>
+                        <h4>Toko Sembako</h4>
+                        <p>Penyediaan kebutuhan pokok berkualitas untuk seluruh anggota.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">🐄</div>
+                        <h4>Hewan Ternak & Qurban</h4>
+                        <p>Fasilitasi pengadaan hewan ternak dan pelaksanaan ibadah Qurban.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">📱</div>
+                        <h4>PPOB & Listrik</h4>
+                        <p>Kemudahan pembayaran tagihan listrik dan transaksi online lainnya.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">🕋</div>
+                        <h4>Travel & Umroh</h4>
+                        <p>Layanan perjalanan ibadah yang amanah dan terpercaya.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">🌙</div>
+                        <h4>Simpan Pinjam Syariah</h4>
+                        <p>Pembiayaan berbasis syariah tanpa riba untuk kesejahteraan anggota.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">📈</div>
+                        <h4>Penanaman Modal</h4>
+                        <p>Peluang investasi produktif untuk pertumbuhan ekonomi bersama.</p>
+                    </div>
+                </div>
+            </div>
         </section>
     </main>
 
-    <footer>
-        <p><strong>Hubungi Kami:</strong></p>
-        <p>Email: kop.ub.mandiri.sejahtera@gmail.com [cite: 26]</p>
-        <p>Alamat: Jl. Lodaya Ujung Nomor 6, RT 003 RW 007, Kel Babakan - Bogor [cite: 22]</p>
+    <footer id="kontak" class="main-footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <a href="#" class="footer-logo">UB <span>Mandiri Sejahtera</span></a>
+                <p class="legal-text">
+                    Koperasi Usaha Bersama Mandiri Sejahtera didirikan pada 18 Agustus 2018 dengan komitmen pemberdayaan ekonomi syariah.
+                </p>
+            </div>
+
+            <div class="footer-contact">
+                <h4>Hubungi Kami</h4>
+                <div class="contact-item">
+                    <span class="contact-label">Email</span>
+                    <a href="mailto:kop.ub.mandiri.sejahtera@gmail.com" class="contact-value">kop.ub.mandiri.sejahtera@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-label">Alamat</span>
+                    <p class="contact-value">Jl. Lodaya Ujung Nomor 6, RT 003 RW 007, Kel Babakan - Bogor</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Koperasi UB Mandiri Sejahtera. Semua Hak Dilindungi.</p>
+            </div>
+        </div>
     </footer>
+
+    <script>
+        const menu = document.querySelector('#mobile-menu');
+        const navLinks = document.querySelector('#nav-list');
+
+        menu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            // Animasi sederhana hamburger jadi silang (opsional)
+            menu.classList.toggle('is-active');
+        });
+    </script>
 </body>
 </html>
