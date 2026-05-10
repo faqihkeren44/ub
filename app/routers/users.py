@@ -36,12 +36,12 @@ def register_page(request: Request, msg: str = None):
 
 @router.post("/register")
 def register_user(
-    confirm_password: str = Form(...),
+    # confirm_password: str = Form(...),
     user_data: schemas.UserCreate = Depends(schemas.UserCreate.as_form),
     db: Session = Depends(database.get_db)):
     
-    if user_data.password != confirm_password:
-        return RedirectResponse(url="/users/register?msg=password_mismatch", status_code=303)
+    # if user_data.password != confirm_password:
+        # return RedirectResponse(url="/users/register?msg=password_mismatch", status_code=303)
 
     if db.query(models.User).filter(models.User.identity_number == user_data.identity_number).first():
         return RedirectResponse(url="/users/register?msg=already_exists", status_code=303)
@@ -51,13 +51,13 @@ def register_user(
     data['dkm_group'] = models.KelompokDKM(data['dkm_group'])
     data['mandatory_savings'] = models.SetoranWajib(data['mandatory_savings'])
 
-    hashed_pw = utils.hash_password(user_data.password)
-    gen_id = f"UB-{user_data.identity_number[-4:]}{random.randint(10, 99)}"
+    # hashed_pw = utils.hash_password(user_data.password)
+    # gen_id = f"UB-{user_data.identity_number[-4:]}{random.randint(10, 99)}"
 
-    new_user = models.User(
+    new_user = models.PendingRegistration(
         **data,
-        member_id=gen_id,
-        hashed_password=hashed_pw
+        # member_id=gen_id,
+        # hashed_password=hashed_pw
     )
 
     db.add(new_user)

@@ -3,6 +3,7 @@
 - [Review](#review)
 - [Day 9 - Update Database](#day-9---update-database)
 - [Day 10 - Update Register Form](#day-10---update-register-form)
+- [Day 11 - Update Status](#day-11---update-status)
 
 # Review
 
@@ -486,4 +487,115 @@ def create_initial_admin():
 
 if __name__ == "__main__":
     create_initial_admin()
+```
+
+# Day 11 - Update Status
+
+## 1. Membuat Endpoint
+
+```
+@router.post("/update-status/{user_id}")
+def update_user_status(
+    user_id: int,
+    new_status: str = Form(...),
+    request: Request = None,
+    db: Session = Depends(database.get_db)
+):
+    token_cookie = request.cookies.get("access_token")
+
+    if not token_cookie:
+        return RedirectResponse(
+            url="auth/login?msg=not_login",
+            status_code=303
+        )
+
+    try:
+        token = token_cookie.replace("Bearer ", "")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+
+        admin_identifier = payload.get("sub")
+        role = payload.get("role")
+
+        if role != "superadmin":
+            raise HTTPException(status_code=403, detail="Akses ditolak.")
+
+        # Ambil admin dari database
+        admin_db = (
+            db.query(models.Admin)
+            .filter(models.Admin.admin_id == admin_identifier)
+            .first()
+        )
+
+        if not admin_db:
+            raise HTTPException(status_code=404, detail="Admin tidak ditemukan.")
+
+        # Ambil user yang ingin diubah
+        user = (
+            db.query(models.User)
+            .filter(models.User.id == user_id)
+            .first()
+        )
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User tidak ditemukan.")
+
+        # Mapping string ke enum
+        status_mapping = {
+            "APPROVED": models.UserStatus.APPROVED.value,
+            "REJECTED": models.UserStatus.REJECTED.value,
+            "PENDING": models.UserStatus.PENDING.value,
+        }
+
+        if new_status not in status_mapping:
+            raise HTTPException(status_code=400, detail="Status tidak valid.")
+
+        # Update status
+        user.status_flags = status_mapping[new_status]
+        user.approved_by = admin_db.admin_id
+
+        db.commit()
+
+        return RedirectResponse(
+            url="/admin/dashboard",
+            status_code=303
+        )
+
+    except ExpiredSignatureError:
+        response = RedirectResponse(
+            url="/auth/login?msg=expired",
+            status_code=303
+        )
+        response.delete_cookie("access_token")
+        return response
+```
+
+## 2. Tambahan Tombol
+
+```
+<td>
+    <!-- Tombol Approve -->
+    <form action="/admin/update-status/{{ user.id }}"
+            method="post"
+            style="display:inline;">
+        <input type="hidden"
+                name="new_status"
+                value="APPROVED">
+        <button type="submit">
+            Approve
+        </button>
+    </form>
+
+    <!-- Tombol Reject -->
+    <form action="/admin/update-status/{{ user.id }}"
+            method="post"
+            style="display:inline;">
+        <input type="hidden"
+                name="new_status"
+                value="REJECTED">
+        <button type="submit"
+                onclick="return confirm('Yakin ingin menolak anggota ini?');">
+            Reject
+        </button>
+    </form>
+</td>
 ```

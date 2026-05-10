@@ -14,7 +14,6 @@ class UserCreate(BaseModel):
     spouse_name: Optional[str] = None
     dkm_group: str
     mandatory_savings: int
-    password: str
 
     @classmethod
     def as_form(
@@ -28,8 +27,7 @@ class UserCreate(BaseModel):
         phone_number: str = Form(...),
         spouse_name: Optional[str] = Form(None),
         dkm_group: str = Form(...),
-        mandatory_savings: int = Form(...),
-        password: str = Form(...)
+        mandatory_savings: int = Form(...)
     ):
         return cls(
             full_name=full_name,
@@ -41,8 +39,7 @@ class UserCreate(BaseModel):
             phone_number=phone_number,
             spouse_name=spouse_name,
             dkm_group=dkm_group,
-            mandatory_savings=mandatory_savings,
-            password=password
+            mandatory_savings=mandatory_savings
         )
 
 class UserOut(BaseModel):

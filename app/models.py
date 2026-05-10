@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Text, Numeric, Boolean, Enum
+from sqlalchemy import Column, Integer, String, Text, Numeric, Boolean, Enum, DateTime
 from enum import IntFlag
 from app.database import Base
 
@@ -34,8 +34,8 @@ class UserStatus(IntFlag):
     APPROVED = 2
     REJECTED = 4
 
-class User(Base):
-    __tablename__ = "users"
+class PendingRegistration(Base):
+    __tablename__ = "pending_registrations"
     
     id = Column(Integer, primary_key=True, index=True)
 
@@ -48,6 +48,27 @@ class User(Base):
     identity_number = Column(String, unique=True, nullable=False) # No KTP
     phone_number = Column(String, nullable=False)
     spouse_name = Column(String, nullable=True) # Nama Pasangan
+
+    # Pilihan Terbatas
+    dkm_group = Column(Enum(KelompokDKM), nullable=False)
+    mandatory_savings = Column(Enum(SetoranWajib), nullable=False)
+
+    submitted_at = Column(DateTime, server_default=func.now())
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Data Identitas
+    full_name = Column(String, nullable=False)
+    birth_info = Column(String, nullable=False)
+    gender = Column(String, nullable=False)
+    address = Column(String, nullable=False)
+    family_card_number = Column(String, nullable=False)
+    identity_number = Column(String, unique=True, nullable=False)
+    phone_number = Column(String, nullable=False)
+    spouse_name = Column(String, nullable=True)
 
     # Pilihan Terbatas
     dkm_group = Column(Enum(KelompokDKM), nullable=False)
@@ -68,7 +89,7 @@ class Admin(Base):
     admin_id = Column(String, unique=True, nullable=False, index=True)
     full_name = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
-    role = Column(String, default="superadmin")
+    role = Column(String, default="admin")
 
 class Product(Base):
     __tablename__ = "products"

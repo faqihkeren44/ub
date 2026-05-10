@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <title>Admin Dashboard - Koperasi UB</title>
-    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="../static/css/pages/admin.css">
 </head>
 <body>
     <div class="sidebar">
@@ -12,6 +12,7 @@
 
     <div class="main-content">
         <h1>Daftar Anggota Koperasi</h1>
+
         <table border="1" style="width:100%; border-collapse: collapse;">
             <thead>
                 <tr style="background-color: #f2f2f2;">
@@ -20,6 +21,7 @@
                     <th>NIK</th>
                     <th>Kelompok DKM</th>
                     <th>Setoran</th>
+                    <th>Status</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -31,8 +33,46 @@
                     <td>{{ user.identity_number }}</td>
                     <td>{{ user.dkm_group }}</td>
                     <td>Rp {{ "{:,.0f}".format(user.mandatory_savings) }}</td>
+
+                    <!-- Status Saat Ini -->
                     <td>
-                        <button onclick="location.href='/admin/edit/{{user.id}}'">Edit</button>
+                        {% if user.status_flags == 1 %}
+                            ⏳ Pending
+                        {% elif user.status_flags == 2 %}
+                            ✅ Approved
+                        {% elif user.status_flags == 4 %}
+                            ❌ Rejected
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td>
+
+                    <!-- Tombol Aksi -->
+                    <td>
+                        <!-- Tombol Approve -->
+                        <form action="/admin/update-status/{{ user.id }}"
+                                method="post"
+                                style="display:inline;">
+                            <input type="hidden"
+                                    name="new_status"
+                                    value="APPROVED">
+                            <button type="submit">
+                                Approve
+                            </button>
+                        </form>
+
+                        <!-- Tombol Reject -->
+                        <form action="/admin/update-status/{{ user.id }}"
+                                method="post"
+                                style="display:inline;">
+                            <input type="hidden"
+                                    name="new_status"
+                                    value="REJECTED">
+                            <button type="submit"
+                                    onclick="return confirm('Yakin ingin menolak anggota ini?');">
+                                Reject
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}

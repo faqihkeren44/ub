@@ -1,0 +1,220 @@
+/* ==========================================
+   ADMIN DASHBOARD - STRIPE INSPIRED DESIGN
+   Mobile First Responsive Layout
+========================================== */
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #635bff;
+    --primary-dark: #4f46e5;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --text: #1f2937;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --bg: #f6f9fc;
+    --card: #ffffff;
+    --shadow: 0 10px 30px rgba(50, 50, 93, 0.08),
+              0 4px 12px rgba(0, 0, 0, 0.05);
+    --radius: 16px;
+    --radius-sm: 10px;
+}
+
+/* Body */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 16px;
+}
+
+/* Sidebar / Header */
+.sidebar {
+    background: linear-gradient(135deg, #635bff 0%, #7a73ff 100%);
+    color: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.sidebar h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.sidebar a {
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.16);
+    padding: 10px 14px;
+    border-radius: 999px;
+    transition: all 0.2s ease;
+}
+
+.sidebar a:hover {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+/* Main Content */
+.main-content h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+}
+
+/* Table Wrapper */
+.main-content table {
+    width: 100%;
+    border-collapse: separate !important;
+    border-spacing: 0;
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: none;
+}
+
+/* Header */
+thead {
+    background: #f9fafb;
+}
+
+thead th {
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Body Cells */
+tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    font-size: 0.95rem;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background: #fafbff;
+}
+
+/* Action Column */
+td form {
+    display: inline-block;
+    margin: 4px 4px 0 0;
+}
+
+/* Buttons */
+button {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+/* Approve button (first button in action cell) */
+td form:first-of-type button {
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--success);
+}
+
+td form:first-of-type button:hover {
+    background: rgba(22, 163, 74, 0.18);
+}
+
+/* Reject button (second button in action cell) */
+td form:last-of-type button {
+    background: rgba(220, 38, 38, 0.10);
+    color: var(--danger);
+}
+
+td form:last-of-type button:hover {
+    background: rgba(220, 38, 38, 0.16);
+}
+
+/* Status Styling */
+tbody td:nth-child(6) {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Mobile First:
+   Tabel tetap horizontal scroll agar nyaman di layar kecil */
+.main-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.main-content table {
+    min-width: 900px;
+}
+
+/* Scrollbar */
+.main-content::-webkit-scrollbar {
+    height: 8px;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 999px;
+}
+
+/* Desktop Layout */
+@media (min-width: 1024px) {
+    body {
+        padding: 32px;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .sidebar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px 28px;
+    }
+
+    .sidebar h3 {
+        margin-bottom: 0;
+        font-size: 1.2rem;
+    }
+
+    .main-content h1 {
+        font-size: 2rem;
+        margin-bottom: 24px;
+    }
+
+    thead th,
+    tbody td {
+        padding: 18px 20px;
+    }
+
+    button {
+        padding: 9px 16px;
+    }
+}
