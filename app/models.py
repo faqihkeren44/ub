@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Text, Numeric, Boolean, Enum, DateTime
+from sqlalchemy import Column, Integer, String, Text, Numeric, Boolean, Enum, DateTime, func
 from enum import IntFlag
 from app.database import Base
 
@@ -34,8 +34,8 @@ class UserStatus(IntFlag):
     APPROVED = 2
     REJECTED = 4
 
-class PendingRegistration(Base):
-    __tablename__ = "pending_registrations"
+class Registration(Base):
+    __tablename__ = "registrations"
     
     id = Column(Integer, primary_key=True, index=True)
 
@@ -60,7 +60,9 @@ class User(Base):
     
     id = Column(Integer, primary_key=True, index=True)
 
-    # Data Identitas
+    member_id = Column(String, unique=True, nullable=True, index=True) 
+    hashed_password = Column(String, nullable=True)
+
     full_name = Column(String, nullable=False)
     birth_info = Column(String, nullable=False)
     gender = Column(String, nullable=False)
@@ -70,16 +72,10 @@ class User(Base):
     phone_number = Column(String, nullable=False)
     spouse_name = Column(String, nullable=True)
 
-    # Pilihan Terbatas
     dkm_group = Column(Enum(KelompokDKM), nullable=False)
     mandatory_savings = Column(Enum(SetoranWajib), nullable=False)
 
-    # Akun Anggota
-    member_id = Column(String, unique=True, nullable=True, index=True) 
-    hashed_password = Column(String, nullable=True)
-
-    # Status
-    status_flags = Column(Integer, default=UserStatus.PENDING.value)
+    approved_at = Column(DateTime, server_default=func.now())
     approved_by = Column(String, nullable=True)
 
 class Admin(Base):

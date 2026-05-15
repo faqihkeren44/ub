@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Response, Request
+from fastapi import APIRouter, Depends, status, Response, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.security import OAuth2PasswordRequestForm
@@ -7,7 +7,7 @@ from sqlalchemy import or_
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from app.config import SECRET_KEY
-from jose import jwt
+from jose import jwt, ExpiredSignatureError
 from .. import database, models,utils
 
 router = APIRouter(
@@ -16,6 +16,51 @@ router = APIRouter(
 )
 
 templates = Jinja2Templates(directory="templates")
+
+def verify_admin(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    token_cookie = request.cookies.get("access_token")
+
+    # Belum login
+    if not token_cookie:
+        return RedirectResponse(url="/auth/login?msg=not_login", status_code=303)
+
+    try:
+        # Hilangkan prefix "Bearer "
+        token = token_cookie.replace("Bearer ", "")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+
+        # Ambil data dari payload
+        admin_identifier = payload.get("sub") # Ini isinya "admin_ub_001"
+        role = payload.get("role")
+
+        if role != "superadmin": # Sesuaikan role dengan logic loginmu
+            raise HTTPException(status_code=403, detail="Akses ditolak.")
+
+        # Cari admin di database
+        admin = (
+            db.query(models.Admin)
+            .filter(models.Admin.admin_id == payload.get("sub"))
+            .first()
+        )
+
+        if not admin:
+            print(f"LOG: Admin dengan ID {admin_identifier} tidak ada di database!")
+            response = RedirectResponse(url="/auth/login?msg=admin_not_found", status_code=303)
+            response.delete_cookie("access_token")
+            return response
+        
+        return admin
+
+    except ExpiredSignatureError:
+        response = RedirectResponse(url="/auth/login?msg=expired", status_code=303)
+        response.delete_cookie("access_token")
+        return response
+    except Exception as e:
+        print(f"LOG ERROR: {e}") # Tambahkan ini agar error muncul di CMD
+        return RedirectResponse(url="/auth/login?msg=error", status_code=303)
 
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request, msg: str = None, status: str = "peringatan"):

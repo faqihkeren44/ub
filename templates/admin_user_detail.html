@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detail Anggota - {{ user.full_name }}</title>
+    <meta name="description" content="Detail lengkap data anggota koperasi." />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/pages/admin_user_detail.css" />
+</head>
+<body>
+    <main class="page-container">
+        <section class="detail-card">
+
+            <!-- Header -->
+            <header class="detail-header">
+                <a href="/admin/dashboard" class="back-link">
+                    ← Kembali ke Dashboard
+                </a>
+
+                <div>
+                    <h1>{{ user.full_name or '-' }}</h1>
+
+                    <div class="member-meta">
+                        <span class="meta-badge">
+                            ID Anggota: {{ user.member_id or 'Belum tersedia' }}
+                        </span>
+                    </div>
+
+                    <div class="member-meta">
+                        <span class="meta-badge">
+                            Password: {{ user.hashed_password or 'Belum tersedia' }}
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Informasi Detail -->
+            <section class="detail-grid">
+                <div class="detail-item">
+                    <strong>Nomor KTP (NIK)</strong>
+                    <span>{{ user.identity_number or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Nomor Kartu Keluarga</strong>
+                    <span>{{ user.family_card_number or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Jenis Kelamin</strong>
+                    <span>{{ user.gender or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Tempat, Tanggal Lahir</strong>
+                    <span>{{ user.birth_info or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Nomor Telepon / WhatsApp</strong>
+                    <span>{{ user.phone_number or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Nama Suami / Istri</strong>
+                    <span>{{ user.spouse_name or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Kelompok DKM</strong>
+                    <span>{{ user.dkm_group or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Simpanan Wajib per Bulan</strong>
+                    <span>
+                        Rp {{ "{:,.0f}".format(user.mandatory_savings|int).replace(",", ".") if user.mandatory_savings else "-" }}
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Tanggal Disetujui</strong>
+                    <span>
+                        {{ user.approved_at.strftime('%d-%m-%Y') if user.approved_at else '-' }}
+                    </span>
+                </div>
+
+                <div class="detail-item full-width">
+                    <strong>Alamat Domisili</strong>
+                    <p>{{ user.address or '-' }}</p>
+                </div>
+            </section>
+
+            <!-- Action Bar -->
+            <section class="action-bar">
+                <form method="post"
+                      action="/admin/registrations/{{ user.id }}/approve">
+                    <button type="submit" class="btn-approve">
+                        Terima Pendaftaran
+                    </button>
+                </form>
+
+                <a href="/admin/dashboard">
+                    <button type="button" class="btn-secondary">
+                        Kembali
+                    </button>
+                </a>
+            </section>
+
+        </section>
+    </main>
+</body>
+</html>
