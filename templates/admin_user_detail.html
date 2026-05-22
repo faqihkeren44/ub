@@ -30,7 +30,7 @@
 
                     <div class="member-meta">
                         <span class="meta-badge">
-                            Password: {{ user.hashed_password or 'Belum tersedia' }}
+                            Password: {{ user.temporary_password or 'Password sudah diganti oleh anggota' }}
                         </span>
                     </div>
                 </div>

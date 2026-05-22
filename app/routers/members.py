@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from app.config import SECRET_KEY
+from app.core.config import SECRET_KEY
 from jose import jwt, ExpiredSignatureError
 from .. import models, database
 

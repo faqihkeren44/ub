@@ -6,9 +6,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-from app.config import SECRET_KEY
+from app.core.config import SECRET_KEY
 from jose import jwt, ExpiredSignatureError
-from .. import database, models,utils
+from .. import database, models
+from app.core import security
 
 router = APIRouter(
     prefix="/auth",
@@ -91,7 +92,7 @@ def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depend
     admin = db.query(models.Admin).filter(models.Admin.admin_id == user_data.username).first()
         
     if admin:
-        if utils.verify_password(user_data.password, admin.hashed_password):
+        if security.verify_password(user_data.password, admin.hashed_password):
             exp = datetime.utcnow() + timedelta(minutes=30)
             payload = {"sub": str(admin.admin_id), "role": "superadmin", "exp": exp}
             token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")            
@@ -114,7 +115,7 @@ def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depend
     if not pwd_context.verify(user_data.password, user.hashed_password):
         return RedirectResponse(url="/auth/login?msg=invalid", status_code=303)
 
-    exp = datetime.utcnow() + timedelta(minutes=30)
+    exp = datetime.now() + timedelta(minutes=30)
     payload = {"sub": str(user.id), "role": "user", "exp": exp}
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 

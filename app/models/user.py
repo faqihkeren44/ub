@@ -1,13 +1,7 @@
 import enum
-from sqlalchemy import Column, Integer, String, Text, Numeric, Boolean, Enum, DateTime, func
+from sqlalchemy import Column, Integer, String, Text, Numeric, Boolean, Enum, DateTime, Date, func
 from enum import IntFlag
 from app.database import Base
-
-class TestTable(Base):
-    __tablename__ = "test_table"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
 
 class KelompokDKM(enum.Enum):
     DARUSSALAM = "DKM DARUSSALAM - Gunung Gede"
@@ -40,8 +34,9 @@ class Registration(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Data Identitas
-    full_name = Column(String, nullable=False)
-    birth_info = Column(String, nullable=False)
+    full_name = Column(String, nullable=False, index=True)
+    birth_date = Column(Date, nullable=False)
+    birth_place = Column(String, nullable=False)
     gender = Column(String, nullable=False)
     address = Column(String, nullable=False)
     family_card_number = Column(String, nullable=False) # No KK
@@ -50,7 +45,7 @@ class Registration(Base):
     spouse_name = Column(String, nullable=True) # Nama Pasangan
 
     # Pilihan Terbatas
-    dkm_group = Column(Enum(KelompokDKM), nullable=False)
+    dkm_group = Column(Enum(KelompokDKM), nullable=False, index=True)
     mandatory_savings = Column(Enum(SetoranWajib), nullable=False)
 
     submitted_at = Column(DateTime, server_default=func.now())
@@ -62,9 +57,12 @@ class User(Base):
 
     member_id = Column(String, unique=True, nullable=True, index=True) 
     hashed_password = Column(String, nullable=True)
+    temporary_password = Column(String, nullable=True)
+    must_change_password = Column(Boolean, default=True)
 
     full_name = Column(String, nullable=False)
-    birth_info = Column(String, nullable=False)
+    birth_date = Column(Date, nullable=False)
+    birth_place = Column(String, nullable=False)
     gender = Column(String, nullable=False)
     address = Column(String, nullable=False)
     family_card_number = Column(String, nullable=False)
@@ -76,22 +74,4 @@ class User(Base):
     mandatory_savings = Column(Enum(SetoranWajib), nullable=False)
 
     approved_at = Column(DateTime, server_default=func.now())
-    approved_by = Column(String, nullable=True)
-
-class Admin(Base):
-    __tablename__ = "admins"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    admin_id = Column(String, unique=True, nullable=False, index=True)
-    full_name = Column(String, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    role = Column(String, default="admin")
-
-class Product(Base):
-    __tablename__ = "products"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False, index=True)
-    description = Column(Text)
-    price = Column(Numeric, nullable=False)
-    stock = Column(Integer, default=0)
+    approved_by = Column(String)

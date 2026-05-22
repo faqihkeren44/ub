@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Request, Form, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from urllib.parse import quote
-from .. import models, schemas, database
+from app import models, database
+from app.schemas.user import UserCreate
 
 router = APIRouter(
     prefix="/users",
@@ -35,7 +36,7 @@ def register_page(request: Request, msg: str = None):
 
 @router.post("/register")
 def register_user(
-    user_data: schemas.UserCreate = Depends(schemas.UserCreate.as_form),
+    user_data: UserCreate = Depends(UserCreate.as_form),
     db: Session = Depends(database.get_db)):
     
     if db.query(models.User).filter(models.User.identity_number == user_data.identity_number).first():
@@ -47,8 +48,8 @@ def register_user(
 
     data = user_data.model_dump(exclude={'password'})
 
-    data['dkm_group'] = models.KelompokDKM(data['dkm_group'])
-    data['mandatory_savings'] = models.SetoranWajib(data['mandatory_savings'])
+    data['dkm_group'] = models.user.KelompokDKM(data['dkm_group'])
+    data['mandatory_savings'] = models.user.SetoranWajib(data['mandatory_savings'])
 
 
     new_user = models.Registration(

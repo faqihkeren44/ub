@@ -4,6 +4,7 @@
 - [Day 2 - Setup Database](#day-2---setup-database)
 - [Day 3 - Register User](#day-3---register-user)
 - [Day 4 - JWT Login](#day-4---jwt-login)
+- [Result](#result)
 
 # Day 1 - Setup Project
 

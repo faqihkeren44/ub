@@ -2,10 +2,12 @@ from pydantic import BaseModel, EmailStr, Field
 from fastapi import Form
 from typing import Optional
 from decimal import Decimal
+from datetime import date
 
 class UserCreate(BaseModel):
     full_name: str
-    birth_info: str
+    birth_date: date
+    birth_place: str
     gender: str
     address: str
     family_card_number: str
@@ -19,7 +21,8 @@ class UserCreate(BaseModel):
     def as_form(
         cls,
         full_name: str = Form(...),
-        birth_info: str = Form(...),
+        birth_date: date = Form(...),
+        birth_place: str = Form(...),
         gender: str = Form(...),
         address: str = Form(...),
         family_card_number: str = Form(...),
@@ -31,7 +34,8 @@ class UserCreate(BaseModel):
     ):
         return cls(
             full_name=full_name,
-            birth_info=birth_info,
+            birth_date=birth_date,
+            birth_place=birth_place,
             gender=gender,
             address=address,
             family_card_number=family_card_number,
@@ -54,20 +58,5 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
-    class Config:
-        from_attributes = True
-
-class ProductBase(BaseModel):
-    name: str = Field(..., min_length=3)
-    description: Optional[str] = None
-    price: Decimal = Field(..., gt=0)
-    stock: int = Field(default=0, ge=0)
-
-class ProductCreate(ProductBase):
-    pass
-
-class ProductOut(ProductBase):
-    id: int
-    
     class Config:
         from_attributes = True

@@ -1,5 +1,6 @@
 from app.database import SessionLocal
-from app import models, utils
+from app import models
+from app.core import security
 
 # Gunakan huruf kapital untuk menandakan ini adalah Konstanta/Konfigurasi
 ADMIN_ID = "admin_ub_001"
@@ -14,7 +15,7 @@ def create_initial_admin():
             print(f"INFO: Admin {ADMIN_ID} sudah ada di database")
             return
 
-        hashed_pw = utils.hash_password(ADMIN_PWD)
+        hashed_pw = security.hash_password(ADMIN_PWD)
         new_admin = models.Admin(
             admin_id=ADMIN_ID,
             full_name="Administrator Utama",
