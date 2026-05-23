@@ -64,7 +64,8 @@ def user_detail(
         {
             "request": request,
             "admin": admin,
-            "user": user
+            "user": user,
+            "is_registration": False
         }
     )
 
@@ -85,7 +86,8 @@ def register_detail(
         {
             "request": request,
             "admin": admin,
-            "user": user
+            "user": user,
+            "is_registration": True
         }
     )
 
@@ -140,5 +142,33 @@ def approve_registration(
 
     return RedirectResponse(
         "/admin/dashboard", 
+        status_code=303
+    )
+
+# ==========================================================
+# RESET PASSWORD
+# ==========================================================
+
+@router.post("/users/{user_id}/reset-password", response_class=HTMLResponse)
+def reset_password(
+    user_id: int,
+    db: Session = Depends(database.get_db),
+    admin: models.Admin = Depends(verify_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User tidak ditemukan")
+    
+    new_password = password.generate_password(8)
+
+    user.hashed_password = security.hash_password(new_password)
+    user.temporary_password = new_password
+    user.must_change_password = True
+
+    db.commit()
+
+    return RedirectResponse(
+        url=f"/admin/users/{user_id}",
         status_code=303
     )

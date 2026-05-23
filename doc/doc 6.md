@@ -2,7 +2,7 @@
 
 - [Review](#review)
 - [Day 12 - Format Baru](#day-12---format-baru)
-- [Day 13 - Edit Profil](#day-13---edit-password)
+- [Day 13 - Edit Profil](#day-13---edit-profil)
 - [Result](#result)
 
 # Review
@@ -248,6 +248,8 @@ alembic stamp head
 
 Schema untuk mengubah password:
 ```
+from pydantic import BaseModel, field_validator, model_validator
+
 class PasswordChange(BaseModel):
     current_password: str
     new_password: str
@@ -273,6 +275,7 @@ class PasswordChange(BaseModel):
 
 ### Bedah Kode
 
+- `import field_validator, model_validator`: Keduanya akan digunakan dalam validasi Pydantic ini. Agar validasi bisa berjalan, keduanya harus di-import dulu.
 - `class PasswordChange`: Nama Schema yang akan digunakan untuk menerima data dari user ketika mengganti password. Misalnya user mengisi form `<input name="new_password">`
 - `BaseModel`: Mewarisi class `BaseModel` dari Pydantic agar Python tahu bahwa `PasswordChange` merupakan Pydantic, sehingga bisa menjalankan tugasnya untuk memvalidasi input.
 - `current_password: str`: Field bernama `current_password` harus berupa string.

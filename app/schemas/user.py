@@ -1,8 +1,9 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, field_validator, model_validator
 from fastapi import Form
 from typing import Optional
 from decimal import Decimal
 from datetime import date
+import re
 
 class UserCreate(BaseModel):
     full_name: str
@@ -46,3 +47,39 @@ class UserCreate(BaseModel):
             mandatory_savings=mandatory_savings
         )
 
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_password(cls, value):
+        if len(value) < 8:
+            raise ValueError("Password minimal 8 karakter")
+        if not re.search(r"[A-Z]", value):
+            raise ValueError("Harus mengandung huruf besar")
+        if not re.search(r"[a-z]", value):
+            raise ValueError("Harus mengandung huruf kecil")
+        if not re.search(r"\d", value):
+            raise ValueError("Harus mengandung angka")
+        return value
+
+    @model_validator(mode="after")
+    def verify_password_match(self):
+        if self.new_password != self.confirm_password:
+            raise ValueError("Konfirmasi password baru tidak cocok")
+        if self.current_password == self.new_password:
+            raise ValueError("Password baru tidak boleh sama dengan password lama")
+        return self
+
+def get_password_form(
+    current_password: str = Form(...),
+    new_password: str = Form(...),
+    confirm_password: str = Form(...)
+) -> PasswordChange:
+    return PasswordChange(
+        current_password=current_password,
+        new_password=new_password,
+        confirm_password=confirm_password
+    )

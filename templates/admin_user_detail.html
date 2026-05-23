@@ -95,10 +95,19 @@
 
             <!-- Action Bar -->
             <section class="action-bar">
+                {% if is_registration %}
                 <form method="post"
-                      action="/admin/registrations/{{ user.id }}/approve">
-                    <button type="submit" class="btn-approve">
+                    action="/admin/registrations/{{ user.id }}/approve">
+                    <button type="submit" class="btn-primary">
                         Terima Pendaftaran
+                    </button>
+                </form>
+                {% endif %}
+
+                <form method="post"
+                      action="/admin/users/{{ user.id }}/reset-password">
+                    <button type="submit" class="btn-secondary">
+                        Reset Password
                     </button>
                 </form>
 
