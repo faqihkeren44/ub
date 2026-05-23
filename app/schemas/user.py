@@ -46,17 +46,3 @@ class UserCreate(BaseModel):
             mandatory_savings=mandatory_savings
         )
 
-class UserOut(BaseModel):
-    identity_number: str
-    member_id: str
-    full_name: Optional[str] = None
-    
-    class Config:
-        from_attributes = True
-
-class UserLogin(BaseModel):
-    email: str
-    password: str
-
-    class Config:
-        from_attributes = True

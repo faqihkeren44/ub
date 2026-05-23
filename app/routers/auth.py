@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from app.core.config import SECRET_KEY
 from jose import jwt, ExpiredSignatureError
-from .. import database, models
+from app import database, models
 from app.core import security
 
 router = APIRouter(
@@ -61,6 +61,40 @@ def verify_admin(
         return response
     except Exception as e:
         print(f"LOG ERROR: {e}") # Tambahkan ini agar error muncul di CMD
+        return RedirectResponse(url="/auth/login?msg=error", status_code=303)
+
+def verify_user(
+        request: Request,
+        db: Session = Depends(database.get_db)
+):
+    token_cookie = request.cookies.get("access_token")
+
+    if not token_cookie:
+        return RedirectResponse(url="/auth/login?msg=not_login", status_code=303)
+
+    try:
+        token = token_cookie.replace("Bearer ", "")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user_id = payload.get("sub")
+
+        if user_id is None:
+            return RedirectResponse(url="/auth/login?msg=not_login", status_code=303)
+    
+        user = db.query(models.User).filter(models.User.id == user_id).first()
+        if not user:
+            print(f"LOG: Admin dengan ID {user_id} tidak ada di database!")
+            response = RedirectResponse(url="/auth/login?msg=admin_not_found", status_code=303)
+            response.delete_cookie("access_token")
+            return response
+        
+        return user
+    
+    except ExpiredSignatureError:
+        response = RedirectResponse(url="/auth/login?msg=expired", status_code=303)
+        response.delete_cookie("access_token")
+        return response
+    except Exception as e:
+        print(f"LOG ERROR: {e}")
         return RedirectResponse(url="/auth/login?msg=error", status_code=303)
 
 @router.get("/login", response_class=HTMLResponse)

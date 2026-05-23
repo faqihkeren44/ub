@@ -2,7 +2,7 @@
 
 - [Review](#review)
 - [Day 12 - Format Baru](#day-12---format-baru)
-- [Day 13 - Pengaturan Password](#day-13---pengaturan-password)
+- [Day 13 - Edit Profil](#day-13---edit-password)
 - [Result](#result)
 
 # Review
@@ -162,7 +162,7 @@ hashed_pw = security.hash_password(generate_password(8))
 ...
 ```
 
-# Day 13 - Pengaturan Password
+# Day 13 - Edit Profil
 
 Alur password yang akan digunakan yaitu:
 - Calon anggota mengisi formulir pendaftaran tanpa memasukan password.
@@ -173,7 +173,50 @@ Alur password yang akan digunakan yaitu:
 - Saat login, anggota diminta mengganti password.
 - Setelah anggota mengganti password, password yang asli tidak ditampilkan di dashboard admin, melainkan diganti dengan tulisan *Password sudah diganti oleh anggota*.
 
-## 1. Kolom Baru
+## 1. Verifikasi Token User
+
+Buat fungsi di `/routers/auth` yang mengecek apakah user sudah login, dan apakah memang dia user yang berhak:
+```
+def verify_user(
+        request: Request,
+        db: Session = Depends(database.get_db)
+):
+    ...
+```
+
+Di dalam fungsi `verify_user`, berikut langkah yang dilakukan:
+1. Mengambil token JWT yang ada di cookie `token_cookie = request.cookies.get("access_token")`.
+2. Kalau tidak ada, kembalikan `return RedirectResponse(url="/auth/login?msg=not_login", status_code=303)`
+3. Bongkar token dan ambil `user_id`:
+```
+try:
+    token = token_cookie.replace("Bearer ", "")
+    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    user_id = payload.get("sub")
+```
+4. Jika tidak ada `user_id` (`None`), kembalikan `return RedirectResponse(url="/auth/login?msg=not_login", status_code=303)`.
+5. Jika dalam mencoba (`try`) bongkar token ada error:
+```
+    except ExpiredSignatureError:
+        response = RedirectResponse(url="/auth/login?msg=expired", status_code=303)
+        response.delete_cookie("access_token")
+        return response
+    except Exception as e:
+        print(f"LOG ERROR: {e}")
+        return RedirectResponse(url="/auth/login?msg=error", status_code=303)
+```
+6. Mencari di database, apakah nilai `user_id` dalam token memang benar-benar terdaftar dalam database:
+```
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        print(f"LOG: Admin dengan ID {user_id} tidak ada di database!")
+        response = RedirectResponse(url="/auth/login?msg=admin_not_found", status_code=303)
+        response.delete_cookie("access_token")
+        return response
+```
+7. Mengembalikan nilai: `return user`
+
+## 2. Kolom Baru
 
 Di `app/models/user.py`, buat kolom baru:
 ```
@@ -200,5 +243,250 @@ Karena tadi sudah merubah isi models, perlu perbarui tabel di SQLAlchemy dengan 
 alembic revision --autogenerate
 alembic stamp head
 ```
+
+## 3. Tambah Schema
+
+Schema untuk mengubah password:
+```
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_password(cls, value):
+        if len(value) < 8:
+            raise ValueError("Password minimal 8 karakter")
+
+        if not re.search(r"[A-Z]", value):
+            raise ValueError("Harus mengandung huruf besar")
+
+        if not re.search(r"[a-z]", value):
+            raise ValueError("Harus mengandung huruf kecil")
+
+        if not re.search(r"\d", value):
+            raise ValueError("Harus mengandung angka")
+
+        return value
+```
+
+### Bedah Kode
+
+- `class PasswordChange`: Nama Schema yang akan digunakan untuk menerima data dari user ketika mengganti password. Misalnya user mengisi form `<input name="new_password">`
+- `BaseModel`: Mewarisi class `BaseModel` dari Pydantic agar Python tahu bahwa `PasswordChange` merupakan Pydantic, sehingga bisa menjalankan tugasnya untuk memvalidasi input.
+- `current_password: str`: Field bernama `current_password` harus berupa string.
+- `@field_validator`: Ini disebut decorator, yaitu instruksi tambahan untuk fungsi di bawahnya. Artinya, jalankan fungsi `validate_password()` untuk `new_password`.
+- `@classmethod`: Menandakan fungsi ini milik class, bukan untuk objek tertentu. Validator Pydantic memang harus menggunakan format seperti ini.
+- `cls`: Berisi class `PasswordChange`.
+- `value`: Nilai field yang sedang divalidasi. Jika user mengirim `"new_password": "123"`, maka `value = "123"`.
+- `len()`: Menghitung jumlah karakter `value`.
+- `re.search`: Mencari pola dalam teks. Kalau dalam `value` tidak ada huruf besar (`[A-Z]`), maka tampil `ValueError`.
+
+## 4. Validator Password
+
+Di dalam schema `PasswordChange`, tambahkan validasi antar data yang dimasukan:
+```
+    @model_validator(mode="after")
+    def verify_password_match(self):
+        if self.new_password != self.confirm_password:
+            raise ValueError("Konfirmasi password baru tidak cocok")
+        if self.current_password == self.new_password:
+            raise ValueError("Password baru tidak boleh sama dengan password lama")
+        return self
+```
+
+### Bedah Kode
+
+- `model_validator`: Jika `@field_validator` hanya memeriksa satu data spesifik (seperti apakah `new_password` mengandung huruf besar`), maka @model_validator memeriksa hubungan atau kombinasi antar field. Validator ini memilki akses ke seluruh data yang diinput melalui objek `self`.
+- `mode="after": Fungsi ini beru akan dijalankan setelah Pydantic selesai memastikan bahwa semua data yang dikirim lolos validasi tipe data awal dan lolos validator field.
+- `def validator_password_match(self)`: Fungsi untuk memeriksa logika dalam pengubahan password. Di dalam fungsi ini memanfaatkan `self` untuk mengambil nilai yang sudah divalidasi untuk lalu dibandingkan.
+- `return self`: Jika tidak ada kesalahan (`ValueError`), fungsi mengembalikan objek data yang utuh dan bersih kepada FastAPI/Router.
+
+## 5. Cara Pydantic Membaca Form HTML
+
+Jangan lupa bahwa Pydantic tidak bisa membaca Form HTML secara murni. Secara bawaan (native), FastAPI dirancang untuk menerima data JSON. Sedangkan Form HTML pada umumnya mengirim data dengan format FORM Data (`application/x-www-form-urlencoded`). Solusinya, buat fungsi helper:
+```
+def get_password_form(
+    current_password: str = Form(...),
+    new_password: str = Form(...),
+    confirm_password: str = Form(...)
+) -> PasswordChange:
+    return PasswordChange(
+        current_password=current_password,
+        new_password=new_password,
+        confirm_password=confirm_password
+    )
+```
+
+### Bedah Kode
+
+- `current_password: str = Form(..)`: Menangkap data Form HTML.
+- `-> PasswordChange:`: Type hinting bahwa fungsi `get_password_form` ini akan mengeluarkan sebuah objek yang memiliki format sesuai dengan cetakan `PasswordChange`.
+- `return PasswordChange(...)`: Setelah ketiga data tersebut ditangkap dari form, data dimasukkan ke dalam `PasswordChange(...)`. Proses validasi otomatis terjadi di dalamnya. Jika lolos pemeriksaan `PasswordChange`, data dibungkus menjadi objek dan dikirim (return) ke router.
+
+## 6. Router Ganti Password
+
+Untuk menjalankan penggantian password, berikut routernya:
+```
+@router.post("/change-password")
+def change_password(
+    request: Request,
+    form_data: PasswordChange = Depends(get_password_form),
+    db: Session = Depends(get_db),
+    user : models.User = Depends(verify_user)
+):
+    user = db.query(User).filter(User.id == current_user.id).first()
+    if not verify_password(current_password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Password lama salah")
+
+    user.hashed_password = hash_password(new_password)
+
+    db.commit()
+    return RedirectResponse("/profile?password_changed=1", status_code=303)
+```
+
+### Bedah Kode
+
+- `Depends(get_password_form)`: `Depends` adalah singkatan dari Dependencies (Ketergantungan). Ketika user menekan submit saat ubah password, FastAPI melihat ada `Depends(...)`. FastAPI langsung paham *Oh, sebelum menjalankan isi fungsi sendiri, harus menjalankan fungsi `get_password_form` terlebih dahulu.
+- `form_data: PasswordChage`: Type hinting bahwa variabel `form_data` adalah sebuah objek yang sesuai skema PasswordChange.
+- `Depends(verify_user)`: Menjalankan fungsi `verify_user` sebelum menjalankan kode.
+- `current_user = request.state.user`: 
+
+## 4. Tampilan Edit
+
+```
+<h2>Ganti Password</h2>
+
+<form
+    method="post"
+    action="/profile/change-password"
+>
+
+    <label>Password Lama</label>
+    <input
+        type="password"
+        name="current_password"
+        required
+    >
+
+    <label>Password Baru</label>
+    <input
+        type="password"
+        name="new_password"
+        required
+    >
+
+    <label>Konfirmasi Password Baru</label>
+    <input
+        type="password"
+        name="confirm_password"
+        required
+    >
+
+    <button type="submit">
+        Ganti Password
+    </button>
+
+</form>
+```
+
+## 5. Edit Profil
+
+### Schema
+
+```
+class UserUpdate(BaseModel):
+    full_name: str
+    email: EmailStr
+    phone: str
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, value):
+        if not value.isdigit():
+            raise ValueError("Nomor telepon hanya boleh angka")
+        return value
+```
+
+### Router
+
+```
+# routers/profile.py
+
+from fastapi import APIRouter, Depends, Form, Request
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models.user import User
+
+router = APIRouter(prefix="/profile", tags=["Profile"])
+
+
+@router.post("/update")
+def update_profile(
+    request: Request,
+    full_name: str = Form(...),
+    email: str = Form(...),
+    phone: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    current_user = request.state.user
+
+    user = db.query(User).filter(
+        User.id == current_user.id
+    ).first()
+
+    user.full_name = full_name
+    user.email = email
+    user.phone = phone
+
+    db.commit()
+
+    return RedirectResponse(
+        "/profile?success=1",
+        status_code=303
+    )
+```
+
+### HTML
+
+```
+<h2>Edit Profil</h2>
+
+<form method="post" action="/profile/update">
+
+    <label>Nama Lengkap</label>
+    <input
+        type="text"
+        name="full_name"
+        value="{{ user.full_name }}"
+        required
+    >
+
+    <label>Email</label>
+    <input
+        type="email"
+        name="email"
+        value="{{ user.email }}"
+        required
+    >
+
+    <label>Nomor Telepon</label>
+    <input
+        type="text"
+        name="phone"
+        value="{{ user.phone }}"
+        required
+    >
+
+    <button type="submit">
+        Simpan Perubahan
+    </button>
+
+</form>
+```
+
 
 # Result

@@ -14,7 +14,11 @@ router = APIRouter(
 templates = Jinja2Templates(directory="templates")
 
 @router.get("/me", response_class=HTMLResponse)
-def get_me(request: Request, access_token: str = Cookie(None), db: Session = Depends(database.get_db)):
+def get_me(
+    request: Request, 
+    access_token: str = Cookie(None), 
+    db: Session = Depends(database.get_db)
+):
     if not access_token:
         return RedirectResponse(url="/auth/login?msg=not_login")
     

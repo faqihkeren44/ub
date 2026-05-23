@@ -4,34 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Anggota - {{ user.full_name }}</title>
-    <link rel="stylesheet" href="../static/css/pages/index.css">
-    <link rel="stylesheet" href="../static/css/pages/login.css"> 
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/components.css') }}">
-    <style>
-        .profile-card {
-            background: white;
-            border-radius: 28px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-top: -50px;
-            position: relative;
-            z-index: 5;
-        }
-        .user-avatar {
-            width: 100px;
-            height: 100px;
-            background: var(--stripe-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
-            font-weight: 800;
-            margin-bottom: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="../static/css/pages/profile.css">
 </head>
 <body>
     <div style="height: 250px; background: linear-gradient(150deg, var(--stripe-purple), var(--stripe-blue));"></div>
