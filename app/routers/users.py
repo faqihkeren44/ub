@@ -14,6 +14,12 @@ router = APIRouter(
 
 template = Jinja2Templates(directory="templates")
 
+@router.get("/praregister", response_class=HTMLResponse)
+def praregister_page(request: Request):
+    return template.TemplateResponse("praregister.html", {
+        "request": request
+    })
+
 @router.get("/register", response_class=HTMLResponse)
 def register_page(request: Request, msg: str = None):
     display_message = ""
@@ -70,7 +76,6 @@ def register_user(
 @router.get("/change-password", response_class=HTMLResponse)
 def change_password_page(
     request: Request,
-
 ):
     return template.TemplateResponse("change_password.html",{
         "request": request,

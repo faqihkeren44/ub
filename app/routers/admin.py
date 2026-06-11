@@ -8,6 +8,9 @@ from app.core import security, password
 from app import models
 from .auth import verify_admin
 
+from pathlib import Path
+from fastapi.responses import FileResponse
+
 router = APIRouter(
     prefix="/admin",
     tags=['Admin Dashboard'],
@@ -172,3 +175,129 @@ def reset_password(
         url=f"/admin/users/{user_id}",
         status_code=303
     )
+
+# ==========================================================
+# GENERATE PDF FORMULIR
+# ==========================================================
+
+from pathlib import Path
+
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi.responses import FileResponse
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models.user import User as Member
+
+@router.get("/users/{user_id}/preview-pdf", response_class=HTMLResponse)
+def preview_pdf(
+    request: Request,
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+
+    member = (
+        db.query(models.User)
+        .filter(models.User.id == user_id)
+        .first()
+    )
+
+    if not member:
+        raise HTTPException(status_code=404)
+
+    return templates.TemplateResponse(
+        "pdf/preview.html",
+        {
+            "request": request,
+            "member": member
+        }
+    )
+
+# @router.get("/users/{user_id}/pdf")
+# def member_pdf(
+#     user_id: int,
+#     db: Session = Depends(get_db)
+# ):
+
+#     member = (
+#         db.query(models.User)
+#         .filter(models.User.id == user_id)
+#         .first()
+#     )
+
+#     pdf_path = generate_member_pdf(member )
+
+#     return FileResponse(
+#         path=pdf_path,
+#         media_type="application/pdf"
+#     )
+
+@router.get("/member/{user_id}/preview")
+def preview_pdf(
+    request: Request,
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    member = (
+        db.query(models.User)
+        .filter(models.User.id == user_id)
+        .first()
+    )
+
+    if not member:
+        raise HTTPException(
+            status_code=404,
+            detail="Member tidak ditemukan"
+        )
+
+    return templates.TemplateResponse(
+        "pdf/member_form.html",
+        {
+            "request": request,
+            "member": member
+        }
+    )
+
+# @router.get("/users/{user_id}/pdf")
+# async def member_pdf(
+#     request: Request,
+#     user_id: int,
+#     db: Session = Depends(get_db)
+# ):
+
+#     member = (
+#         db.query(models.User)
+#         .filter(models.User.id == user_id)
+#         .first()
+#     )
+
+#     if not member:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="Member tidak ditemukan"
+#         )
+
+#     html = templates.get_template(
+#         "pdf/member_form.html"
+#     ).render(
+#         request=request,
+#         member=member,
+#         today=datetime.now().strftime("%d %B %Y")
+#     )
+
+#     pdf_path = Path(
+#         f"temp/member_{member.id}.pdf"
+#     )
+
+#     generate_pdf(
+#         html,
+#         str(pdf_path)
+#     )
+
+#     return FileResponse(
+#         pdf_path,
+#         media_type="application/pdf",
+#         filename=f"anggota_{member.member_id}.pdf"
+#     )

@@ -78,7 +78,7 @@ Berikut rincian daftar font nya:
 | `BlinkMacSystemFont` | Versi khusus untuk browser Chrome di perangkat Mac lama. |
 | `"Segoe UI"` | Font standar yang sangat bersih milik Windows 10/11. |
 | `Roboto` | Font standar untuk perangkat Android. |
-| `Helvetica, Arial` | Font cadangan yang sangat umum dan pasti ada di hampir semua komputer. |
+| `Rockwell, Arial` | Font cadangan yang sangat umum dan pasti ada di hampir semua komputer. |
 | `sans-serif` | Instruksi terakhir: "Gunakan font apa saja yang tidak punya 'ekor' (serif)." |
 
 ## `* {margin: 0; padding: 0;}`

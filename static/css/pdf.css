@@ -1,0 +1,92 @@
+@page {
+    size: A4;
+    margin: 15mm;
+}
+
+body {
+    font-family: "Times New Roman", serif;
+    font-size: 12pt;
+    line-height: 1.4;
+    width: 210mm;
+}
+
+.kop-surat {
+    display: table;
+    width: 100%;
+}
+
+.logo {
+    width: 80px;
+}
+
+.kiri {
+    float: left;
+}
+
+.kanan {
+    float: right;
+}
+
+.judul {
+    text-align: center;
+}
+
+.judul h1,
+.judul h2 {
+    margin: 0;
+}
+
+.garis-tebal {
+    border: none;
+    border-top: 3px solid black;
+    margin-top: 10px;
+}
+
+.judul-surat {
+    text-align: center;
+    margin-top: 25px;
+    margin-bottom: 20px;
+}
+
+.identitas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.identitas td {
+    vertical-align: top;
+    padding: 3px;
+}
+
+.identitas td:first-child {
+    width: 170px;
+}
+
+.identitas td:nth-child(2) {
+    width: 10px;
+}
+
+.identitas td:last-child {
+    word-break: break-word;
+}
+
+ol {
+    padding-left: 25px;
+}
+
+ol li {
+    margin-bottom: 6px;
+}
+
+.ttd {
+    margin-top: 50px;
+
+    display: flex;
+    justify-content: space-between;
+}
+
+.ttd div {
+    width: 40%;
+    text-align: center;
+}

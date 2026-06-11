@@ -3,6 +3,8 @@
 - [Review](#review)
 - [Day 12 - Format Baru](#day-12---format-baru)
 - [Day 13 - Edit Profil](#day-13---edit-profil)
+- [Day 14 - PDF Formulir Pendaftaran](#day-14---pdf-formulir-pendaftaran)
+- [Day 15 - Debugging](#day-15-debugging)
 - [Result](#result)
 
 # Review
@@ -25,7 +27,7 @@ Selanjutnya, berikut yang perlu ditambah dan diperbaiki:
 - Aturan password minimal 8 karakter, dengan kombinasi huruf besar dan kecil, serta angka.
 - Saat password dibuat atau direset oleh admin, admin bisa melihat passwordnya. Saat sudah diganti oleh anggota, admin tidak bisa melihat passwordnya.
 - Setelah data disetujui, otomatis terbuat file `.pdf` yang bisa dicetak untuk keperluan pendaftaran fisik. Templatenya seperti `Data Anggota Koperasi.pdf`.
-- Syarat-syarat menjadi anggota Koperasi yang ada di `Data Anggota Koperasi.pdf`
+- Syarat-syarat menjadi anggota Koperasi yang ada di `Data Anggota Koperasi.pdf` ditampilkan pada halaman pendaftaran anggota baru.
 
 # Day 12 - Format Baru
 
@@ -491,5 +493,32 @@ def update_profile(
 </form>
 ```
 
+# Day 14 - PDF Formulir Pendaftaran
+
+Pastikan data anggota sudah siap dan paten agar tidak banyak perubahan lagi. Selanjutnya, formulir pendaftaran anggota dibuatkan dalam bentuk PDF agar terdapat lampiran bukti fisik. Berikut langkahnya:
+
+## 1. Router Tombol
+
+Buat file baru `/app/services/pdf_service.py` untuk endpoint. Library yang digunakan yaitu ReportLab. Jika belum pernah install, gunakan
+```s
+pip install reportlab
+```
+
+Di dalam file, isi dengan:
+```
+from reportlab.lib pagesize import A4
+from reportlab.pdfgen import canvas
+
+def generate_member_pdf(member, filename):
+    c = canvas.Canvas(filename, pagesize=A4)
+    width, height = A4
+    y = 800
+
+    c.setFont("Times New Roman", 14)
+    c.drawCentredString(
+        width / 2,
+        y,
+        "SURAT PERMOHONAN MENJADI ANGGOTA"
+    )
 
 # Result

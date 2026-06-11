@@ -30,7 +30,16 @@
 
                     <div class="member-meta">
                         <span class="meta-badge">
-                            Password: {{ user.temporary_password or 'Password sudah diganti oleh anggota' }}
+                            Password:
+                            {% if user.temporary_password is defined %}
+                                {% if user.temporary_password %}
+                                    {{ user.temporary_password }}
+                                {% else %}
+                                    Password sudah diganti oleh anggota
+                                {% endif %}
+                            {% else %}
+                                Belum tersedia
+                            {% endif %}
                         </span>
                     </div>
                 </div>
@@ -55,7 +64,12 @@
 
                 <div class="detail-item">
                     <strong>Tempat, Tanggal Lahir</strong>
-                    <span>{{ user.birth_info or '-' }}</span>
+                    <span>{{ user.birth_place or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Tempat, Tanggal Lahir</strong>
+                    <span>{{ user.birth_date or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
@@ -70,7 +84,7 @@
 
                 <div class="detail-item">
                     <strong>Kelompok DKM</strong>
-                    <span>{{ user.dkm_group or '-' }}</span>
+                    <span>{{ user.dkm_group.value or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
@@ -104,12 +118,20 @@
                 </form>
                 {% endif %}
 
+                {% if not is_registration %}
                 <form method="post"
                       action="/admin/users/{{ user.id }}/reset-password">
                     <button type="submit" class="btn-secondary">
                         Reset Password
                     </button>
                 </form>
+                
+                <a href="/admin/member/{{ user.id }}/preview"
+                class="btn btn-primary"
+                target="_blank">
+                    Preview PDF
+                </a>
+                {% endif %}
 
                 <a href="/admin/dashboard">
                     <button type="button" class="btn-secondary">
