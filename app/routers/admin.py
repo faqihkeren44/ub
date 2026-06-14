@@ -182,7 +182,7 @@ def reset_password(
 
 from pathlib import Path
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
@@ -190,30 +190,61 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User as Member
+from app.services.pdf_generator import generate_member_pdf
 
-@router.get("/users/{user_id}/preview-pdf", response_class=HTMLResponse)
-def preview_pdf(
-    request: Request,
-    user_id: int,
-    db: Session = Depends(get_db)
-):
+@router.get("/member/{user_id}/preview")
+async def preview_member_pdf(user_id: int, db: Session = Depends(get_db)):
+    print(f"====== DEBUG: Masuk ke endpoint dengan ID: {user_id} ======")
+    # 1. Ambil data user dari database berdasarkan ID
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    print(f"====== DEBUG: Hasil Query Database: {user} ======")
 
-    member = (
-        db.query(models.User)
-        .filter(models.User.id == user_id)
-        .first()
-    )
+    try:
+        pdf_bytes = generate_member_pdf(user)
+        return Response(
+            content=bytes(pdf_bytes),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"inline; filename=Form_Pendaftaran_{user.id}.pdf"
+            }
+        )
+    except Exception as e:    
+        return {"status": "error", "detail_kesalahan": str(e)}
+    
+    # # 2. Hasilkan byte data PDF
+    # pdf_bytes = generate_member_pdf(user)
+    
+    # # 3. Kembalikan response berupa PDF biner
+    # # Menggunakan headers "inline" agar browser membukanya sebagai preview, bukan download langsung
+    # return Response(
+    #     content=bytes(pdf_bytes), 
+    #     media_type="application/pdf",
+    #     headers={"Content-Disposition": f"inline; filename=Form_Daftar_{user.id}.pdf"}
+    # )
 
-    if not member:
-        raise HTTPException(status_code=404)
+# @router.get("/users/{user_id}/preview-pdf", response_class=HTMLResponse)
+# def preview_pdf(
+#     request: Request,
+#     user_id: int,
+#     db: Session = Depends(get_db)
+# ):
 
-    return templates.TemplateResponse(
-        "pdf/preview.html",
-        {
-            "request": request,
-            "member": member
-        }
-    )
+#     member = (
+#         db.query(models.User)
+#         .filter(models.User.id == user_id)
+#         .first()
+#     )
+
+#     if not member:
+#         raise HTTPException(status_code=404)
+
+#     return templates.TemplateResponse(
+#         "pdf/preview.html",
+#         {
+#             "request": request,
+#             "member": member
+#         }
+#     )
 
 # @router.get("/users/{user_id}/pdf")
 # def member_pdf(
@@ -234,31 +265,31 @@ def preview_pdf(
 #         media_type="application/pdf"
 #     )
 
-@router.get("/member/{user_id}/preview")
-def preview_pdf(
-    request: Request,
-    user_id: int,
-    db: Session = Depends(get_db)
-):
-    member = (
-        db.query(models.User)
-        .filter(models.User.id == user_id)
-        .first()
-    )
+# @router.get("/member/{user_id}/preview")
+# def preview_pdf(
+#     request: Request,
+#     user_id: int,
+#     db: Session = Depends(get_db)
+# ):
+#     member = (
+#         db.query(models.User)
+#         .filter(models.User.id == user_id)
+#         .first()
+#     )
 
-    if not member:
-        raise HTTPException(
-            status_code=404,
-            detail="Member tidak ditemukan"
-        )
+#     if not member:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="Member tidak ditemukan"
+#         )
 
-    return templates.TemplateResponse(
-        "pdf/member_form.html",
-        {
-            "request": request,
-            "member": member
-        }
-    )
+#     return templates.TemplateResponse(
+#         "pdf/member_form.html",
+#         {
+#             "request": request,
+#             "member": member
+#         }
+#     )
 
 # @router.get("/users/{user_id}/pdf")
 # async def member_pdf(

@@ -15,6 +15,7 @@ class UserCreate(BaseModel):
     identity_number: str
     phone_number: str
     spouse_name: Optional[str] = None
+    job: str
     dkm_group: str
     mandatory_savings: int
 
@@ -30,6 +31,7 @@ class UserCreate(BaseModel):
         identity_number: str = Form(...),
         phone_number: str = Form(...),
         spouse_name: Optional[str] = Form(None),
+        job: str = Form(...),        
         dkm_group: str = Form(...),
         mandatory_savings: int = Form(...)
     ):
@@ -43,6 +45,7 @@ class UserCreate(BaseModel):
             identity_number=identity_number,
             phone_number=phone_number,
             spouse_name=spouse_name,
+            job=job,
             dkm_group=dkm_group,
             mandatory_savings=mandatory_savings
         )

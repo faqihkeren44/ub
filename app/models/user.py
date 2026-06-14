@@ -28,6 +28,13 @@ class UserStatus(IntFlag):
     APPROVED = 2
     REJECTED = 4
 
+class MemberStatus(str, Enum):
+    PENDING = "PENDING"
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    RESIGNED = "RESIGNED"
+    SUSPENDED = "SUSPENDED"
+
 class Registration(Base):
     __tablename__ = "registrations"
     
@@ -60,18 +67,23 @@ class User(Base):
     temporary_password = Column(String, nullable=True)
     must_change_password = Column(Boolean, default=True)
 
-    full_name = Column(String, nullable=False)
-    birth_date = Column(Date, nullable=False)
-    birth_place = Column(String, nullable=False)
+    full_name = Column(String)
+    birth_place = Column(String)
+    birth_date = Column(Date)
     gender = Column(String, nullable=False)
-    address = Column(String, nullable=False)
-    family_card_number = Column(String, nullable=False)
-    identity_number = Column(String, unique=True, nullable=False)
-    phone_number = Column(String, nullable=False)
-    spouse_name = Column(String, nullable=True)
+    address = Column(String)
+    family_card_number = Column(String)
+    identity_number = Column(String, unique=True)
+    phone_number = Column(String)
+    spouse_name = Column(String)
+    job = Column(String)
 
     dkm_group = Column(Enum(KelompokDKM), nullable=False)
-    mandatory_savings = Column(Enum(SetoranWajib), nullable=False)
+    mandatory_savings = Column(Enum(SetoranWajib))
+    submitted_at = Column(DateTime)
 
     approved_at = Column(DateTime, server_default=func.now())
     approved_by = Column(String)
+
+    left_at = Column(DateTime)
+    status_note = Column(Text, nullable=True)

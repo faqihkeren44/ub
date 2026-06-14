@@ -96,7 +96,6 @@ def change_password(
         raise HTTPException(status_code=400, detail="Password lama salah")
     
     user.hashed_password = security.hash_password(form_data.new_password)
-    user.temporary_password = None
     user.must_change_password=False
 
     db.commit()
