@@ -30,7 +30,7 @@ def get_db():
 
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return {"status": "ok"}
 
 @app.get("/health")
 def health_check():
