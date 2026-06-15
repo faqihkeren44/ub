@@ -188,5 +188,92 @@
                 </div>
             </div>
         </section>
+
+        <section id="usaha" class="service-section">
+            <div class="container">
+                <div class="section-header center">
+                    <span class="badge">Unit Usaha</span>
+                    <h2>Bidang Usaha Kami</h2>
+                    <p>Melayani berbagai kebutuhan anggota dengan prinsip syariah dan profesionalisme.</p>
+                </div>
+
+                <div class="service-grid">
+                    <div class="service-card">
+                        <div class="service-icon">🛒</div>
+                        <h4>Toko Sembako</h4>
+                        <p>Penyediaan berbagai kebutuhan pokok untuk seluruh anggota.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">🐄</div>
+                        <h4>Hewan Ternak & Qurban</h4>
+                        <p>Fasilitasi pengadaan hewan ternak dan pelaksanaan ibadah Qurban.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">📱</div>
+                        <h4>PPOB & Listrik</h4>
+                        <p>Kemudahan pembayaran tagihan listrik dan transaksi online lainnya.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">🕋</div>
+                        <h4>Travel & Umroh</h4>
+                        <p>Layanan perjalanan ibadah yang amanah dan terpercaya.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">🌙</div>
+                        <h4>Simpan Pinjam Syariah</h4>
+                        <p>Pembiayaan berbasis syariah tanpa riba untuk kesejahteraan anggota.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">📈</div>
+                        <h4>Penanaman Modal</h4>
+                        <p>Peluang investasi produktif untuk pertumbuhan ekonomi bersama.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="kontak" class="main-footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <a href="#" class="footer-logo">UB <span>Mandiri Sejahtera</span></a>
+                <p class="legal-text">
+                    Koperasi Usaha Bersama Mandiri Sejahtera didirikan pada 18 Agustus 2018 dengan komitmen pemberdayaan ekonomi syariah.
+                </p>
+            </div>
+
+            <div class="footer-contact">
+                <h4>Hubungi Kami</h4>
+                <div class="contact-item">
+                    <span class="contact-label">Email</span>
+                    <a href="mailto:kop.ub.mandiri.sejahtera@gmail.com" class="contact-value">kop.ub.mandiri.sejahtera@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-label">Alamat</span>
+                    <p class="contact-value">Jl. Lodaya Ujung Nomor 6, RT 003 RW 007, Kel Babakan - Bogor</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Koperasi UB Mandiri Sejahtera. Semua Hak Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const menu = document.querySelector('#mobile-menu');
+        const navLinks = document.querySelector('#nav-list');
+
+        menu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            // Animasi sederhana hamburger jadi silang (opsional)
+            menu.classList.toggle('is-active');
+        });
+    </script>
 </body>
 </html>
