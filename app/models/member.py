@@ -28,37 +28,15 @@ class UserStatus(IntFlag):
     APPROVED = 2
     REJECTED = 4
 
-class MemberStatus(str, Enum):
+class MemberStatus(enum.Enum):
     PENDING = "PENDING"
+    REJECTED = "REJECTED"
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
     RESIGNED = "RESIGNED"
-    SUSPENDED = "SUSPENDED"
 
-class Registration(Base):
-    __tablename__ = "registrations"
-    
-    id = Column(Integer, primary_key=True, index=True)
-
-    # Data Identitas
-    full_name = Column(String, nullable=False, index=True)
-    birth_date = Column(Date, nullable=False)
-    birth_place = Column(String, nullable=False)
-    gender = Column(String, nullable=False)
-    address = Column(String, nullable=False)
-    family_card_number = Column(String, nullable=False) # No KK
-    identity_number = Column(String, unique=True, nullable=False) # No KTP
-    phone_number = Column(String, nullable=False)
-    spouse_name = Column(String, nullable=True) # Nama Pasangan
-
-    # Pilihan Terbatas
-    dkm_group = Column(Enum(KelompokDKM), nullable=False, index=True)
-    mandatory_savings = Column(Enum(SetoranWajib), nullable=False)
-
-    submitted_at = Column(DateTime, server_default=func.now())
-
-class User(Base):
-    __tablename__ = "users"
+class Member(Base):
+    __tablename__ = "members"
     
     id = Column(Integer, primary_key=True, index=True)
 
@@ -85,5 +63,6 @@ class User(Base):
     approved_at = Column(DateTime, server_default=func.now())
     approved_by = Column(String)
 
+    member_status = Column(Enum(MemberStatus), index=True, default=MemberStatus.PENDING)
     left_at = Column(DateTime)
-    status_note = Column(Text, nullable=True)
+    status_note = Column(Text)

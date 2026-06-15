@@ -5,7 +5,7 @@ from decimal import Decimal
 from datetime import date
 import re
 
-class UserCreate(BaseModel):
+class MemberCreate(BaseModel):
     full_name: str
     birth_date: date
     birth_place: str

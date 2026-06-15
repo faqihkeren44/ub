@@ -1,2 +1,2 @@
-from .user import *
+from .member import *
 from .product import *

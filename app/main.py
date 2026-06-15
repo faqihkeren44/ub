@@ -42,9 +42,3 @@ def health_check():
         return {"status": "error", "database": "disconnected", "error": str(e)}
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-# def check_admin_role(db: Session = Depends(get_db)):
-#     if current_user == True:
-#          pass
-#     else:
-#          raise HTTPException(status_code=304, detail="Access is forbidden")

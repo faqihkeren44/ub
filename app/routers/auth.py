@@ -80,7 +80,7 @@ def verify_user(
         if user_id is None:
             return RedirectResponse(url="/auth/login?msg=not_login", status_code=303)
     
-        user = db.query(models.User).filter(models.User.id == user_id).first()
+        user = db.query(models.Member).filter(models.Member.id == user_id).first()
         if not user:
             print(f"LOG: Admin dengan ID {user_id} tidak ada di database!")
             response = RedirectResponse(url="/auth/login?msg=admin_not_found", status_code=303)
@@ -135,10 +135,10 @@ def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depend
             return response
 
     # Pengecekan Anggota
-    user = db.query(models.User).filter(
+    user = db.query(models.Member).filter(
         or_(
-            models.User.identity_number == user_data.username,
-            models.User.member_id == user_data.username
+            models.Member.identity_number == user_data.username,
+            models.Member.member_id == user_data.username
         )
     ).first()
     

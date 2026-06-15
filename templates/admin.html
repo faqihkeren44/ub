@@ -72,7 +72,7 @@
                         <h2>Daftar Calon Anggota</h2>
                     </div>
                     <span class="count-badge">
-                        {{ registers|length }} Pendaftar
+                        {{ total_inactive }} Pendaftar
                     </span>
                 </div>
 
@@ -95,7 +95,7 @@
                                         {{ register.full_name }}
                                     </td>
                                     <td>
-                                        {{ register.dkm_group or '-' }}
+                                        {{ register.dkm_group.value or '-' }}
                                     </td>
                                     <td>
                                         {% if register.submitted_at %}
@@ -106,7 +106,7 @@
                                     </td>
                                     <td>
                                         <a
-                                            href="/admin/register/{{ register.id }}"
+                                            href="/admin/members/{{ register.id }}"
                                             class="btn-table"
                                         >
                                             Detail
@@ -134,16 +134,16 @@
             <section id="members" class="content-section">
                 <div class="section-header">
                     <div>
-                        <p class="eyebrow">Anggota Aktif</p>
+                        <p class="eyebrow">Data Anggota</p>
                         <h2>Daftar Anggota Terbaru</h2>
                     </div>
                     <span class="count-badge">
-                        {{ all_users|length }} Anggota
+                        {{ total_all }} Anggota
                     </span>
                 </div>
 
                 <div class="table-card">
-                    {% if all_users %}
+                    {% if all_members %}
                     <div class="table-wrapper">
                         <table>
                             <thead>
@@ -155,24 +155,24 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for user in all_users %}
+                                {% for member in all_members %}
                                 <tr>
                                     <td class="name-cell">
-                                        {{ user.full_name }}
+                                        {{ member.full_name }}
                                     </td>
                                     <td>
-                                        {{ user.dkm_group or '-' }}
+                                        {{ member.dkm_group.value or '-' }}
                                     </td>
                                     <td>
-                                        {% if user.approved_at %}
-                                            {{ user.approved_at.strftime('%d-%m-%Y') }}
+                                        {% if member.approved_at %}
+                                            {{ member.approved_at.strftime('%d-%m-%Y') }}
                                         {% else %}
                                             -
                                         {% endif %}
                                     </td>
                                     <td>
                                         <a
-                                            href="/admin/users/{{ user.id }}"
+                                            href="/admin/members/{{ member.id }}"
                                             class="btn-table"
                                         >
                                             Detail

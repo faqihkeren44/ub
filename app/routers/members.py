@@ -25,7 +25,7 @@ def get_me(
     try:
         token = access_token.split(" ")[1]
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        user_id = payload.get("sub")
+        member_id = payload.get("sub")
 
     except ExpiredSignatureError:
         response = RedirectResponse(url="/auth/login?msg=expired", status_code=303)
@@ -35,11 +35,11 @@ def get_me(
     except Exception:
         return RedirectResponse(url="/auth/login?msg=invalid", status_code=303)
 
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if user is None:
+    member = db.query(models.Member).filter(models.Member.id == member_id).first()
+    if member is None:
         return RedirectResponse(url="/auth/login")
 
     return templates.TemplateResponse("profile.html", {
         "request": request, 
-        "user": user
+        "member": member
     })

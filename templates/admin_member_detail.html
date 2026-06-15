@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Detail Anggota - {{ user.full_name }}</title>
+    <title>Detail Anggota - {{ member.full_name }}</title>
     <meta name="description" content="Detail lengkap data anggota koperasi." />
 
     <!-- CSS -->
-    <link rel="stylesheet" href="/static/css/pages/admin_user_detail.css" />
+    <link rel="stylesheet" href="/static/css/pages/admin_member_detail.css" />
 </head>
 <body>
     <main class="page-container">
@@ -20,23 +20,21 @@
                 </a>
 
                 <div>
-                    <h1>{{ user.full_name or '-' }}</h1>
+                    <h1>{{ member.full_name or '-' }}</h1>
 
                     <div class="member-meta">
                         <span class="meta-badge">
-                            ID Anggota: {{ user.member_id or 'Belum tersedia' }}
+                            ID Anggota: {{ member.member_id or 'Belum tersedia' }}
                         </span>
                     </div>
 
                     <div class="member-meta">
                         <span class="meta-badge">
                             Password:
-                            {% if user.temporary_password is defined %}
-                                {% if user.temporary_password %}
-                                    {{ user.temporary_password }}
-                                {% else %}
-                                    Password sudah diganti oleh anggota
-                                {% endif %}
+                            {% if member.temporary_password %}
+                                {{ member.temporary_password }}
+                            {% elif member.hashed_password %}
+                                Password sudah diganti oleh user
                             {% else %}
                                 Belum tersedia
                             {% endif %}
@@ -49,66 +47,66 @@
             <section class="detail-grid">
                 <div class="detail-item">
                     <strong>Nomor KTP (NIK)</strong>
-                    <span>{{ user.identity_number or '-' }}</span>
+                    <span>{{ member.identity_number or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
                     <strong>Nomor Kartu Keluarga</strong>
-                    <span>{{ user.family_card_number or '-' }}</span>
+                    <span>{{ member.family_card_number or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
                     <strong>Jenis Kelamin</strong>
-                    <span>{{ user.gender or '-' }}</span>
+                    <span>{{ member.gender or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
-                    <strong>Tempat, Tanggal Lahir</strong>
-                    <span>{{ user.birth_place or '-' }}</span>
+                    <strong>Tempat Lahir</strong>
+                    <span>{{ member.birth_place or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
-                    <strong>Tempat, Tanggal Lahir</strong>
-                    <span>{{ user.birth_date or '-' }}</span>
+                    <strong>Tanggal Lahir</strong>
+                    <span>{{ member.birth_date or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
                     <strong>Nomor Telepon / WhatsApp</strong>
-                    <span>{{ user.phone_number or '-' }}</span>
+                    <span>{{ member.phone_number or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
                     <strong>Nama Suami / Istri</strong>
-                    <span>{{ user.spouse_name or '-' }}</span>
+                    <span>{{ member.spouse_name or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
                     <strong>Pekerjaan</strong>
-                    <span>{{ user.job or '-' }}</span>
+                    <span>{{ member.job or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
                     <strong>Kelompok DKM</strong>
-                    <span>{{ user.dkm_group.value or '-' }}</span>
+                    <span>{{ member.dkm_group.value or '-' }}</span>
                 </div>
 
                 <div class="detail-item">
                     <strong>Simpanan Wajib per Bulan</strong>
                     <span>
-                        Rp {{ "{:,.0f}".format(user.mandatory_savings|int).replace(",", ".") if user.mandatory_savings else "-" }}
+                        Rp {{ "{:,.0f}".format(member.mandatory_savings|int).replace(",", ".") if member.mandatory_savings else "-" }}
                     </span>
                 </div>
 
                 <div class="detail-item">
                     <strong>Tanggal Disetujui</strong>
                     <span>
-                        {{ user.approved_at.strftime('%d-%m-%Y') if user.approved_at else '-' }}
+                        {{ member.approved_at.strftime('%d-%m-%Y') if member.approved_at else '-' }}
                     </span>
                 </div>
 
                 <div class="detail-item full-width">
                     <strong>Alamat Domisili</strong>
-                    <p>{{ user.address or '-' }}</p>
+                    <p>{{ member.address or '-' }}</p>
                 </div>
             </section>
 
@@ -116,7 +114,7 @@
             <section class="action-bar">
                 {% if is_registration %}
                 <form method="post"
-                    action="/admin/registrations/{{ user.id }}/approve">
+                    action="/admin/members/{{ member.id }}/approve">
                     <button type="submit" class="btn-primary">
                         Terima Pendaftaran
                     </button>
@@ -125,13 +123,13 @@
 
                 {% if not is_registration %}
                 <form method="post"
-                      action="/admin/users/{{ user.id }}/reset-password">
+                      action="/admin/members/{{ member.id }}/reset-password">
                     <button type="submit" class="btn-secondary">
                         Reset Password
                     </button>
                 </form>
                 
-                <a href="/admin/member/{{ user.id }}/preview"
+                <a href="/admin/member/{{ member.id }}/preview"
                 class="btn btn-primary"
                 target="_blank">
                     Preview PDF

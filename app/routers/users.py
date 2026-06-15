@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from urllib.parse import quote
 from app import models, database, schemas
 from .auth import verify_user
-from app.core import security 
+from app.core import security
+from datetime import datetime
 
 router = APIRouter(
     prefix="/users",
@@ -42,30 +43,31 @@ def register_page(request: Request, msg: str = None):
     })
 
 @router.post("/register")
-def register_user(
-    user_data: schemas.UserCreate = Depends(schemas.UserCreate.as_form),
+def register_member(
+    member_data: schemas.MemberCreate = Depends(schemas.MemberCreate.as_form),
     db: Session = Depends(database.get_db)):
     
-    if db.query(models.User).filter(models.User.identity_number == user_data.identity_number).first():
-        return RedirectResponse(url="/users/register?msg=already_exists", status_code=303)
+    if db.query(models.Member).filter(models.Member.identity_number == member_data.identity_number).first():
+        return RedirectResponse(url="/members/register?msg=already_exists", status_code=303)
     
-    if db.query(models.User).filter(models.Registration.identity_number == user_data.identity_number).first():
-        return RedirectResponse(url="/users/register?msg=already_exists", status_code=303)
+    if db.query(models.Member).filter(models.Member.identity_number == member_data.identity_number).first():
+        return RedirectResponse(url="/members/register?msg=already_exists", status_code=303)
     
-    data = user_data.model_dump(exclude={'password'})
+    data = member_data.model_dump(exclude={'password'})
 
-    data['dkm_group'] = models.user.KelompokDKM(data['dkm_group'])
-    data['mandatory_savings'] = models.user.SetoranWajib(data['mandatory_savings'])
+    data['dkm_group'] = models.KelompokDKM(data['dkm_group'])
+    data['mandatory_savings'] = models.SetoranWajib(data['mandatory_savings'])
+    data['submitted_at'] = datetime.now()
 
-    new_user = models.Registration(
+    new_member = models.Member(
         **data,
     )
 
-    db.add(new_user)
+    db.add(new_member)
     db.commit()
-    db.refresh(new_user)
+    db.refresh(new_member)
 
-    teks_sambutan = f"Selamat, {new_user.full_name} sudah berhasil mendaftar!"
+    teks_sambutan = f"Selamat, {new_member.full_name} sudah berhasil mendaftar!"
     pesan_sukses = quote(teks_sambutan)
 
     return RedirectResponse(
@@ -85,18 +87,19 @@ def change_password_page(
 def change_password(
     request: Request,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(verify_user),
+    current_member: models.Member = Depends(verify_user),
     form_data: schemas.PasswordChange = Depends(schemas.get_password_form)
 ):
-    if isinstance(current_user, RedirectResponse):
-        return current_user
+    if isinstance(current_member, RedirectResponse):
+        return current_member
     
-    user = db.query(models.User).filter(models.User.id == current_user.id).first()
-    if not security.verify_password(form_data.current_password, user.hashed_password):
+    member = db.query(models.Member).filter(models.Member.id == current_member.id).first()
+    if not security.verify_password(form_data.current_password, member.hashed_password):
         raise HTTPException(status_code=400, detail="Password lama salah")
     
-    user.hashed_password = security.hash_password(form_data.new_password)
-    user.must_change_password=False
+    member.temporary_password = None
+    member.hashed_password = security.hash_password(form_data.new_password)
+    member.must_change_password=False
 
     db.commit()
     
