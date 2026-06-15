@@ -28,8 +28,8 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/", response_class=HTMLResponse)
-def root(request: Request):
+@app.get("/")
+def root():
     return {"status": "ok"}
 
 @app.get("/health")
