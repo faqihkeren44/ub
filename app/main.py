@@ -6,6 +6,7 @@ from sqlalchemy import text
 from app.database import engine, SessionLocal, Base
 from fastapi.security import OAuth2PasswordBearer
 from .routers import products, auth, users, members, admin
+import sys
 
 Base.metadata.create_all(bind=engine)
 
@@ -30,6 +31,10 @@ def get_db():
 
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
+    print("=" * 50)
+    print("PYTHON VERSION:", sys.version)
+    print("=" * 50)
+
     return templates.TemplateResponse(
         request=request,
         name="index.html"
