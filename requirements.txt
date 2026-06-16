@@ -12,3 +12,4 @@ reportlab
 fpdf2
 email-validator
 jinja2
+Babel
