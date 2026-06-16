@@ -40,6 +40,7 @@ def admin_dashboard(
     
     all_members = (
         db.query(models.Member)
+        .filter(models.Member.member_status == models.MemberStatus.ACTIVE)
         .order_by(models.Member.approved_at.desc())
         .limit(5)
         .all()

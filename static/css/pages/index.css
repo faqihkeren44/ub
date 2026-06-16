@@ -331,6 +331,10 @@ header {
     padding-bottom: 10px;
 }
 
+.pengelola {
+    order: 0;
+}
+
 /* Member Item Style */
 .member-list {
     display: flex;
@@ -575,9 +579,9 @@ header {
 
     /* 4. Struktur Organisasi - Grid 3 Kolom */
     .org-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         align-items: start;
-        gap: 32px;
+        gap: 0px;
     }
 
     /* 5. Bidang Usaha - Grid 3 Kolom */

@@ -65,6 +65,7 @@ def generate_member_pdf(user_data):
         ("Nomor KTP", user_data.identity_number),
         ("No Telp / HP", user_data.phone_number),
         ("Nama Suami / Istri", user_data.spouse_name or "-"),
+        ("Pekerjaan", user_data.job or "-"),
     ]
     
     col1_width, col2_width, col3_width = 45, 5, 130
