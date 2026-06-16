@@ -63,9 +63,9 @@ def admin_dashboard(
     total_all_members = db.query(models.Member).count()
 
     return templates.TemplateResponse(
-        "admin.html",
-        {
-            "request": request,
+        request=request,
+        name="admin.html",
+        context={
             "admin": admin,
             "registers": registers,
             "all_members": all_members,
@@ -93,8 +93,9 @@ def member_detail(
     )
     
     return templates.TemplateResponse(
-        "admin_member_detail.html",
-        {
+        request=request,
+        name="admin_member_detail.html",
+        context={
             "request": request,
             "admin": admin,
             "member": member,

@@ -39,7 +39,10 @@ def get_me(
     if member is None:
         return RedirectResponse(url="/auth/login")
 
-    return templates.TemplateResponse("profile.html", {
-        "request": request, 
+    return templates.TemplateResponse(
+        request=request,
+        name="profile.html",
+        context={ 
         "member": member
-    })
+        }
+    )
