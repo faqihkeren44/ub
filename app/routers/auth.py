@@ -114,11 +114,14 @@ def login_page(request: Request, msg: str = None, status: str = "peringatan"):
     elif msg:
         display_message = msg
 
-    return templates.TemplateResponse("login.html", {
-        "request": request, 
-        "pesan": display_message,
-        "status": tipe_pesan
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={
+            "pesan": display_message,
+            "status": tipe_pesan
+        }
+    )
 
 @router.post("/login")
 def login_user(response: Response, user_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):

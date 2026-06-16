@@ -17,9 +17,10 @@ template = Jinja2Templates(directory="templates")
 
 @router.get("/praregister", response_class=HTMLResponse)
 def praregister_page(request: Request):
-    return template.TemplateResponse("praregister.html", {
-        "request": request
-    })
+    return template.TemplateResponse(
+        request=request,
+        name="praregister.html"
+    )
 
 @router.get("/register", response_class=HTMLResponse)
 def register_page(request: Request, msg: str = None):
@@ -36,10 +37,12 @@ def register_page(request: Request, msg: str = None):
         display_message = "Email yang dimasukan sudah ada. Silahkan coba menggunakan email yang lain"
         tipe_pesan = "peringatan"    
 
-    return template.TemplateResponse("register.html",{
-        "request": request, 
-        "pesan": display_message,
-        "status": tipe_pesan
+    return template.TemplateResponse(
+        request=request,
+        name="register.html",
+        context={
+            "pesan": display_message,
+            "status": tipe_pesan
     })
 
 @router.post("/register")
@@ -79,9 +82,10 @@ def register_member(
 def change_password_page(
     request: Request,
 ):
-    return template.TemplateResponse("change_password.html",{
-        "request": request,
-    })
+    return template.TemplateResponse(
+        request=request,
+        name="change_password.html"
+    )
 
 @router.post("/change-password")
 def change_password(
