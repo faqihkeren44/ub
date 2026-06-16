@@ -1,6 +1,8 @@
 import os
 from fpdf import FPDF
 
+from babel.dates import format_date
+
 class KoperasiPDF(FPDF):
     def header(self):
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -58,7 +60,7 @@ def generate_member_pdf(user_data):
     data_pemohon = [
         ("Nama Lengkap", user_data.full_name),
         ("Tempat Lahir", user_data.birth_place),
-        ("Tanggal Lahir", user_data.birth_date.strftime('%d %B %Y') if hasattr(user_data.birth_date, 'strftime') else str(user_data.birth_date)),
+        ("Tanggal Lahir", format_date(user_data.birth_date, format='d MMMM yyyy', locale='id') if user_data.birth_date else "-"),
         ("Jenis Kelamin", user_data.gender),
         ("Alamat Rumah", user_data.address),
         ("Nomor Kartu Keluarga", user_data.family_card_number),
