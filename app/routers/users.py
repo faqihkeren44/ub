@@ -53,9 +53,6 @@ def register_member(
     if db.query(models.Member).filter(models.Member.identity_number == member_data.identity_number).first():
         return RedirectResponse(url="/members/register?msg=already_exists", status_code=303)
     
-    if db.query(models.Member).filter(models.Member.identity_number == member_data.identity_number).first():
-        return RedirectResponse(url="/members/register?msg=already_exists", status_code=303)
-    
     data = member_data.model_dump(exclude={'password'})
 
     data['dkm_group'] = models.KelompokDKM(data['dkm_group'])
