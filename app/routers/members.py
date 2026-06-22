@@ -80,9 +80,9 @@ def change_profile_page(
         return RedirectResponse("/auth/login")
 
     return templates.TemplateResponse(
-        "change_profile.html",
-        {
-            "request": request,
+        request=request,
+        name="change_profile.html",
+        context={
             "member": member
         }
     )
@@ -124,7 +124,8 @@ def edit_profile(
 
     db.commit()
 
-    return RedirectResponse(
-        "/dashboard/me",
+    return templates.TemplateResponse(
+        request=request,
+        name="/dashboard/me",
         status_code=303
     )
