@@ -77,7 +77,7 @@ def generate_member_pdf(user_data):
         pdf.cell(col1_width, 6, label)
         pdf.cell(col2_width, 6, ":")
         pdf.multi_cell(col3_width, 6, str(value))
-        pdf.set_y(pdf.get_y() + 1)
+        pdf.set_y(pdf.get_y() + 0.3)
         
     pdf.ln(4)
     pdf.multi_cell(0, 5, 'Dengan ini mengajukan permohonan masuk menjadi anggota Koperasi "UB Mandiri Sejahtera" dan bersedia memenuhi ketentuan-ketentuan dan persyaratan yang ada yaitu:')
@@ -95,11 +95,11 @@ def generate_member_pdf(user_data):
     ]
     for poin in persyaratan:
         pdf.multi_cell(0, 5, poin)
-        pdf.set_y(pdf.get_y() + 1)
+        pdf.set_y(pdf.get_y() + 0.8)
         
     pdf.ln(4)
     pdf.multi_cell(0, 5, "Demikian permohonan ini dibuat, untuk menjadi bahan pertimbangan bagi Pengurus. Atas perhatiannya disampaikan terima kasih.")
-    pdf.ln(4)
+    pdf.ln(2)
     
     # Simpan posisi awal koordinat Y
     pos_y_ttd = pdf.get_y()
