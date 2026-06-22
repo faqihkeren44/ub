@@ -78,6 +78,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    margin: 10px;
 }
 
 .meta-badge {

@@ -195,3 +195,26 @@ async def preview_member_pdf(member_id: int, db: Session = Depends(get_db)):
         )
     except Exception as e:    
         return {"status": "error", "detail_kesalahan": str(e)}
+    
+@router.post("/members/{member_id}/delete", response_class=HTMLResponse)
+def delete_member(
+    member_id: int,
+    db: Session = Depends(database.get_db),
+    admin: models.Admin = Depends(verify_admin)
+):
+    # Cari anggota berdasarkan ID
+    member = db.query(models.Member).filter(models.Member.id == member_id).first()
+
+    # Jika anggota tidak ditemukan, lemparkan error 404
+    if not member:
+        raise HTTPException(status_code=404, detail="Anggota tidak ditemukan")
+    
+    # Proses penghapusan data dari database
+    db.delete(member)
+    db.commit()
+
+    # Redirect kembali ke halaman dashboard utama admin
+    return RedirectResponse(
+        url="/admin/dashboard?msg=deleted", 
+        status_code=303
+    )

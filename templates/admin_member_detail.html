@@ -141,6 +141,10 @@
                         Kembali
                     </button>
                 </a>
+
+                <form action="/admin/members/{{ member.id }}/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus anggota ini secara permanen?');">
+                    <button type="submit" class="btn btn-danger">Hapus Anggota</button>
+                </form>
             </section>
 
         </section>

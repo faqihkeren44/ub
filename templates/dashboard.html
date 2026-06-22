@@ -9,13 +9,17 @@
 </head>
 <body>
     <div style="height: 250px; background: linear-gradient(150deg, var(--stripe-purple), var(--stripe-blue));"></div>
-
+    
     <div class="container">
         <div class="profile-card">
-            <div class="user-avatar">
-                {{ member.full_name[0] }} </div>
-            <h1>Assalanmualaikum, {{ member.full_name }}!</h1>
-            <p style="color: #6e6e73; margin-bottom: 30px;">Anggota Aktif Koperasi</p>
+            <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 20px;">
+                <img src="../static/img/logo_1.png" alt="Logo Koperasi" class="profile-logo" style="padding: 0; max-height: 200px; object-fit: contain;">
+            </div>
+
+            <div class="">            
+                <h1>Assalamualaikum, {{ member.full_name }}!</h1>
+                <p style="color: #6e6e73; margin-bottom: 30px;">Anggota Aktif Koperasi</p>
+            </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="stat-item">
@@ -27,79 +31,10 @@
             <hr style="margin: 30px 0; border: 0; border-top: 1px solid #d2d2d7;">
             
             <div class="actions">
-                <a href="/dashboard/change-profile" class="btn btn-dark">Edit Profil</a>                
-                <a href="/users/change-password" class="btn btn-dark">Ubah Password</a>                
+                <a href="/dashboard/profile" class="btn btn-dark">Profile</a>                
                 <a href="/shop" class="btn btn-dark">Mulai Belanja</a>
                 <a href="/auth/logout" style="color: #ff3b30; text-decoration: none; margin-left: 20px; font-weight: 600;">Keluar</a>
             </div>
-
-            <br>
-
-            <section class="detail-grid">
-                <div class="detail-item">
-                    <strong>Nomor KTP (NIK)</strong>
-                    <span>{{ member.identity_number or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Nomor Kartu Keluarga</strong>
-                    <span>{{ member.family_card_number or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Tempat Lahir</strong>
-                    <span>{{ member.birth_place or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Tanggal Lahir</strong>
-                    <span>{{ member.birth_date or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Jenis Kelamin</strong>
-                    <span>{{ member.gender or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Alamat Domisili</strong>
-                    <p>{{ member.address or '-' }}</p>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Nomor Telepon / WhatsApp</strong>
-                    <span>{{ member.phone_number or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Nama Suami / Istri</strong>
-                    <span>{{ member.spouse_name or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Pekerjaan</strong>
-                    <span>{{ member.job or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Kelompok DKM</strong>
-                    <span>{{ member.dkm_group.value or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Simpanan Wajib per Bulan</strong>
-                    <span>
-                        Rp {{ "{:,.0f}".format(member.mandatory_savings|int).replace(",", ".") if member.mandatory_savings else "-" }}
-                    </span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>Tanggal Disetujui</strong>
-                    <span>
-                        {{ member.approved_at.strftime('%d-%m-%Y') if member.approved_at else '-' }}
-                    </span>
-                </div>
-            </section>
         </div>
     </div>
 </body>

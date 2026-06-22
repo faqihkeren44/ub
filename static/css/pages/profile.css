@@ -8,10 +8,16 @@
     border-radius: 28px;
     padding: 40px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    margin-top: -50px;
-    position: relative;
+    margin-top: -150px; 
+    position: relative; 
     z-index: 5;
+    padding-top: 60px; 
 }
+
+.profile-logo { 
+    padding: 200px; 
+}
+
 .user-avatar {
     width: 100px;
     height: 100px;

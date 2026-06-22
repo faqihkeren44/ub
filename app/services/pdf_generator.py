@@ -88,7 +88,7 @@ def generate_member_pdf(user_data):
         "2. Mentaati Anggaran Dasar dan Anggaran Rumah Tangga (AD-ART) Koperasi UB Mandiri Sejahtera",
         "3. Mentaati segala peraturan yang berlaku di Koperasi UB Mandiri Sejahtera",
         "4. Setoran Simpanan Pokok, Simpanan Wajib dan Simpanan Sukarela berakad Mudharabah (Akad Modal Kerja)",
-        "5. Bersedia Menyetorkan Simpanan Pokok sebesar Rp. 100.000,- (Bisa di Cicil 2 kali)",
+        "5. Bersedia Menyetorkan Simpanan Pokok sebesar Rp. 100.000,- (Bisa dicicil 2 kali)",
         f"6. Bersedia menyetorkan Simpanan Wajib sebesar Rp. {user_data.mandatory_savings.value} setiap Bulan",
         "7. Melampirkan Fotocopy Kartu Keluarga dan Fotocopy KTP",
         "8. Melampirkan Foto diri ukuran 3x4 berwarna"

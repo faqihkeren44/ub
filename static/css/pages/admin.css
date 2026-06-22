@@ -35,10 +35,15 @@ body {
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     padding: 24px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center; /* Menyejajarkan nav dan footer secara vertikal */
+    row-gap: 16px;       /* Jarak vertikal antara header dan baris di bawahnya */
 }
 
 .sidebar-header {
     margin-bottom: 24px;
+    width: 100%;
 }
 
 .sidebar-label {
@@ -84,18 +89,21 @@ body {
 
 .sidebar-footer {
     margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;  
 }
 
 .logout-link {
-    display: inline-block;
     font-size: 14px;
     font-weight: 600;
     color: #dc2626;
     text-decoration: none;
-}
-
-.logout-link:hover {
-    text-decoration: underline;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 10px;
+    transition: all 0.2s ease; 
 }
 
 /* ==========================================

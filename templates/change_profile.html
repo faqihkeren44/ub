@@ -42,6 +42,24 @@
             </div>
 
             <div class="form-group">
+                <label>Nomor KTP (NIK)</label>
+                <input
+                    type="text"
+                    name="identity_number"
+                    value="{{ member.identity_number }}"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label>Nomor Kartu Keluarga</label>
+                <input
+                    type="text"
+                    name="family_card_number"
+                    value="{{ member.family_card_number }}"
+                    required>
+            </div>
+
+            <div class="form-group">
                 <label>Tempat Lahir</label>
                 <input
                     type="text"
@@ -83,24 +101,6 @@
             </div>
 
             <div class="form-group">
-                <label>Nomor Kartu Keluarga</label>
-                <input
-                    type="text"
-                    name="family_card_number"
-                    value="{{ member.family_card_number }}"
-                    required>
-            </div>
-
-            <div class="form-group">
-                <label>Nomor KTP (NIK)</label>
-                <input
-                    type="text"
-                    name="identity_number"
-                    value="{{ member.identity_number }}"
-                    required>
-            </div>
-
-            <div class="form-group">
                 <label>Nomor HP / WhatsApp</label>
                 <input
                     type="text"
@@ -127,25 +127,36 @@
             </div>
 
             <div class="form-group">
-                <label>Kelompok DKM</label>
-                <input
-                    type="text"
-                    value="{{ member.dkm_group.value }}"
-                    required>
+                <label>Kelompok DKM</label>                
+                <select id="dkm_group" name="dkm_group" required value="{{ member.dkm_group.value }}">
+                    <option value="DKM DARUSSALAM - Gunung Gede">DKM DARUSSALAM - Gunung Gede</option>
+                    <option value="DKM AL BAROKAH - Pondok Rumput">DKM AL BAROKAH - Pondok Rumput</option>
+                    <option value="DKM DARUL HIKMAH - Green Arofah">DKM DARUL HIKMAH - Green Arofah</option>
+                    <option value="DKM AR-RAUDHOH - Pakuan">DKM AR-RAUDHOH - Pakuan</option>
+                    <option value="DKM BAITUL IZZA - Tajur">DKM BAITUL IZZA - Tajur</option>
+                    <option value="DKM AN-NASHR - Cikaret">DKM AN-NASHR - Cikaret</option>
+                    <option value="DKM AR-ROHMAN - Ciapus">DKM AR-ROHMAN - Ciapus</option>
+                </select>
             </div>
 
             <div class="form-group">
                 <label>Simpanan Wajib</label>
-                <input
-                    type="text"
-                    value="Rp {{ '{:,.0f}'.format(member.mandatory_savings|int).replace(',', '.') }}"
-                    required>
+                <select id="mandatory_savings" name="mandatory_savings" required value="Rp {{ '{:,.0f}'.format(member.mandatory_savings|int).replace(',', '.') }}">
+                    <option value="25000">Rp 25.000</option>
+                    <option value="50000">Rp 50.000</option>
+                    <option value="100000">Rp 100.000</option>
+                    <option value="250000">Rp 250.000</option>
+                    <option value="500000">Rp 500.000</option>
+                </select>
             </div>
 
-            <button type="submit" class="btn-submit">
-                Simpan Perubahan
-            </button>
+            <div class="button-group">
+                <button type="submit" class="btn-submit">
+                    Simpan Perubahan
+                </button>
 
+                <a href="/dashboard/profile" class="btn-back">Kembali</a>
+            </div>
         </form>
     </div>
 </body>
