@@ -126,5 +126,8 @@ def edit_profile(
 
     return templates.TemplateResponse(
         request=request,
-        name="profile.html"
+        name="profile.html",
+        context={
+            "member": member
+        }
     )
