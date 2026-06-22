@@ -124,10 +124,7 @@ def edit_profile(
 
     db.commit()
 
-    return templates.TemplateResponse(
-        request=request,
-        name="profile.html",
-        context={
-            "member": member
-        }
+    return RedirectResponse(
+        "/dashboard/me",
+        status_code=303
     )
