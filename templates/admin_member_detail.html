@@ -56,11 +56,6 @@
                 </div>
 
                 <div class="detail-item">
-                    <strong>Jenis Kelamin</strong>
-                    <span>{{ member.gender or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
                     <strong>Tempat Lahir</strong>
                     <span>{{ member.birth_place or '-' }}</span>
                 </div>
@@ -68,6 +63,16 @@
                 <div class="detail-item">
                     <strong>Tanggal Lahir</strong>
                     <span>{{ member.birth_date or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Jenis Kelamin</strong>
+                    <span>{{ member.gender or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Alamat Domisili</strong>
+                    <p>{{ member.address or '-' }}</p>
                 </div>
 
                 <div class="detail-item">
@@ -102,11 +107,6 @@
                     <span>
                         {{ member.approved_at.strftime('%d-%m-%Y') if member.approved_at else '-' }}
                     </span>
-                </div>
-
-                <div class="detail-item full-width">
-                    <strong>Alamat Domisili</strong>
-                    <p>{{ member.address or '-' }}</p>
                 </div>
             </section>
 

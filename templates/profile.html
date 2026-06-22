@@ -27,7 +27,7 @@
             <hr style="margin: 30px 0; border: 0; border-top: 1px solid #d2d2d7;">
             
             <div class="actions">
-                <a href="/users/change-profile" class="btn btn-dark">Edit Profil</a>                
+                <a href="/dashboard/change-profile" class="btn btn-dark">Edit Profil</a>                
                 <a href="/users/change-password" class="btn btn-dark">Ubah Password</a>                
                 <a href="/shop" class="btn btn-dark">Mulai Belanja</a>
                 <a href="/auth/logout" style="color: #ff3b30; text-decoration: none; margin-left: 20px; font-weight: 600;">Keluar</a>
@@ -47,11 +47,6 @@
                 </div>
 
                 <div class="detail-item">
-                    <strong>Jenis Kelamin</strong>
-                    <span>{{ member.gender or '-' }}</span>
-                </div>
-
-                <div class="detail-item">
                     <strong>Tempat Lahir</strong>
                     <span>{{ member.birth_place or '-' }}</span>
                 </div>
@@ -59,6 +54,16 @@
                 <div class="detail-item">
                     <strong>Tanggal Lahir</strong>
                     <span>{{ member.birth_date or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Jenis Kelamin</strong>
+                    <span>{{ member.gender or '-' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Alamat Domisili</strong>
+                    <p>{{ member.address or '-' }}</p>
                 </div>
 
                 <div class="detail-item">
@@ -93,11 +98,6 @@
                     <span>
                         {{ member.approved_at.strftime('%d-%m-%Y') if member.approved_at else '-' }}
                     </span>
-                </div>
-
-                <div class="detail-item full-width">
-                    <strong>Alamat Domisili</strong>
-                    <p>{{ member.address or '-' }}</p>
                 </div>
             </section>
         </div>

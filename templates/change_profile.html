@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ganti Password</title>
+    <title>Edit Profil</title>
     <link rel="stylesheet" href="../static/css/pages/change_password.css">
 </head>
 
 <body>
     <div class="password-container">
         <h2>Edit Profil</h2>
-        <form method="post" action="/users/edit-profile" class="password-form">
+
+        <form method="POST" action="/dashboard/edit-profile" class="password-form">
+
             {% if pesan %}
                 <div style="
-                    padding: 15px; 
-                    margin-bottom: 20px; 
-                    border-radius: 4px;
+                    padding:15px;
+                    margin-bottom:20px;
+                    border-radius:4px;
                     {% if status == 'sukses' %}
-                        background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+                        background:#d4edda;
+                        color:#155724;
+                        border:1px solid #c3e6cb;
                     {% else %}
-                        background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;
+                        background:#fff3cd;
+                        color:#856404;
+                        border:1px solid #ffeeba;
                     {% endif %}
                 ">
                     {{ pesan }}
@@ -27,25 +33,119 @@
             {% endif %}
 
             <div class="form-group">
-                <strong>Nomor KTP (NIK)</strong>
-                <span>{{ member.identity_number or '-' }}</span>
-                <label>Password Lama</label>
-                <input type="password" name="current_password" required>
+                <label>Nama Lengkap</label>
+                <input
+                    type="text"
+                    name="full_name"
+                    value="{{ member.full_name }}"
+                    required>
             </div>
 
             <div class="form-group">
-                <label>Password Baru</label>
-                <input type="password" name="new_password" required>
+                <label>Tempat Lahir</label>
+                <input
+                    type="text"
+                    name="birth_place"
+                    value="{{ member.birth_place }}"
+                    required>
             </div>
 
             <div class="form-group">
-                <label>Konfirmasi Password Baru</label>
-                <input type="password" name="confirm_password" required>
+                <label>Tanggal Lahir</label>
+                <input
+                    type="date"
+                    name="birth_date"
+                    value="{{ member.birth_date }}"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label>Jenis Kelamin</label>
+                <select name="gender" required>
+                    <option value="Pria"
+                        {% if member.gender == "Pria" %}selected{% endif %}>
+                        Pria
+                    </option>
+
+                    <option value="Wanita"
+                        {% if member.gender == "Wanita" %}selected{% endif %}>
+                        Wanita
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Alamat</label>
+                <textarea
+                    name="address"
+                    rows="3"
+                    required>{{ member.address }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Nomor Kartu Keluarga</label>
+                <input
+                    type="text"
+                    name="family_card_number"
+                    value="{{ member.family_card_number }}"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label>Nomor KTP (NIK)</label>
+                <input
+                    type="text"
+                    name="identity_number"
+                    value="{{ member.identity_number }}"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label>Nomor HP / WhatsApp</label>
+                <input
+                    type="text"
+                    name="phone_number"
+                    value="{{ member.phone_number }}"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label>Nama Suami / Istri</label>
+                <input
+                    type="text"
+                    name="spouse_name"
+                    value="{{ member.spouse_name or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label>Pekerjaan</label>
+                <input
+                    type="text"
+                    name="job"
+                    value="{{ member.job }}"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label>Kelompok DKM</label>
+                <input
+                    type="text"
+                    value="{{ member.dkm_group.value }}"
+                    disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Simpanan Wajib</label>
+                <input
+                    type="text"
+                    value="Rp {{ '{:,.0f}'.format(member.mandatory_savings|int).replace(',', '.') }}"
+                    disabled>
             </div>
 
             <button type="submit" class="btn-submit">
-                Ganti Password
+                Simpan Perubahan
             </button>
+
         </form>
     </div>
 </body>

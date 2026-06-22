@@ -1,0 +1,17 @@
+.form-group textarea,
+.form-group select{
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.form-group textarea:focus,
+.form-group select:focus{
+    outline: none;
+    border-color: #0071e3;
+}
