@@ -126,6 +126,5 @@ def edit_profile(
 
     return templates.TemplateResponse(
         request=request,
-        name="/dashboard/me",
-        status_code=303
+        name="profile.html"
     )
