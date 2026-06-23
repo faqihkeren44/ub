@@ -20,7 +20,7 @@
                 </a>
 
                 <div>
-                    <h1>{{ member.full_name or '-' }}</h1>
+                    <h1 class="member-name">{{ member.full_name or '-' }}</h1>
 
                     <div class="member-meta">
                         <span class="meta-badge">
@@ -32,7 +32,16 @@
                         <span class="meta-badge">
                             Password:
                             {% if member.temporary_password %}
-                                {{ member.temporary_password }}
+                                <span id="member-password">{{ member.temporary_password }}</span>
+
+                                <button
+                                    type="button"
+                                    class="copy-btn"
+                                    onclick="copyPassword()"
+                                    title="Salin Password">
+                                    📋
+                                </button>
+
                             {% elif member.hashed_password %}
                                 Password sudah diganti oleh user
                             {% else %}
@@ -119,11 +128,15 @@
                         Terima Pendaftaran
                     </button>
                 </form>
+
+                <form action="/admin/members/{{ member.id }}/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini secara permanen?');">
+                    <button type="submit" class="btn btn-danger">
+                        Hapus Anggota</button>
+                </form>
                 {% endif %}
 
                 {% if not is_registration %}
-                <form method="post"
-                      action="/admin/members/{{ member.id }}/reset-password">
+                <form method="POST" action="/admin/members/{{ member.id }}/reset-password" onsubmit="return confirm('Apakah Anda yakin ingin mereset password anggota ini?');">
                     <button type="submit" class="btn-secondary">
                         Reset Password
                     </button>
@@ -141,13 +154,25 @@
                         Kembali
                     </button>
                 </a>
-
-                <form action="/admin/members/{{ member.id }}/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus anggota ini secara permanen?');">
-                    <button type="submit" class="btn btn-danger">Hapus Anggota</button>
-                </form>
             </section>
 
         </section>
     </main>
+
+    <script>
+    function copyPassword() {
+        const password =
+            document.getElementById("member-password").innerText;
+
+        navigator.clipboard.writeText(password)
+            .then(() => {
+                const btn = document.querySelector(".copy-btn");
+                btn.textContent = "✓";
+                setTimeout(() => {
+                    btn.textContent = "📋";
+                }, 1500);
+            });
+    }
+    </script>
 </body>
 </html>

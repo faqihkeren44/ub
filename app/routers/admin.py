@@ -8,6 +8,9 @@ from app.core import security, password
 from app import models
 from .auth import verify_admin
 
+from typing import Optional
+from sqlalchemy import extract
+
 router = APIRouter(
     prefix="/admin",
     tags=['Admin Dashboard'],
@@ -41,6 +44,7 @@ def admin_dashboard(
     all_members = (
         db.query(models.Member)
         .filter(models.Member.member_status == models.MemberStatus.ACTIVE)
+        .filter(extract("year", models.Member.approved_at) == 2026)
         .order_by(models.Member.approved_at.desc())
         .limit(5)
         .all()
@@ -74,6 +78,66 @@ def admin_dashboard(
             "total_active": total_active_members,
             "total_inactive": total_inactive_members,
             "total_all": total_all_members
+        }
+    )
+
+@router.get("/members/list", response_class=HTMLResponse)
+def members_list(
+    request: Request,
+    dkm_group: Optional[str] = None,
+    name: Optional[str] = None,
+    year: str | None = None,
+    db: Session = Depends(database.get_db),
+    admin: models.Admin = Depends(verify_admin)
+):
+    query = db.query(models.Member).filter(
+        models.Member.member_status == models.MemberStatus.ACTIVE
+    )
+
+    if dkm_group:
+        query = query.filter(
+            models.Member.dkm_group == models.KelompokDKM[dkm_group]
+        )
+
+    if name:
+        query = query.filter(
+            models.Member.full_name.ilike(f"%{name}%")
+        )
+
+    # Filter tahun
+    current_year = datetime.now().year
+
+    if year == "all":
+        selected_year = "all"
+
+    elif year:
+        selected_year = int(year)
+        query = query.filter(
+            extract("year", models.Member.approved_at) == selected_year
+        )
+
+    else:
+        selected_year = current_year
+        query = query.filter(
+            extract("year", models.Member.approved_at) == current_year
+        )
+
+    all_members = (
+        query
+        .order_by(models.Member.full_name.asc())
+        .all()
+    )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="members_list.html",
+        context={
+            "admin": admin,
+            "all_members": all_members,
+            "dkm_groups": models.KelompokDKM,
+            "selected_dkm": dkm_group,
+            "selected_year": selected_year,
+            "search_name": name,
         }
     )
 
@@ -138,6 +202,29 @@ def approve_registration(
         "/admin/dashboard", 
         status_code=303
     )
+    
+@router.post("/members/{member_id}/delete", response_class=HTMLResponse)
+def delete_member(
+    member_id: int,
+    db: Session = Depends(database.get_db),
+    admin: models.Admin = Depends(verify_admin)
+):
+    # Cari anggota berdasarkan ID
+    member = db.query(models.Member).filter(models.Member.id == member_id).first()
+
+    # Jika anggota tidak ditemukan, lemparkan error 404
+    if not member:
+        raise HTTPException(status_code=404, detail="Anggota tidak ditemukan")
+    
+    # Proses penghapusan data dari database
+    db.delete(member)
+    db.commit()
+
+    # Redirect kembali ke halaman dashboard utama admin
+    return RedirectResponse(
+        url="/admin/dashboard?msg=deleted", 
+        status_code=303
+    )
 
 # ==========================================================
 # RESET PASSWORD
@@ -195,26 +282,3 @@ async def preview_member_pdf(member_id: int, db: Session = Depends(get_db)):
         )
     except Exception as e:    
         return {"status": "error", "detail_kesalahan": str(e)}
-    
-@router.post("/members/{member_id}/delete", response_class=HTMLResponse)
-def delete_member(
-    member_id: int,
-    db: Session = Depends(database.get_db),
-    admin: models.Admin = Depends(verify_admin)
-):
-    # Cari anggota berdasarkan ID
-    member = db.query(models.Member).filter(models.Member.id == member_id).first()
-
-    # Jika anggota tidak ditemukan, lemparkan error 404
-    if not member:
-        raise HTTPException(status_code=404, detail="Anggota tidak ditemukan")
-    
-    # Proses penghapusan data dari database
-    db.delete(member)
-    db.commit()
-
-    # Redirect kembali ke halaman dashboard utama admin
-    return RedirectResponse(
-        url="/admin/dashboard?msg=deleted", 
-        status_code=303
-    )

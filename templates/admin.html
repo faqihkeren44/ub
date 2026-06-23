@@ -149,6 +149,7 @@
                         <table>
                             <thead>
                                 <tr>
+                                    <th>ID Anggota</th>
                                     <th>Nama</th>
                                     <th>Kelompok DKM</th>
                                     <th>Tanggal Disetujui</th>
@@ -158,6 +159,9 @@
                             <tbody>
                                 {% for member in all_members %}
                                 <tr>
+                                    <td>
+                                        {{ member.member_id }}
+                                    </td>
                                     <td class="name-cell">
                                         {{ member.full_name }}
                                     </td>
@@ -192,6 +196,10 @@
                         </p>
                     </div>
                     {% endif %}
+                </div>
+
+                <div>
+                    <a href="/admin/members/list">Selengkapnya</a>
                 </div>
             </section>
 

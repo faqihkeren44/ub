@@ -74,6 +74,11 @@ body {
     margin: 0;
 }
 
+.member-name{
+    font-size: 1.17em;
+    font-weight: bold;
+}
+
 .member-meta {
     display: flex;
     flex-wrap: wrap;
@@ -179,6 +184,21 @@ body {
     background: #eef2f7;
 }
 
+.copy-btn {
+    margin-left: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.copy-btn:hover {
+    background: rgba(0, 143, 93, 0.08);
+}
+
 /* ==========================================
    TABLET
 ========================================== */
@@ -260,5 +280,10 @@ body {
     .action-bar {
         margin-top: 44px;
         padding-top: 32px;
+    }
+
+    .member-name{
+        font-size: 2em;
+        font-weight: bold;
     }
 }
