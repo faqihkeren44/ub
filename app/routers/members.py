@@ -135,7 +135,8 @@ def edit_profile(
     phone_number: str = Form(...),
     spouse_name: str = Form(""),
     job: str = Form(...),
-
+    dkm_group: str = Form(...),
+    mandatory_savings: int = Form(...),
     access_token: str = Cookie(None),
     db: Session = Depends(database.get_db)
 ):
@@ -155,6 +156,8 @@ def edit_profile(
     member.phone_number = phone_number
     member.spouse_name = spouse_name
     member.job = job
+    member.dkm_group = models.KelompokDKM(dkm_group)
+    member.mandatory_savings = models.SetoranWajib(mandatory_savings)
 
     db.commit()
 
