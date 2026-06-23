@@ -62,7 +62,7 @@
 
                 <div class="detail-item">
                     <strong>Tanggal Lahir</strong>
-                    <span>{{ member.birth_date or '-' }}</span>
+                    <span>{{ member.birth_date.strftime('%d-%m-%Y') or '-' }}</span>
                 </div>
 
                 <div class="detail-item">

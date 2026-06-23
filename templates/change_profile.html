@@ -127,26 +127,72 @@
             </div>
 
             <div class="form-group">
-                <label>Kelompok DKM</label>                
-                <select id="dkm_group" name="dkm_group" required value="{{ member.dkm_group.value }}">
-                    <option value="DKM DARUSSALAM - Gunung Gede">DKM DARUSSALAM - Gunung Gede</option>
-                    <option value="DKM AL BAROKAH - Pondok Rumput">DKM AL BAROKAH - Pondok Rumput</option>
-                    <option value="DKM DARUL HIKMAH - Green Arofah">DKM DARUL HIKMAH - Green Arofah</option>
-                    <option value="DKM AR-RAUDHOH - Pakuan">DKM AR-RAUDHOH - Pakuan</option>
-                    <option value="DKM BAITUL IZZA - Tajur">DKM BAITUL IZZA - Tajur</option>
-                    <option value="DKM AN-NASHR - Cikaret">DKM AN-NASHR - Cikaret</option>
-                    <option value="DKM AR-ROHMAN - Ciapus">DKM AR-ROHMAN - Ciapus</option>
+                <label>Kelompok DKM</label>
+                <select id="dkm_group" name="dkm_group" required>
+                    <option value="DKM DARUSSALAM - Gunung Gede"
+                        {% if member.dkm_group.value == 'DKM DARUSSALAM - Gunung Gede' %}selected{% endif %}>
+                        DKM DARUSSALAM - Gunung Gede
+                    </option>
+
+                    <option value="DKM AL BAROKAH - Pondok Rumput"
+                        {% if member.dkm_group.value == 'DKM AL BAROKAH - Pondok Rumput' %}selected{% endif %}>
+                        DKM AL BAROKAH - Pondok Rumput
+                    </option>
+
+                    <option value="DKM DARUL HIKMAH - Green Arofah"
+                        {% if member.dkm_group.value == 'DKM DARUL HIKMAH - Green Arofah' %}selected{% endif %}>
+                        DKM DARUL HIKMAH - Green Arofah
+                    </option>
+
+                    <option value="DKM AR-RAUDHOH - Pakuan"
+                        {% if member.dkm_group.value == 'DKM AR-RAUDHOH - Pakuan' %}selected{% endif %}>
+                        DKM AR-RAUDHOH - Pakuan
+                    </option>
+                    
+                    <option value="DKM BAITUL IZZA - Tajur"
+                        {% if member.dkm_group.value == 'DKM BAITUL IZZA - Tajur' %}selected{% endif %}>
+                        DKM BAITUL IZZA - Tajur
+                    </option>
+                    
+                    <option value="DKM AN-NASHR - Cikaret"
+                        {% if member.dkm_group.value == 'DKM AN-NASHR - Cikaret' %}selected{% endif %}>
+                        DKM AN-NASHR - Cikaret
+                    </option>
+                    
+                    <option value="DKM AR-ROHMAN - Ciapus"
+                        {% if member.dkm_group.value == 'DKM AR-ROHMAN - Ciapus' %}selected{% endif %}>
+                        DKM AR-ROHMAN - Ciapus
+                    </option>                
                 </select>
             </div>
             
             <div class="form-group">
                 <label>Simpanan Wajib</label>
-                <select id="mandatory_savings" name="mandatory_savings" required value="Rp {{ '{:,.0f}'.format(member.mandatory_savings|int).replace(',', '.') }}">
-                    <option value="25000">Rp 25.000</option>
-                    <option value="50000">Rp 50.000</option>
-                    <option value="100000">Rp 100.000</option>
-                    <option value="250000">Rp 250.000</option>
-                    <option value="500000">Rp 500.000</option>
+                <select id="mandatory_savings" name="mandatory_savings" required>
+                    <option value="25000"
+                        {% if member.mandatory_savings|int == 25000 %}selected{% endif %}>
+                        Rp 25.000
+                    </option>
+
+                    <option value="50000"
+                        {% if member.mandatory_savings|int == 50000 %}selected{% endif %}>
+                        Rp 50.000
+                    </option>
+
+                    <option value="100000"
+                        {% if member.mandatory_savings|int == 100000 %}selected{% endif %}>
+                        Rp 100.000
+                    </option>
+
+                    <option value="250000"
+                        {% if member.mandatory_savings|int == 250000 %}selected{% endif %}>
+                        Rp 250.000
+                    </option>
+
+                    <option value="500000"
+                        {% if member.mandatory_savings|int == 500000 %}selected{% endif %}>
+                        Rp 500.000
+                    </option>
                 </select>
             </div>
 
