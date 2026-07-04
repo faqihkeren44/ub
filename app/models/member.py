@@ -66,3 +66,5 @@ class Member(Base):
     member_status = Column(Enum(MemberStatus), index=True, default=MemberStatus.PENDING)
     left_at = Column(DateTime)
     status_note = Column(Text)
+
+    photo = Column(String, nullable=True)
