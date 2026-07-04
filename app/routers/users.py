@@ -8,6 +8,12 @@ from .auth import verify_user
 from app.core import security
 from datetime import datetime
 
+from fastapi import UploadFile
+from fastapi import File
+from fastapi import Form
+
+from app.utils.storage import upload_image
+
 router = APIRouter(
     prefix="/users",
     tags=['Users']
@@ -46,8 +52,9 @@ def register_page(request: Request, msg: str = None):
     })
 
 @router.post("/register")
-def register_member(
+async def register_member(
     member_data: schemas.MemberCreate = Depends(schemas.MemberCreate.as_form),
+    photo: UploadFile = File(None),
     db: Session = Depends(database.get_db)):
     
     if db.query(models.Member).filter(models.Member.identity_number == member_data.identity_number).first():
@@ -55,12 +62,18 @@ def register_member(
     
     data = member_data.model_dump(exclude={'password'})
 
+    photo_path = None
+
+    if photo and photo.filename:
+        photo_path = await upload_image(photo)
+
     data['dkm_group'] = models.KelompokDKM(data['dkm_group'])
     data['mandatory_savings'] = models.SetoranWajib(data['mandatory_savings'])
     data['submitted_at'] = datetime.now()
 
     new_member = models.Member(
         **data,
+        photo=photo_path
     )
 
     db.add(new_member)

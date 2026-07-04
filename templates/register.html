@@ -18,7 +18,7 @@
                 </div>
             {% endif %}
 
-            <form action="/users/register" method="post">
+            <form action="/users/register" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="full_name">Nama Lengkap (Sesuai KTP)</label>
                     <input type="text" id="full_name" name="full_name" required>
@@ -94,6 +94,18 @@
                         <option value="250000">Rp 250.000</option>
                         <option value="500000">Rp 500.000</option>
                     </select>
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Foto Profil</label>
+
+                    <input
+                        class="form-control"
+                        type="file"
+                        name="photo"
+                        accept=".jpg,.jpeg,.png">
+
                 </div>
 
                 <button type="submit" class="btn-login">Kirim Pendaftaran</button>

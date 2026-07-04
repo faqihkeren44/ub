@@ -11,6 +11,8 @@ from .auth import verify_admin
 from typing import Optional
 from sqlalchemy import extract
 
+from app.utils.storage import get_public_url, upload_image, delete_image
+
 router = APIRouter(
     prefix="/admin",
     tags=['Admin Dashboard'],
@@ -151,7 +153,12 @@ def member_detail(
 
     if not member:
         raise HTTPException(status_code=404, detail="Anggota tidak ditemukan") 
-    
+
+    photo_url = None
+
+    if member.photo:
+        photo_url = get_public_url(member.photo)
+
     is_registration = (
         member.member_status == models.MemberStatus.PENDING
     )
@@ -163,8 +170,43 @@ def member_detail(
             "request": request,
             "admin": admin,
             "member": member,
+            "photo_url": photo_url,
             "is_registration": is_registration,
         }
+    )
+
+from fastapi import UploadFile
+from fastapi import File
+from fastapi import Form
+from app.utils.storage import upload_image, delete_image
+
+@router.post("/members/{member_id}/photo", response_class=HTMLResponse)
+async def update_photo(
+    member_id: int,
+    request: Request,
+    db: Session = Depends(database.get_db),
+    admin: models.Admin = Depends(verify_admin),  
+    photo: UploadFile = File(...)
+):
+    member = (db.query(models.Member).filter(models.Member.id == member_id)).first()
+
+    if not member:
+        raise HTTPException(status_code=404, detail="Anggota tidak ditemukan") 
+    
+    if member.photo:
+        delete_image(member.photo)
+
+    new_photo = await upload_image(photo)
+
+    member.photo = new_photo
+
+    print("Photo di DB:", member.photo)
+    
+    db.commit()
+
+    return RedirectResponse(
+        "/admin/members/{member_id}",
+        status_code=303
     )
 
 # ==========================================================
@@ -201,7 +243,7 @@ def approve_registration(
         "/admin/dashboard", 
         status_code=303
     )
-    
+
 @router.post("/members/{member_id}/delete", response_class=HTMLResponse)
 def delete_member(
     member_id: int,
@@ -214,6 +256,9 @@ def delete_member(
     # Jika anggota tidak ditemukan, lemparkan error 404
     if not member:
         raise HTTPException(status_code=404, detail="Anggota tidak ditemukan")
+    
+    if member.photo:
+        delete_image(member.photo)
     
     # Proses penghapusan data dari database
     db.delete(member)

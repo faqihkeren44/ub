@@ -6,6 +6,8 @@ from app.core.config import SECRET_KEY
 from jose import jwt, ExpiredSignatureError
 from .. import models, database
 
+from app.utils.storage import get_public_url, upload_image, delete_image
+
 router = APIRouter(
     prefix="/dashboard",
     tags=["Member Area"]
@@ -38,12 +40,18 @@ def get_me(
     member = db.query(models.Member).filter(models.Member.id == member_id).first()
     if member is None:
         return RedirectResponse(url="/auth/login")
+    
+    photo_url = None
+
+    if member.photo:
+        photo_url = get_public_url(member.photo)    
 
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
         context={ 
-        "member": member
+            "member": member,
+            "photo_url": photo_url,
         }
     )
 
@@ -72,16 +80,25 @@ def profile(
     member = db.query(models.Member).filter(models.Member.id == member_id).first()
     if member is None:
         return RedirectResponse(url="/auth/login")
+    
+    photo_url = None
+
+    if member.photo:
+        photo_url = get_public_url(member.photo)
 
     return templates.TemplateResponse(
         request=request,
         name="profile.html",
         context={ 
-        "member": member
+        "member": member,
+        "photo_url": photo_url
         }
     )
 
-def get_current_member(access_token: str, db: Session):
+def get_current_member(
+    access_token: str = Cookie(None),
+    db: Session = Depends(database.get_db)
+):
     if not access_token:
         return None
 
@@ -165,3 +182,38 @@ def edit_profile(
         "/dashboard/me",
         status_code=303
     )
+
+from fastapi import UploadFile
+from fastapi import File
+from fastapi import Form
+from app.utils.storage import upload_image, delete_image
+
+@router.post("/profile/photo")
+async def update_photo(
+    photo: UploadFile = File(...),
+    db: Session = Depends(database.get_db),
+    current_user: models.Member = Depends(get_current_member)
+):
+    member = db.query(models.Member).filter(
+        models.Member.id == current_user.id
+    ).first()
+
+    if member.photo:
+        delete_image(member.photo)
+
+    new_photo = await upload_image(photo)
+
+    member.photo = new_photo
+
+    print("Photo di DB:", member.photo)
+    
+    db.commit()
+
+    return RedirectResponse(
+        "/dashboard/me",
+        status_code=303
+    )
+
+# https://chwgvqetsfxcedlkztky.supabase.co/storage/v1/object/public/member-photo/member/cf668b06-85b8-4bcc-95da-25f9d0723725.png
+# member/e44113b1-2882-4963-8f75-14e9a47e73b2.png
+# member/cf668b06-85b8-4bcc-95da-25f9d0723725.png
