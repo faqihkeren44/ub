@@ -29,11 +29,11 @@ class UserStatus(IntFlag):
     REJECTED = 4
 
 class MemberStatus(enum.Enum):
-    PENDING = "PENDING"
-    REJECTED = "REJECTED"
-    ACTIVE = "ACTIVE"
-    INACTIVE = "INACTIVE"
-    RESIGNED = "RESIGNED"
+    PENDING = "DITUNDA"
+    REJECTED = "DITOLAK"
+    ACTIVE = "AKTIF"
+    INACTIVE = "TIDAK AKTIF"
+    RESIGNED = "KELUAR"
 
 class Member(Base):
     __tablename__ = "members"

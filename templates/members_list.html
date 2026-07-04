@@ -97,6 +97,7 @@
                                     <th>Nama</th>
                                     <th>Kelompok DKM</th>
                                     <th>Tanggal Disetujui</th>
+                                    <th>Status Anggota</th>                                    
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -118,6 +119,9 @@
                                         {% else %}
                                             -
                                         {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ member.member_status.value or '-' }}
                                     </td>
                                     <td>
                                         <a

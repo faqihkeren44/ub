@@ -90,9 +90,8 @@ def members_list(
     db: Session = Depends(database.get_db),
     admin: models.Admin = Depends(verify_admin)
 ):
-    query = db.query(models.Member).filter(
-        models.Member.member_status == models.MemberStatus.ACTIVE
-    )
+    query = db.query(models.Member)
+    # .filter(models.Member.member_status == models.MemberStatus.ACTIVE)
 
     if dkm_group:
         query = query.filter(
@@ -282,3 +281,98 @@ async def preview_member_pdf(member_id: int, db: Session = Depends(get_db)):
         )
     except Exception as e:    
         return {"status": "error", "detail_kesalahan": str(e)}
+
+
+# ==========================================================
+# EDIT PROFILE ANGGOTA
+# ==========================================================
+from app.core.config import SECRET_KEY
+from jose import jwt
+
+def get_current_member(access_token: str, db: Session):
+    if not access_token:
+        return None
+
+    try:
+        token = access_token.split(" ")[1]
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        member_id = payload.get("sub")
+
+        member = (
+            db.query(models.Member)
+            .filter(models.Member.id == member_id)
+            .first()
+        )
+
+        return member
+
+    except Exception:
+        return None
+    
+@router.get("/members/{member_id}/edit-profile", response_class=HTMLResponse)
+def change_profile_page(
+    member_id: int,
+    request: Request,
+    db: Session = Depends(database.get_db),
+    admin: models.Admin = Depends(verify_admin)
+):
+    member = (db.query(models.Member).filter(models.Member.id == member_id)).first()
+
+    if not member:
+        raise HTTPException(status_code=404, detail="Anggota tidak ditemukan") 
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="change_profile_admin.html",
+        context={
+            "request": request,
+            "admin": admin,
+            "member": member
+        }
+    )
+
+
+@router.post("/members/{member_id}/edit-profile")
+def edit_profile(
+    member_id: int,
+    request: Request,
+    full_name: str = Form(...),
+    birth_place: str = Form(...),
+    birth_date: str = Form(...),
+    gender: str = Form(...),
+    address: str = Form(...),
+    family_card_number: str = Form(...),
+    identity_number: str = Form(...),
+    phone_number: str = Form(...),
+    spouse_name: str = Form(""),
+    job: str = Form(...),
+    dkm_group: str = Form(...),
+    mandatory_savings: int = Form(...),
+    member_status: str = Form(...),
+    db: Session = Depends(database.get_db)
+):
+    member = (db.query(models.Member).filter(models.Member.id == member_id)).first()
+
+    if not member:
+        raise HTTPException(status_code=404, detail="Anggota tidak ditemukan") 
+
+    member.full_name = full_name
+    member.birth_place = birth_place
+    member.birth_date = birth_date
+    member.gender = gender
+    member.address = address
+    member.family_card_number = family_card_number
+    member.identity_number = identity_number
+    member.phone_number = phone_number
+    member.spouse_name = spouse_name
+    member.job = job
+    member.dkm_group = models.KelompokDKM(dkm_group)
+    member.mandatory_savings = models.SetoranWajib(mandatory_savings)
+    member.member_status = models.MemberStatus(member_status)
+
+    db.commit()
+
+    return RedirectResponse(
+        "/admin/dashboard",
+        status_code=303
+    )

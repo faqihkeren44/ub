@@ -117,6 +117,34 @@
                         {{ member.approved_at.strftime('%d-%m-%Y') if member.approved_at else '-' }}
                     </span>
                 </div>
+
+                <div class="detail-item">
+                    <strong>Disetujui Oleh</strong>
+                    <span>
+                        {{ member.approved_by or '-' }}
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Status Anggota</strong>
+                    <span>
+                        {{ member.member_status.value or '-' }}
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Tanggal Keluar</strong>
+                    <span>
+                        {{ member.left_at.strftime('%d-%m-%Y') if member.left_at else '-' }}
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Keterangan</strong>
+                    <span>
+                        {{ member.status_note or '-' }}
+                    </span>
+                </div>
             </section>
 
             <!-- Action Bar -->
@@ -143,11 +171,18 @@
                 </form>
                 
                 <a href="/admin/member/{{ member.id }}/preview"
-                class="btn btn-primary"
                 target="_blank">
-                    Preview PDF
+                    <button type="button" class="btn btn-primary">
+                        Preview PDF
+                    </button>
                 </a>
                 {% endif %}
+
+                <a href="/admin/members/{{ member.id }}/edit-profile">
+                    <button type="button" class="btn btn-primary">
+                        Edit Profile
+                    </button>
+                </a> 
 
                 <a href="/admin/dashboard">
                     <button type="button" class="btn-secondary">
