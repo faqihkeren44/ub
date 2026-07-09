@@ -40,3 +40,36 @@
 ├── alembic.ini
 ├── create_admin.py
 └── README.md
+
+├── /admin
+│   ├── .get("/dashboard")
+│   ├── .get("/members/list")
+│   ├── .get("/members{member_id}")
+│   ├── .get("/members/{member_id}/photo")
+│   ├── .post("/members/{member_id}/approve")
+│   ├── .post("/members/{member_id}/reset-password")
+│   ├── .get("/member{member_id}/preview")
+│   ├── .get("/members/{member_id}/edit-profile")
+│   ├── .post("/members/{member_id}/edit-profile")
+│
+├── /auth
+│   ├── def verify_admin
+│   ├── def verify_user
+│   ├── .get("/login")
+│   ├── .post("/login")
+│   ├── .get("/logout")
+│
+├── /dashboard
+│   ├── .get("/me")
+│   ├── .get("/profile")
+│   ├── def get_current_member
+│   ├── .get("/change-profile")
+│   ├── .post("edit-profile")
+│   ├── .post("/profile/photo")
+│
+├── /users
+│   ├── .get("/praregister")
+│   ├── .get("/register")
+│   ├── .post("/register")
+│   ├── .get("/change-password")
+│   ├── .post("/change-password")
