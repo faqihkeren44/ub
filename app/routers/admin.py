@@ -131,7 +131,7 @@ def members_list(
 
     return templates.TemplateResponse(
         request=request,
-        name="admin/members_list.html",
+        name="admin/member_list.html",
         context={
             "admin": admin,
             "all_members": all_members,
