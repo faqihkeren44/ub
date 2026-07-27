@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profil</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/pages/change_profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/components/hero.css') }}">
 </head>
 
 <body>
     <main>
         <section class="section-container">
+            <div class="hero-logo-wrapper">
+                <img src="{{ url_for('static', path='img/logo_1.png') }}" alt="Logo Koperasi UB" class="hero-logo">
+            </div>
+
             <h2>Edit Profil</h2>
 
             <form method="POST" action="/admin/members/{{ member.id }}/edit-profile">
@@ -19,6 +24,7 @@
                         padding:15px;
                         margin-bottom:20px;
                         border-radius:4px;
+                        width: 100%;
                         {% if status == 'sukses' %}
                             background:#d4edda;
                             color:#155724;

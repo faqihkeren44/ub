@@ -5,6 +5,12 @@
 @import url(../components/buttons.css);
 @import url(../components/form.css);
 
+.form-group {
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid var(--gray-100);
+}
+
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -66,4 +72,44 @@
     background-position: right 14px center;
     background-size: 18px;
     padding-right: 48px;
+}
+
+
+/* ==========================================
+   TABLET
+========================================== */
+@media (min-width: 768px) {
+    .profile-form {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+    .profile-form h2 {
+        width: 100%;
+    }
+    .form-group {
+        width: 30%;
+    }
+
+    .button-group {
+        flex-direction: row;
+        gap: 12px;
+        width: 100%;
+    }
+    .button-group button {
+        flex: 1;
+    }
+    .button-group a {
+        flex: 1;
+    }
+}
+
+/* ==========================================
+   DESKTOP VERSION
+========================================== */
+
+@media screen and (min-width: 992px) {
+    .form-group {
+        width: 30%;
+    }
 }

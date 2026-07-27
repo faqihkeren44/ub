@@ -19,15 +19,8 @@ form {
 
 .button-group {
     display: flex;
-    gap: 12px;
-}
-
-.button-group button {
-    flex: 1;
-}
-
-.button-group a {
-    flex: 1;
+    flex-direction: column;
+    gap: 6px;
 }
 
 /* ==========================================
