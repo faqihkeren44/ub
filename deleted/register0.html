@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Anggota - Koperasi Desa</title>
+    <link rel="stylesheet" href="../static/css/pages/register.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Pendaftaran Anggota</h2>
+            <p>Silakan lengkapi data untuk bergabung dengan Koperasi</p>
+
+            {% if pesan %}  
+                <div class="alert {% if status == 'sukses' %}alert-success{% else %}alert-danger{% endif %}">
+                    {{ pesan }}
+                </div>
+            {% endif %}
+
+            <form action="/users/register" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="full_name">Nama Lengkap (Sesuai KTP)</label>
+                    <input type="text" id="full_name" name="full_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="identity_number">Nomor KTP (NIK)</label>
+                    <input type="text" id="identity_number" name="identity_number" required placeholder="16 digit angka">
+                </div>
+
+                <div class="form-group">
+                    <label for="family_card_number">Nomor Kartu Keluarga (KK)</label>
+                    <input type="text" id="family_card_number" name="family_card_number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="birth_place">Tempat Lahir</label>
+                    <input type="text" id="birth_place" name="birth_place" required placeholder="Contoh: Kota Bogor">
+                </div>
+
+                <div class="form-group">
+                    <label for="birth_date">Tanggal Lahir</label>
+                    <input type="date" id="birth_date" name="birth_date" required placeholder="Contoh: 02/03/2004">
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Jenis Kelamin</label>
+                    <select id="gender" name="gender" required>
+                        <option value="Pria">Pria</option>
+                        <option value="Wanita">Wanita</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Alamat Domisili Lengkap</label>
+                    <textarea id="address" name="address" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone_number">Nomor Telepon / WhatsApp</label>
+                    <input type="text" id="phone_number" name="phone_number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="spouse_name">Nama Suami/Istri (Kosongkan jika belum menikah)</label>
+                    <input type="text" id="spouse_name" name="spouse_name">
+                </div>
+
+                <div class="form-group">
+                    <label for="job">Pekerjaan</label>
+                    <input type="text" id="job" name="job">
+                </div>
+
+                <div class="form-group">
+                    <label for="dkm_group">Kelompok DKM</label>
+                    <select id="dkm_group" name="dkm_group" required>
+                        <option value="DKM DARUSSALAM - Gunung Gede">DKM DARUSSALAM - Gunung Gede</option>
+                        <option value="DKM AL BAROKAH - Pondok Rumput">DKM AL BAROKAH - Pondok Rumput</option>
+                        <option value="DKM DARUL HIKMAH - Green Arofah">DKM DARUL HIKMAH - Green Arofah</option>
+                        <option value="DKM AR-RAUDHOH - Pakuan">DKM AR-RAUDHOH - Pakuan</option>
+                        <option value="DKM BAITUL IZZA - Tajur">DKM BAITUL IZZA - Tajur</option>
+                        <option value="DKM AN-NASHR - Cikaret">DKM AN-NASHR - Cikaret</option>
+                        <option value="DKM AR-ROHMAN - Ciapus">DKM AR-ROHMAN - Ciapus</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mandatory_savings">Pilihan Setoran Wajib / Bulan</label>
+                    <select id="mandatory_savings" name="mandatory_savings" required>
+                        <option value="25000">Rp 25.000</option>
+                        <option value="50000">Rp 50.000</option>
+                        <option value="100000">Rp 100.000</option>
+                        <option value="250000">Rp 250.000</option>
+                        <option value="500000">Rp 500.000</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Foto Profil</label>
+
+                    <input
+                        class="form-control"
+                        type="file"
+                        name="photo"
+                        accept=".jpg,.jpeg,.png">
+
+                </div>
+
+                <button type="submit" class="btn-login">Kirim Pendaftaran</button>
+            </form>
+
+            <div class="footer-links">
+                <p>Sudah punya akun? <a href="/auth/login">Masuk di sini</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

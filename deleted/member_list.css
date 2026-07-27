@@ -1,0 +1,48 @@
+@import url(../../base/reset.css);
+@import url(../../base/variables.css);
+
+body {
+    background:
+        radial-gradient(circle at top left,
+            rgba(0, 143, 93, 0.08),
+            transparent 40%),
+        radial-gradient(circle at top right,
+            rgba(0, 143, 93, 0.05),
+            transparent 35%),
+        linear-gradient(
+            180deg,
+            #f8fafc 0%,
+            #ffffff 100%
+        );
+}
+
+.back-link {
+    text-align: left;
+}
+
+.section-container a {
+    display: inline-flex;
+    padding: 0;
+    color: var(--primary-green);
+    font-weight: 500;
+}
+
+.nav-btn {
+    margin-right: 10px;
+    padding: 5px 10px;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* ==========================================
+   TABLET
+========================================== */
+@media (min-width: 768px) {
+    .section-container {
+        padding: 50px;
+    }
+}

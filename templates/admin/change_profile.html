@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profil</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/pages/change_profile.css') }}">
+</head>
+
+<body>
+    <main>
+        <section class="section-container">
+            <h2>Edit Profil</h2>
+
+            <form method="POST" action="/admin/members/{{ member.id }}/edit-profile">
+
+                {% if pesan %}
+                    <div style="
+                        padding:15px;
+                        margin-bottom:20px;
+                        border-radius:4px;
+                        {% if status == 'sukses' %}
+                            background:#d4edda;
+                            color:#155724;
+                            border:1px solid #c3e6cb;
+                        {% else %}
+                            background:#fff3cd;
+                            color:#856404;
+                            border:1px solid #ffeeba;
+                        {% endif %}
+                    ">
+                        {{ pesan }}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input
+                        type="text"
+                        name="full_name"
+                        value="{{ member.full_name }}"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Nomor KTP (NIK)</label>
+                    <input
+                        type="text"
+                        name="identity_number"
+                        value="{{ member.identity_number }}"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Nomor Kartu Keluarga</label>
+                    <input
+                        type="text"
+                        name="family_card_number"
+                        value="{{ member.family_card_number }}"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Tempat Lahir</label>
+                    <input
+                        type="text"
+                        name="birth_place"
+                        value="{{ member.birth_place }}"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Tanggal Lahir</label>
+                    <input
+                        type="date"
+                        name="birth_date"
+                        value="{{ member.birth_date }}"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Jenis Kelamin</label>
+                    <select name="gender" required>
+                        <option value="Pria"
+                            {% if member.gender == "Pria" %}selected{% endif %}>
+                            Pria
+                        </option>
+
+                        <option value="Wanita"
+                            {% if member.gender == "Wanita" %}selected{% endif %}>
+                            Wanita
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Alamat</label>
+                    <textarea
+                        name="address"
+                        rows="3"
+                        required>{{ member.address }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Nomor HP / WhatsApp</label>
+                    <input
+                        type="text"
+                        name="phone_number"
+                        value="{{ member.phone_number }}"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Nama Suami / Istri</label>
+                    <input
+                        type="text"
+                        name="spouse_name"
+                        value="{{ member.spouse_name or '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Pekerjaan</label>
+                    <input
+                        type="text"
+                        name="job"
+                        value="{{ member.job }}"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Kelompok DKM</label>
+                    <select id="dkm_group" name="dkm_group" required>
+                        <option value="DKM DARUSSALAM - Gunung Gede"
+                            {% if member.dkm_group.value == 'DKM DARUSSALAM - Gunung Gede' %}selected{% endif %}>
+                            DKM DARUSSALAM - Gunung Gede
+                        </option>
+
+                        <option value="DKM AL BAROKAH - Pondok Rumput"
+                            {% if member.dkm_group.value == 'DKM AL BAROKAH - Pondok Rumput' %}selected{% endif %}>
+                            DKM AL BAROKAH - Pondok Rumput
+                        </option>
+
+                        <option value="DKM DARUL HIKMAH - Green Arofah"
+                            {% if member.dkm_group.value == 'DKM DARUL HIKMAH - Green Arofah' %}selected{% endif %}>
+                            DKM DARUL HIKMAH - Green Arofah
+                        </option>
+
+                        <option value="DKM AR-RAUDHOH - Pakuan"
+                            {% if member.dkm_group.value == 'DKM AR-RAUDHOH - Pakuan' %}selected{% endif %}>
+                            DKM AR-RAUDHOH - Pakuan
+                        </option>
+                        
+                        <option value="DKM BAITUL IZZA - Tajur"
+                            {% if member.dkm_group.value == 'DKM BAITUL IZZA - Tajur' %}selected{% endif %}>
+                            DKM BAITUL IZZA - Tajur
+                        </option>
+                        
+                        <option value="DKM AN-NASHR - Cikaret"
+                            {% if member.dkm_group.value == 'DKM AN-NASHR - Cikaret' %}selected{% endif %}>
+                            DKM AN-NASHR - Cikaret
+                        </option>
+                        
+                        <option value="DKM AR-ROHMAN - Ciapus"
+                            {% if member.dkm_group.value == 'DKM AR-ROHMAN - Ciapus' %}selected{% endif %}>
+                            DKM AR-ROHMAN - Ciapus
+                        </option>                
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Simpanan Wajib</label>
+                    <select id="mandatory_savings" name="mandatory_savings" required>
+                        <option value="25000"
+                            {% if member.mandatory_savings|int == 25000 %}selected{% endif %}>
+                            Rp 25.000
+                        </option>
+
+                        <option value="50000"
+                            {% if member.mandatory_savings|int == 50000 %}selected{% endif %}>
+                            Rp 50.000
+                        </option>
+
+                        <option value="100000"
+                            {% if member.mandatory_savings|int == 100000 %}selected{% endif %}>
+                            Rp 100.000
+                        </option>
+
+                        <option value="250000"
+                            {% if member.mandatory_savings|int == 250000 %}selected{% endif %}>
+                            Rp 250.000
+                        </option>
+
+                        <option value="500000"
+                            {% if member.mandatory_savings|int == 500000 %}selected{% endif %}>
+                            Rp 500.000
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Status Anggota</label>
+                    <select id="member_status" name="member_status" required>
+                        <option value="DITUNDA"
+                            {% if member.member_status.value == 'PENDING' %}selected{% endif %}>
+                            DITUNDA
+                        </option>
+
+                        <option value="DITOLAK"
+                            {% if member.member_status.value == 'REJECTED' %}selected{% endif %}>
+                            DITOLAK
+                        </option>
+
+                        <option value="AKTIF"
+                            {% if member.member_status.value == 'ACTIVE' %}selected{% endif %}>
+                            AKTIF
+                        </option>
+
+                        <option value="TIDAK AKTIF"
+                            {% if member.member_status.value == 'INACTIVE' %}selected{% endif %}>
+                            TIDAK AKTIF
+                        </option>
+
+                        <option value="KELUAR"
+                            {% if member.member_status.value == 'RESIGNED' %}selected{% endif %}>
+                            KELUAR
+                        </option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">
+                        Simpan Perubahan
+                    </button>
+
+                    <a href="/admin/members/{{ member.id }}">
+                        <button type="button" class="btn-primary">Kembali</button>
+                    </a>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Anggota</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='css/pages/admin/member_details.css') }}">
+</head>
+<body>
+    <main>
+        <section class="section-container">
+            <a href="/admin/dashboard" class="back-link">← Kembali ke Dashboard</a>
+
+            <section class="header-section">
+                <div class="profile-photo-wrapper">
+                    <div class="profile-photo">
+                        {% if photo_url %}
+                        <img src="{{ photo_url }}" alt="" class="profile-photo">
+                        {% else %}
+                        <img src="{{ url_for('static', path='img/default-user.png') }}" alt="profile-photo" class="profile-photo">
+                        {% endif %}
+                    </div>
+
+                    <form
+                    method="post"
+                    action="/admin/members/{{ member.id }}/photo"
+                    enctype="multipart/form-data">
+
+                        <input type="file" name="photo" accept=".jpg,.jpeg,.png">
+
+                        <button>Simpan Foto</button>
+                    </form>
+                </div>
+
+                <div class="member-meta">
+                    <h2>{{ member.full_name or '-' }}</h2>
+
+                    <div>
+                        <span class="badge">ID Anggota</span>
+                        <p>{{ member.member_id or 'Belum tersedia' }}</p>
+                    </div>
+                    
+                    <div>
+                        <span class="badge">Password</span>
+                        <p>
+                            {% if member.temporary_password %}
+                            <button
+                                type="button"
+                                class="copy-btn"
+                                onclick="copyPassword()"
+                                title="Salin Password">
+                                📋
+                            </button>
+                            <span id="member-password">{{ member.temporary_password }}</span>
+                            {% elif member.hashed_password %}
+                                Password sudah diganti oleh user
+                            {% else %}
+                                Belum tersedia
+                            {% endif %}                    
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="profile-section">
+                <h2>Profil Anggota</h2>
+
+                <div class="profile-item">
+                    <strong>Nomor KTP (NIK)</strong>
+                    <span>{{ member.identity_number or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Nomor Kartu Keluarga</strong>
+                    <span>{{ member.family_card_number or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Tempat Lahir</strong>
+                    <span>{{ member.birth_place or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Tanggal Lahir</strong>
+                    <span>{{ member.birth_date.strftime('%d-%m-%Y') or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Jenis Kelamin</strong>
+                    <span>{{ member.gender or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Alamat Domisili</strong>
+                    <span>{{ member.address or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Nomor Telepon / WhatsApp</strong>
+                    <span>{{ member.phone_number or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Nama Suami / Istri</strong>
+                    <span>{{ member.spouse_name or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Pekerjaan</strong>
+                    <span>{{ member.job or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Kelompok DKM</strong>
+                    <span>{{ member.dkm_group.value or '-' }}</span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Simpanan Wajib per Bulan</strong>
+                    <span>
+                        Rp {{ "{:,.0f}".format(member.mandatory_savings|int).replace(",", ".") if member.mandatory_savings else "-" }}
+                    </span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Tanggal Disetujui</strong>
+                    <span>
+                        {{ member.approved_at.strftime('%d-%m-%Y') if member.approved_at else '-' }}
+                    </span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Disetujui Oleh</strong>
+                    <span>
+                        {{ member.approved_by or '-' }}
+                    </span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Status Anggota</strong>
+                    <span>
+                        {{ member.member_status.value or '-' }}
+                    </span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Tanggal Keluar</strong>
+                    <span>
+                        {{ member.left_at.strftime('%d-%m-%Y') if member.left_at else '-' }}
+                    </span>
+                </div>
+
+                <div class="profile-item">
+                    <strong>Keterangan</strong>
+                    <span>
+                        {{ member.status_note or '-' }}
+                    </span>
+                </div>
+            </section>
+
+            <section class="action-bar">
+                {% if is_registration %}
+                <form method="post" action="/admin/members/{{ member.id }}/approve">
+                    <button type="submit" class="btn-primary">Terima Pendaftaran</button>
+                </form>
+
+                <form method="post" action="/admin/members/{{ member.id }}/delete">
+                    <button class="btn-primary">Hapus Anggota</button>
+                </form>
+                {% endif %}
+
+                {% if not is_registration %}
+                <form method="post" action="/admin/members/{{ member.id }}/reset-password">
+                    <button class="btn-primary">Reset Password</button>
+                </form>
+
+                <a href="/admin/member/{{ member.id }}/preview" target="_blank">
+                    <button type="button" class="btn-primary">
+                        Preview PDF
+                    </button>
+                </a>
+
+                <a href="/admin/members/{{ member.id }}/edit-profile">
+                    <button type="button" class="btn-primary">
+                        Edit Profile
+                    </button>
+                </a>
+                {% endif %}
+
+                <a href="/admin/dashboard">
+                    <button type="button" class="btn-primary">
+                        Kembali
+                    </button>
+                </a>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        function copyPassword() {
+            const password =
+                document.getElementById("member-password").innerText;
+
+            navigator.clipboard.writeText(password)
+                .then(() => {
+                    const btn = document.querySelector(".copy-btn");
+                    btn.textContent = "✓";
+                    setTimeout(() => {
+                        btn.textContent = "📋";
+                    }, 1500);
+                });
+        }
+    </script>
+</body>
+</html>

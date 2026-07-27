@@ -1,0 +1,18 @@
+@import url(../../base/reset.css);
+@import url(../../base/container.css);
+@import url(../../base/variables.css);
+
+@import url(../../components/navigation.css);
+@import url(../../components/table.css);
+
+.back-link {
+    text-align: left;
+    color: var(--primary-green);
+    font-weight: 500;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}

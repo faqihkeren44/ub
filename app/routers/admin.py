@@ -71,7 +71,7 @@ def admin_dashboard(
 
     return templates.TemplateResponse(
         request=request,
-        name="admin.html",
+        name="admin/dashboard.html",
         context={
             "admin": admin,
             "registers": registers,
@@ -131,7 +131,7 @@ def members_list(
 
     return templates.TemplateResponse(
         request=request,
-        name="members_list.html",
+        name="admin/members_list.html",
         context={
             "admin": admin,
             "all_members": all_members,
@@ -165,7 +165,7 @@ def member_detail(
     
     return templates.TemplateResponse(
         request=request,
-        name="admin_member_detail.html",
+        name="admin/member_details.html",
         context={
             "request": request,
             "admin": admin,
@@ -205,7 +205,7 @@ async def update_photo(
     db.commit()
 
     return RedirectResponse(
-        "/admin/members/{member_id}",
+        f"/admin/members/{member_id}",
         status_code=303
     )
 
@@ -368,7 +368,7 @@ def change_profile_page(
     
     return templates.TemplateResponse(
         request=request,
-        name="change_profile_admin.html",
+        name="admin/change_profile.html",
         context={
             "request": request,
             "admin": admin,

@@ -1,0 +1,143 @@
+@import url(../base/reset.css);
+@import url(../base/container.css);
+
+/* ==========================================
+   TENTANG
+========================================== */
+
+.legal-card {
+    padding: 24px;
+    border-radius: 8px;
+}
+
+.legal-card h3 {
+    margin-bottom: 20px;
+}
+
+.legal-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.legal-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px 0;
+}
+
+/* ==========================================
+   VISI MISI
+========================================== */
+
+.vision-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.vision-card {
+    display: flex;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: left;
+    align-items: center;
+}
+
+.icon-box {
+    padding: 10px;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+/* ==========================================
+   STRUKTUR ORGANISASI
+========================================== */
+
+.org-flex {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.org-card h3 {
+    padding: 10px;
+    text-align: center;
+}
+
+.org-item {
+    padding: 10px;
+    margin: 15px 10px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+/* ==========================================
+   UNIT USAHA
+========================================== */
+
+.service-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.service-card {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 10px;
+    width: 100%;
+}
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+footer {
+    padding: 80px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.footer-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-contact h4 {
+    margin-bottom: 10px;
+}
+
+.footer-bottom {
+    margin-top: 50px;
+    text-align: center;
+}
+
+/* ==========================================
+   DESKTOP VERSION
+========================================== */
+
+@media screen and (min-width: 992px) {
+    .vision-container {
+        flex-direction: row;
+    }
+    .org-flex {
+        flex-direction: row;
+        gap: 30px;
+    }
+    .service-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .service-card {
+        width: 30%;
+    }
+    footer {
+        padding: 80px 80px 40px;
+    }
+}

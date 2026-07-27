@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='css/pages/admin/dashboard.css')}}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="" class="nav-logo">UB <span>Mandiri Sejahtera</span></a>
+
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>            
+
+            <ul class="nav-menu" id="nav-list">
+                <li><a href="/admin/member/list">Daftar Anggota</a></li>
+                <li><a href="#registrations">Pendaftar Baru</a></li>
+                <li><a href="#members">Anggota Aktif</a></li>
+                <li><a href="/auth/logout" class="nav-btn">Keluar</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- ======================================
+                 HERO SECTION
+            ======================================= -->
+        <section id="hero" class="hero-section">
+            <div class="hero-logo-wrapper">
+                <img src="{{ url_for('static', path='img/logo_1.png') }}" alt="Logo Koperasi UB" class="hero-logo">
+            </div>
+
+            <div class="hero-content">
+                <h1>Dashboard Admin</h1>
+
+                <div class="hero-action">
+                    <a href="#registrations" class="nav-link">Pendaftar Baru</a>
+                    <a href="#members" class="nav-link">Anggota Aktif</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================
+                 REGISTRATIONS SECTION
+            ======================================= -->
+        <section id="registrations" class="section-container">
+            <div>
+                <p class="badge">Pendaftar Baru</p>
+                <h2>Daftar Calon Anggota</h2>
+                <span>{{ total_inactive }} Pendaftar</span>
+            </div>
+
+            <div>
+                {% if registers %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Kelompok DKM</th>
+                                <th>Tanggal Daftar</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for register in registers %}
+                            <tr>
+                                <td class="name-cell">
+                                    {{ register.full_name }}
+                                </td>
+                                <td>
+                                    {{ register.dkm_group.value or '-' }}
+                                </td>
+                                <td>
+                                    {% if register.submitted_at %}
+                                        {{ register.submitted_at.strftime('%d-%m-%Y') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a
+                                        href="/admin/members/{{ register.id }}"
+                                        class="detail-link"
+                                    >
+                                        Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div>
+                    <h3>Belum ada pendaftar baru</h3>
+                    <p>Semua pengajuan pendaftaran telah diproses.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- ======================================
+                 MEMBERS SECTION
+            ======================================= -->
+        <section id="members" class="section-container">
+            <div>
+                <p class="badge">Data Anggota</p>
+                <h2>Daftar Seluruh Anggota</h2>
+                <span>{{ total_all }} Anggota</span>
+            </div>
+
+            <div>
+                {% if all_members %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID Anggota</th>
+                                <th>Nama</th>
+                                <th>Kelompok DKM</th>
+                                <th>Tanggal Disetujui</th>
+                                <th>Status Anggota</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in all_members %}
+                            <tr>
+                                <td>
+                                    {{ member.member_id }}
+                                </td>
+                                <td class="name-cell">
+                                    {{ member.full_name }}
+                                </td>
+                                <td>
+                                    {{ member.dkm_group.value or '-' }}
+                                </td>
+                                <td>
+                                    {% if member.approved_at %}
+                                        {{ member.approved_at.strftime('%d-%m-%Y') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ member.member_status.value or '-' }}
+                                </td>
+                                <td>
+                                    <a
+                                        href="/admin/members/{{ member.id }}"
+                                        class="detail-link"
+                                    >
+                                        Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div>
+                    <h3>Belum ada anggota aktif</h3>
+                    <p>Daftar hanya menampilkan 10 anggota terbaru. Silahkan klik selengkapnya untuk melihat lebih banyak.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <a href="/admin/member/list" class="nav-link">Selengkapnya</a>
+        </section>
+    </main>
+
+    <script>
+        const menu = document.querySelector('#mobile-menu');
+        const navLinks = document.querySelector('#nav-list');
+
+        menu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menu.classList.toggle('is-active');
+        });
+    </script>    
+</body>
+</html>

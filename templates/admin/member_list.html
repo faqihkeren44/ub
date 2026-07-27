@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Anggota</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='css/pages/admin/member_list.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="" class="nav-logo">UB <span>Mandiri Sejahtera</span></a>
+
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>            
+
+            <ul class="nav-menu" id="nav-list">
+                <li><a href="/admin/member/list">Daftar Anggota</a></li>
+                <li><a href="#registrations">Pendaftar Baru</a></li>
+                <li><a href="#members">Anggota Aktif</a></li>
+                <li><a href="/auth/login" class="nav-btn">Masuk</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="section-container">
+            <a href="/admin/dashboard" class="back-link">← Kembali ke Dashboard</a>
+
+            <div>
+                <h2>Daftar Seluruh Anggota</h2>
+                <span>{{ total_all }} Anggota</span>
+            </div>
+
+            <div>
+                <form class="filter-form" method="GET" action="/admin/member/list">
+
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Cari nama..."
+                        value="{{ search_name or '' }}"
+                    >
+
+                    <select name="dkm_group">
+                        <option value="">Semua DKM</option>
+
+                        {% for dkm in dkm_groups %}
+                        <option value="{{ dkm.name }}"
+                            {% if selected_dkm == dkm.name %}selected{% endif %}>
+                            {{ dkm.value }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="year">
+                        <option value="all"
+                            {% if selected_year == "all" %}selected{% endif %}>
+                            Semua Tahun
+                        </option>
+
+                        {% for y in range(2020, 2027) %}
+                        <option value="{{ y }}"
+                            {% if selected_year == y %}selected{% endif %}>
+                            {{ y }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="btn-table">Filter</button>
+                </form>
+            </div>
+
+            <div>
+                {% if all_members %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID Anggota</th>
+                                <th>Nama</th>
+                                <th>Kelompok DKM</th>
+                                <th>Tanggal Disetujui</th>
+                                <th>Status Anggota</th>                                    
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in all_members %}
+                            <tr>
+                                <td>
+                                    {{ member.member_id }}
+                                </td>
+                                <td class="name-cell">
+                                    {{ member.full_name }}
+                                </td>
+                                <td>
+                                    {{ member.dkm_group.value or '-' }}
+                                </td>
+                                <td>
+                                    {% if member.approved_at %}
+                                        {{ member.approved_at.strftime('%d-%m-%Y') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ member.member_status.value or '-' }}
+                                </td>
+                                <td>
+                                    <a
+                                        href="/admin/members/{{ member.id }}"
+                                        class="detail-link"
+                                    >
+                                        Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div>
+                    <h3>Silahkan Atur Filter Pencarian</h3>
+                    <p>Daftar seluruh anggota akan muncul di sini.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>

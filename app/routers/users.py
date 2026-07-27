@@ -94,7 +94,7 @@ def change_password_page(
 ):
     return template.TemplateResponse(
         request=request,
-        name="change_password.html"
+        name="member/change_password.html"
     )
 
 @router.post("/change-password")

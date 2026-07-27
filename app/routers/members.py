@@ -48,7 +48,7 @@ def get_me(
 
     return templates.TemplateResponse(
         request=request,
-        name="dashboard.html",
+        name="member/dashboard.html",
         context={ 
             "member": member,
             "photo_url": photo_url,
@@ -88,7 +88,7 @@ def profile(
 
     return templates.TemplateResponse(
         request=request,
-        name="profile.html",
+        name="member/profile.html",
         context={ 
         "member": member,
         "photo_url": photo_url
@@ -119,7 +119,7 @@ def get_current_member(
         return None
 
 
-@router.get("/change-profile", response_class=HTMLResponse)
+@router.get("/edit-profile", response_class=HTMLResponse)
 def change_profile_page(
     request: Request,
     access_token: str = Cookie(None),
@@ -132,12 +132,11 @@ def change_profile_page(
 
     return templates.TemplateResponse(
         request=request,
-        name="change_profile.html",
+        name="member/change_profile.html",
         context={
             "member": member
         }
     )
-
 
 @router.post("/edit-profile")
 def edit_profile(

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Anggota</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='css/pages/member/dashboard.css')}}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="" class="nav-logo">UB <span>Mandiri Sejahtera</span></a>
+
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>            
+
+            <ul class="nav-menu" id="nav-list">
+                <li><a href="/dashboard/profile">Lihat Profil</a></li>
+                <li><a href="/auth/logout" class="nav-btn">Keluar</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- ======================================
+                 HERO SECTION
+            ======================================= -->
+        <section id="hero" class="hero-section">
+            <div class="hero-logo-wrapper">
+                <img src="{{ url_for('static', path='img/logo_1.png') }}" alt="Logo Koperasi UB" class="hero-logo">
+            </div>
+            
+            <div class="hero-content">
+                <h1>Assalamu'alaikum</h1>
+                <h1>{{ member.full_name }}</h1>
+
+                <!-- <div class="hero-action">
+                    <a href="/dashboard/profile" class="nav-link">Pendaftar Baru</a>
+                    <a href="#members" class="nav-link">Anggota Aktif</a>
+                </div> -->
+            </div>
+        </section>
+
+        <!-- ======================================
+                 HERO SECTION
+            ======================================= -->
+        <section class="section-container">
+            <div class="profile-photo-wrapper">
+                <div class="profile-photo">
+                    {% if photo_url %}
+                    <img src="{{ photo_url }}" alt="" class="profile-photo">
+                    {% else %}
+                    <img src="{{ url_for('static', path='img/default-user.png') }}" alt="profile-photo" class="profile-photo">
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="member-info">
+                <span class="badge">ID Anggota</span>
+                <p>{{ member.member_id }}</p>
+                <span class="badge">Status Anggota</span>
+                <p>{{ member.member_status.value }}</p>
+            </div>
+
+            <div class="action-bar">
+                <a href="/dashboard/profile" class="">
+                    <button type="button" class="btn-primary">Profil</button>
+                </a>
+                <a href="/users/change-password" class="">
+                    <button type="button" class="btn-primary">Ubah Password</button>
+                </a>              
+                <a href="/auth/logout">
+                    <button type="button" class="btn-primary">Keluar</button>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const menu = document.querySelector('#mobile-menu');
+        const navLinks = document.querySelector('#nav-list');
+
+        menu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menu.classList.toggle('is-active');
+        });
+    </script>
+</body>
+</html>

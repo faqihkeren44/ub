@@ -1,0 +1,64 @@
+@import url(../base/reset.css);
+
+body {
+    padding: 24px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 32px 24px;
+    border-radius: 20px;
+    max-width: 820px;
+}
+
+.login-box h2 {
+    text-align: center;
+}
+
+.login-box ol {
+    margin: 12px 0;
+    padding-left: 20px;
+}
+
+/* ==========================================
+   CHECKBOX
+========================================== */
+
+.checkbox-container {
+    display: flex;
+    align-items: start;
+    gap: 12px;
+}
+
+/* ==========================================
+   BUTTON
+========================================== */
+
+.btn-login {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 15px 24px;
+    border: none;
+    border-radius: 12px;
+}
+
+/* ==========================================
+   DESKTOP VERSION
+========================================== */
+
+@media screen and (min-width: 992px) {
+    body {
+        padding: 50px 100px;
+    }
+    .login-box {
+        padding: 50px;
+        gap: 20px;
+    }
+}

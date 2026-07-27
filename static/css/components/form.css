@@ -1,0 +1,57 @@
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: .95rem;
+    font-weight: 600;
+
+    color: var(--gray-700);
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+}
+
+.button-group button {
+    flex: 1;
+}
+
+.button-group a {
+    flex: 1;
+}
+
+/* ==========================================
+   INPUT
+========================================== */
+
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+
+    border: 1px solid #d1d5db;
+    background: rgba(255,255,255,.85);
+    font-size: .95rem;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #008f5d;
+    background: #fff;
+    box-shadow:
+        0 0 0 4px rgba(0,143,93,.12);
+}

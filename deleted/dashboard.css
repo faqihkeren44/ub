@@ -1,0 +1,48 @@
+@import url(../../base/reset.css);
+
+@import url(../../components/navigation.css);
+@import url(../../components/hero.css);
+
+header {
+    width: 100%;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    padding: 100px 20px 60px;
+}
+
+/* ==========================================
+   CONTENT SECTION
+========================================== */
+
+.badge {
+    margin: 5px;
+}
+
+.section-container {
+    padding: 60px 20px;
+}
+
+.section-container a {
+    padding: 10px;
+}
+
+/* ==========================================
+   TABLE
+========================================== */
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+}

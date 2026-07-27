@@ -1,0 +1,20 @@
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+}
+
+.detail-link {
+    display: inline-flex;
+    padding: 0;
+    color: var(--primary-green);
+    font-weight: 500;
+}

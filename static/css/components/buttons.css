@@ -1,4 +1,19 @@
-/* Button Base */
+@import url(../base/variables.css);
+
+/* ==========================================
+   BUTTON BASE
+========================================== */
+
+.back-link {
+    text-align: left;
+    color: var(--primary-green);
+    font-weight: 500;
+}
+
+/* ==========================================
+   BUTTON BASE
+========================================== */
+
 .btn {
     display: inline-flex;
     align-items: center;
@@ -6,7 +21,7 @@
     padding: 10px 20px;
     font-size: 15px;
     font-weight: 600;
-    border-radius: 4px; /* Sudut halus khas Stripe */
+    border-radius: 4px;
     cursor: pointer;
     transition: var(--transition-smooth);
     text-decoration: none;
@@ -14,24 +29,56 @@
     white-space: nowrap;
 }
 
-/* Primary Button - Hijau Koperasi */
+/* ==========================================
+   PRIMARY BUTTON
+========================================== */
+
 .btn-primary {
-    background-color: var(--primary-green);
-    color: var(--white);
-    box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    width: 100%;
+    padding: 15px 24px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #01b676 0%, #01a169 100%);
+    color: #ffffff;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    box-shadow:
+        0 8px 20px rgba(0, 143, 93, 0.18),
+        0 2px 6px rgba(0, 143, 93, 0.08);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-green-dark);
-    transform: translateY(-1px); /* Efek melayang Stripe */
-    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    box-shadow:
+        0 12px 28px rgba(0, 143, 93, 0.22),
+        0 4px 10px rgba(0, 143, 93, 0.10);
+    filter: brightness(1.02);
 }
 
 .btn-primary:active {
     transform: translateY(0);
 }
 
-/* Secondary/Outline Button */
+.btn-primary:focus {
+    outline: none;
+    box-shadow:
+        0 0 0 4px rgba(0, 143, 93, 0.15),
+        0 8px 20px rgba(0, 143, 93, 0.18);
+}
+
+/* ==========================================
+   SECONDARY/OUTLINE BUTTON
+========================================== */
+
 .btn-outline {
     background-color: transparent;
     color: var(--primary-green);

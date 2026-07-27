@@ -1,0 +1,56 @@
+@import url(../../base/reset.css);
+@import url(../../base/container.css);
+@import url(../../base/variables.css);
+
+@import url(../../components/photo_profile.css);
+@import url(../../components/buttons.css);
+
+@import url(../../layouts/profile.css);
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.back-link {
+    text-align: left;
+    color: var(--primary-green);
+    font-weight: 500;
+}
+
+.header-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.member-meta h2 {
+    text-align: center;
+}
+
+.copy-btn {
+    border: 0;
+}
+
+.action-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ==========================================
+   TABLET
+========================================== */
+@media (min-width: 768px) {
+    .header-section {
+        flex-direction: row;
+        gap: 50px;
+    }
+    .member-meta {
+        flex: 1;
+    }
+}
