@@ -215,6 +215,8 @@ def member_detail(
         raise HTTPException(status_code=404, detail="Anggota tidak ditemukan") 
 
     photo_url = None
+    photo_ktp_url = None
+    photo_kk_url = None
 
     if member.photo:
         photo_url = get_public_url(member.photo, "member-photo")
