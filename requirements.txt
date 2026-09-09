@@ -15,3 +15,4 @@ jinja2
 Babel
 supabase
 pandas
+openpyxl
