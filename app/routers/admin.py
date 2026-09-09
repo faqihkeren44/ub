@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Cookie, Request, HTTPException, Form, UploadFile, File
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -9,6 +9,8 @@ from app import models
 from .auth import verify_admin
 
 from typing import Optional
+from io import BytesIO
+import pandas as pd
 from sqlalchemy import extract
 
 from app.utils.storage import get_public_url, upload_image, delete_image
@@ -147,6 +149,57 @@ def members_list(
             "selected_year": selected_year,
             "search_name": name,
         }
+    )
+
+@router.get("/members/export-excel")
+def export_members_excel(
+    db: Session = Depends(database.get_db),
+    admin: models.Admin = Depends(verify_admin)
+):
+    members = db.query(models.Member).all()
+
+    data = []
+    for idx, member in enumerate(members, start=1):
+        data.append({
+            "NO": idx,
+            "NOMOR ANGGOTA": member.member_id or "",
+            "NAMA": member.full_name or "",
+            "TEMPAT LAHIR": member.birth_place or "",
+            "TANGGAL LAHIR": member.birth_date.strftime("%Y-%m-%d") if member.birth_date else "",
+            "JENIS KELAMIN": member.gender or "",
+            "ALAMAT": member.address or "",
+            "NOMOR KARTU KELUARGA": member.family_card_number or "",
+            "NOMOR KTP": member.identity_number or "",
+            "NO TLP / HP": member.phone_number or "",
+            "NAMA SUAMI / ISTRI": member.spouse_name or "",
+            "PEKERJAAN": member.job or "",
+            "KELOMPOK DKM": member.dkm_group.value if hasattr(member.dkm_group, "value") else (member.dkm_group or ""),
+            "SIMPANAN WAJIB": member.mandatory_savings.value if hasattr(member.mandatory_savings, "value") else (member.mandatory_savings or ""),
+            "TANGGAL MASUK KOPERASI": member.submitted_at.strftime("%Y-%m-%d %H:%M:%S") if member.submitted_at else "",
+            "TANGGAL DISETUJUI": member.approved_at.strftime("%Y-%m-%d %H:%M:%S") if member.approved_at else "",
+            "DISETUJUI OLEH": member.approved_by or "",
+            "STATUS ANGGOTA": member.member_status.value if hasattr(member.member_status, "value") else (member.member_status or ""),
+            "TANGGAL KELUAR": member.left_at.strftime("%Y-%m-%d %H:%M:%S") if member.left_at else "",
+            "CATATAN STATUS": member.status_note or "",
+        })
+
+    df = pd.DataFrame(data)
+
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Data Member")
+
+    output.seek(0)
+
+    filename = f"data_member_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+    headers = {
+        'Content-Disposition': f'attachment; filename="{filename}"'
+    }
+
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers
     )
 
 @router.get("/members/{member_id}", response_class=HTMLResponse)
