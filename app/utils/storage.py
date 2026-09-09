@@ -51,7 +51,7 @@ def generate_filename(extension):
 
     return f"{uuid.uuid4()}{extension}"
 
-async def upload_image(file: UploadFile):
+async def upload_image(file: UploadFile, BUCKET_NAME):
 
     extension = validate_extension(file.filename)
 
@@ -66,7 +66,7 @@ async def upload_image(file: UploadFile):
     response = (
         supabase
         .storage
-        .from_(SUPABASE_BUCKET)
+        .from_(BUCKET_NAME)
         .upload(
             path,
             data,
@@ -78,12 +78,12 @@ async def upload_image(file: UploadFile):
 
     return path
 
-def get_public_url(path):
+def get_public_url(path, BUCKET_NAME):
 
     return (
         supabase
         .storage
-        .from_(SUPABASE_BUCKET)
+        .from_(BUCKET_NAME)
         .get_public_url(path)
     )
 

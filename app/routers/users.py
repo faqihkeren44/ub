@@ -55,6 +55,8 @@ def register_page(request: Request, msg: str = None):
 async def register_member(
     member_data: schemas.MemberCreate = Depends(schemas.MemberCreate.as_form),
     photo: UploadFile = File(None),
+    photo_ktp: UploadFile = File(None),
+    photo_kk: UploadFile = File(None),
     db: Session = Depends(database.get_db)):
     
     if db.query(models.Member).filter(models.Member.identity_number == member_data.identity_number).first():
@@ -63,9 +65,17 @@ async def register_member(
     data = member_data.model_dump(exclude={'password'})
 
     photo_path = None
+    photo_ktp_path = None
+    photo_kk_path = None
 
     if photo and photo.filename:
-        photo_path = await upload_image(photo)
+        photo_path = await upload_image(photo, "member-photo")
+
+    if photo_ktp and photo_ktp.filename:
+        photo_ktp_path = await upload_image(photo_ktp, "photo_ktp")
+    
+    if photo_kk and photo_kk.filename:
+        photo_kk_path = await upload_image(photo_kk, "photo_kk")
 
     data['dkm_group'] = models.KelompokDKM(data['dkm_group'])
     data['mandatory_savings'] = models.SetoranWajib(data['mandatory_savings'])
@@ -73,7 +83,9 @@ async def register_member(
 
     new_member = models.Member(
         **data,
-        photo=photo_path
+        photo=photo_path,
+        photo_ktp=photo_ktp_path,
+        photo_kk=photo_kk_path
     )
 
     db.add(new_member)

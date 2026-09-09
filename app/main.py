@@ -4,8 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from app.database import engine, SessionLocal, Base
-from fastapi.security import OAuth2PasswordBearer
-from .routers import products, auth, users, members, admin
+from .routers import admin, products, auth, users, members
 import sys
 
 Base.metadata.create_all(bind=engine)
@@ -40,6 +39,13 @@ def root(request: Request):
         name="index.html"
     )
 
+@app.get("/privacy_policy", response_class=HTMLResponse)
+def privacy_policy(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="privacy_policy.html"
+    )
+
 @app.get("/health")
 def health_check():
     try:
@@ -48,5 +54,3 @@ def health_check():
         return {"status": "ok", "database": "connected"}
     except Exception as e:
         return {"status": "error", "database": "disconnected", "error": str(e)}
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")

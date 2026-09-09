@@ -7,7 +7,7 @@ from sqlalchemy import or_
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from app.core.config import SECRET_KEY
-from jose import jwt, ExpiredSignatureError
+from jose import jwt, ExpiredSignatureError, JWTError
 from app import database, models
 from app.core import security
 
@@ -59,8 +59,8 @@ def verify_admin(
         response = RedirectResponse(url="/auth/login?msg=expired", status_code=303)
         response.delete_cookie("access_token")
         return response
-    except Exception as e:
-        print(f"LOG ERROR: {e}") # Tambahkan ini agar error muncul di CMD
+    except JWTError as e:
+        print(f"LOG JWT ERROR: {e}") # Tambahkan ini agar error muncul di CMD
         return RedirectResponse(url="/auth/login?msg=error", status_code=303)
 
 def verify_user(

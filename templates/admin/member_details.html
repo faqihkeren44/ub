@@ -64,6 +64,45 @@
             </section>
 
             <section class="profile-section">
+                
+                <div class="profile-photo-wrapper">
+                    <h3>KTP</h3>
+                    <div class="kartu-photo">
+                        {% if photo_ktp_url %}
+                        <img src="{{ photo_ktp_url }}" alt="" class="kartu-photo">
+                        {% else %}
+                        <img src="{{ url_for('static', path='img/default-user.png') }}" alt="profile-photo" class="profile-photo">
+                        {% endif %}
+                    </div>
+                    
+                    <a
+                        href="{{ photo_ktp_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Lihat
+                    </a>
+                </div>
+                
+                <div class="profile-photo-wrapper">
+                    <h3>KK</h3>
+                    <div class="kartu-photo">
+                        {% if photo_kk_url %}
+                        <img src="{{ photo_kk_url }}" alt="" class="kartu-photo">
+                        {% else %}
+                        <img src="{{ url_for('static', path='img/default-user.png') }}" alt="profile-photo" class="profile-photo">
+                        {% endif %}
+                    </div>
+
+                    <a
+                        href="{{ photo_kk_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Lihat
+                    </a>
+                </div>
+
                 <h2>Profil Anggota</h2>
 
                 <div class="profile-item">

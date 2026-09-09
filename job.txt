@@ -1,0 +1,16 @@
+Upload foto KTP & KK
+Tampilan KTP & KK untuk diperiksa (dicocokin)
+Kebijakan Privasi (di home & praregister)
+Mengubah status anggota & tambahan keterangannya
+Setelah data diverifikasi, dikasih
+
+Upload database (Export/Import)
+
+Simpanan Pokok, Wajib, Sukarela, Cadangan
+Tabungan dipisah setiap jenisnya
+Mutasi saldo (Anggota dan Admin)
+Saldo per anggota
+Admin juga bisa nambahin transaksi di sisi anggota yang anggota
+Status buat bedain yang transfer orang atau diinput sama admin (transfer/pembagian SHU, persetujuan dari admin, input anggota sendiri)
+
+Admin 3 (Superadmin, master anggota, master transaksi)

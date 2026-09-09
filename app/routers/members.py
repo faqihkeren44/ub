@@ -44,7 +44,7 @@ def get_me(
     photo_url = None
 
     if member.photo:
-        photo_url = get_public_url(member.photo)    
+        photo_url = get_public_url(member.photo, "member-photo")    
 
     return templates.TemplateResponse(
         request=request,
@@ -84,7 +84,7 @@ def profile(
     photo_url = None
 
     if member.photo:
-        photo_url = get_public_url(member.photo)
+        photo_url = get_public_url(member.photo, "member-photo")
 
     return templates.TemplateResponse(
         request=request,

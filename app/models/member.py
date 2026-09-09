@@ -68,3 +68,5 @@ class Member(Base):
     status_note = Column(Text)
 
     photo = Column(String, nullable=True)
+    photo_ktp = Column(String, nullable=True)
+    photo_kk = Column(String, nullable=True)

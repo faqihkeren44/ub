@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Data Anggota</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .description, .note, .action-info {
+            color: #666;
+        }
+
+        .upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 24px;
+            background: #fafafa;
+        }
+
+        button {
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 18px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        #uploadButton {
+            background: #222;
+            color: #fff;
+        }
+
+        #confirmButton {
+            background: #16803c;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .hidden { display: none !important; }
+
+        .loading {
+            margin-top: 18px;
+            color: #555;
+        }
+
+        .alert {
+            margin-top: 20px;
+            padding: 14px 16px;
+            border-radius: 8px;
+        }
+
+        .error {
+            background: #ffe7e7;
+            color: #a40000;
+            border: 1px solid #f2b5b5;
+        }
+
+        .success {
+            background: #e8f7ed;
+            color: #176b36;
+            border: 1px solid #b8e1c5;
+        }
+
+        .warning {
+            background: #fff6df;
+            color: #795b00;
+            border: 1px solid #ead69b;
+        }
+
+        .result { margin-top: 28px; }
+
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(130px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .stat {
+            padding: 16px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .stat-label {
+            display: block;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .valid-value { color: #16803c; }
+        .invalid-value { color: #c62828; }
+        .duplicate-value { color: #9a6a00; }
+
+        .action-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .preview-section {
+            margin-top: 24px;
+        }
+
+        .preview-section h3 {
+            margin: 0 0 10px;
+        }
+
+        .table-wrapper {
+            overflow: auto;
+            max-height: 650px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 1600px;
+        }
+
+        th, td {
+            border-bottom: 1px solid #ddd;
+            padding: 9px 10px;
+            text-align: left;
+            white-space: nowrap;
+            vertical-align: top;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #f2f2f2;
+            z-index: 1;
+        }
+
+        tr.invalid-row { background: #fff0f0; }
+        tr.duplicate-row { background: #fff9e8; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-baru {
+            background: #e5f6eb;
+            color: #176b36;
+        }
+
+        .status-invalid {
+            background: #ffe2e2;
+            color: #a40000;
+        }
+
+        .status-duplikat {
+            background: #fff0c7;
+            color: #795b00;
+        }
+
+        .empty-preview {
+            padding: 24px;
+            text-align: center;
+            color: #666;
+        }
+
+        @media (max-width: 900px) {
+            .statistics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 550px) {
+            .statistics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="card">
+
+        <h1>Import Data Anggota</h1>
+
+        <p class="description">
+            Upload Excel → Preview → Validasi → Cek Duplicate → Confirm → PostgreSQL
+        </p>
+
+        <form id="importForm">
+            <div class="upload-box">
+                <label for="file"><strong>File Data Anggota</strong></label>
+
+                <input
+                    type="file"
+                    id="file"
+                    name="file"
+                    accept=".xlsx,.xls"
+                    required
+                >
+
+                <button type="submit" id="uploadButton">
+                    Upload & Preview
+                </button>
+
+                <p class="note">
+                    Hanya <strong>NAMA</strong> yang wajib diisi.
+                    Kolom lain boleh kosong. Jika diisi, nilainya harus valid.
+                </p>
+            </div>
+        </form>
+
+        <div id="loading" class="loading hidden">
+            Membaca dan memvalidasi file...
+        </div>
+
+        <div id="errorMessage" class="alert error hidden"></div>
+        <div id="successMessage" class="alert success hidden"></div>
+
+        <div id="result" class="result hidden">
+
+            <h2>Preview & Validasi</h2>
+
+            <p>
+                File:
+                <strong id="filename"></strong>
+            </p>
+
+            <div class="statistics">
+                <div class="stat">
+                    <span class="stat-label">Total data</span>
+                    <span class="stat-value" id="totalData">0</span>
+                </div>
+
+                <div class="stat">
+                    <span class="stat-label">Data valid</span>
+                    <span class="stat-value valid-value" id="validData">0</span>
+                </div>
+
+                <div class="stat">
+                    <span class="stat-label">Data invalid</span>
+                    <span class="stat-value invalid-value" id="invalidData">0</span>
+                </div>
+
+                <div class="stat">
+                    <span class="stat-label">Data baru</span>
+                    <span class="stat-value" id="newData">0</span>
+                </div>
+
+                <div class="stat">
+                    <span class="stat-label">Duplikat</span>
+                    <span class="stat-value duplicate-value" id="duplicateData">0</span>
+                </div>
+            </div>
+
+            <div id="previewWarning" class="alert warning hidden"></div>
+
+            <div class="action-bar">
+                <button type="button" id="confirmButton" class="hidden">
+                    Import Data Valid
+                </button>
+
+                <span id="actionInfo" class="action-info"></span>
+            </div>
+
+            <div id="importLoading" class="loading hidden">
+                Mengimport data ke database...
+            </div>
+
+            <div class="preview-section">
+                <h3>Data Valid</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr id="validTableHeader"></tr>
+                        </thead>
+                        <tbody id="validTableBody"></tbody>
+                    </table>
+                    <div id="emptyValidPreview" class="empty-preview hidden">
+                        Tidak ada data valid.
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h3>Data Tidak Valid</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr id="invalidTableHeader"></tr>
+                        </thead>
+                        <tbody id="invalidTableBody"></tbody>
+                    </table>
+                    <div id="emptyInvalidPreview" class="empty-preview hidden">
+                        Tidak ada data tidak valid.
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h3>Data Terduplikasi</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr id="duplicateTableHeader"></tr>
+                        </thead>
+                        <tbody id="duplicateTableBody"></tbody>
+                    </table>
+                    <div id="emptyDuplicatePreview" class="empty-preview hidden">
+                        Tidak ada data terduplikasi.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("importForm");
+    const fileInput = document.getElementById("file");
+    const uploadButton = document.getElementById("uploadButton");
+
+    const loading = document.getElementById("loading");
+    const result = document.getElementById("result");
+
+    const errorMessage = document.getElementById("errorMessage");
+    const successMessage = document.getElementById("successMessage");
+    const previewWarning = document.getElementById("previewWarning");
+
+    const filename = document.getElementById("filename");
+    const totalData = document.getElementById("totalData");
+    const validData = document.getElementById("validData");
+    const invalidData = document.getElementById("invalidData");
+    const newData = document.getElementById("newData");
+    const duplicateData = document.getElementById("duplicateData");
+
+    const confirmButton = document.getElementById("confirmButton");
+    const actionInfo = document.getElementById("actionInfo");
+    const importLoading = document.getElementById("importLoading");
+
+    const validTableHeader = document.getElementById("validTableHeader");
+    const validTableBody = document.getElementById("validTableBody");
+    const invalidTableHeader = document.getElementById("invalidTableHeader");
+    const invalidTableBody = document.getElementById("invalidTableBody");
+    const duplicateTableHeader = document.getElementById("duplicateTableHeader");
+    const duplicateTableBody = document.getElementById("duplicateTableBody");
+
+    const emptyValidPreview = document.getElementById("emptyValidPreview");
+    const emptyInvalidPreview = document.getElementById("emptyInvalidPreview");
+    const emptyDuplicatePreview = document.getElementById("emptyDuplicatePreview");
+
+    let selectedFile = null;
+    let previewData = null;
+
+    function hideMessages() {
+        errorMessage.classList.add("hidden");
+        successMessage.classList.add("hidden");
+    }
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+    }
+
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.classList.remove("hidden");
+    }
+
+    function getApiError(data) {
+        if (!data) return "Terjadi kesalahan.";
+
+        if (typeof data.detail === "string") {
+            return data.detail;
+        }
+
+        if (data.detail && data.detail.message) {
+            let message = data.detail.message;
+
+            if (Array.isArray(data.detail.missing_columns)) {
+                message +=
+                    " Kolom yang hilang: " +
+                    data.detail.missing_columns.join(", ");
+            }
+
+            return message;
+        }
+
+        return "Terjadi kesalahan pada server.";
+    }
+
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        hideMessages();
+
+        result.classList.add("hidden");
+        confirmButton.classList.add("hidden");
+        previewWarning.classList.add("hidden");
+
+        validTableHeader.innerHTML = "";
+        validTableBody.innerHTML = "";
+        invalidTableHeader.innerHTML = "";
+        invalidTableBody.innerHTML = "";
+        duplicateTableHeader.innerHTML = "";
+        duplicateTableBody.innerHTML = "";
+
+        emptyValidPreview.classList.add("hidden");
+        emptyInvalidPreview.classList.add("hidden");
+        emptyDuplicatePreview.classList.add("hidden");
+
+        const file = fileInput.files[0];
+
+        if (!file) {
+            showError("Silakan pilih file terlebih dahulu.");
+            return;
+        }
+
+        selectedFile = file;
+        previewData = null;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        loading.classList.remove("hidden");
+        uploadButton.disabled = true;
+
+        try {
+            const response = await fetch("/admin/import", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(getApiError(data));
+            }
+
+            previewData = data;
+
+            filename.textContent = data.filename;
+            totalData.textContent = data.total_data;
+            validData.textContent = data.valid_data;
+            invalidData.textContent = data.invalid_data;
+            newData.textContent = data.new_data;
+            duplicateData.textContent = data.duplicate_data;
+
+            renderPreview(data.valid_preview || [], "valid");
+            renderPreview(data.invalid_preview || [], "invalid");
+            renderPreview(data.duplicate_preview || [], "duplicate");
+
+            result.classList.remove("hidden");
+
+            if (data.new_data > 0) {
+                confirmButton.textContent =
+                    `Import ${data.new_data} Data Valid`;
+
+                confirmButton.classList.remove("hidden");
+                confirmButton.disabled = false;
+
+                actionInfo.textContent =
+                    `${data.new_data} data siap dimasukkan ke PostgreSQL.`;
+            } else {
+                confirmButton.classList.add("hidden");
+
+                actionInfo.textContent =
+                    "Tidak ada data baru yang valid untuk diimport.";
+
+                previewWarning.textContent =
+                    "Import tidak dapat dilakukan karena tidak ada data baru yang valid.";
+
+                previewWarning.classList.remove("hidden");
+            }
+
+        } catch (error) {
+            showError(error.message);
+        } finally {
+            loading.classList.add("hidden");
+            uploadButton.disabled = false;
+        }
+    });
+
+    function renderPreview(rows, type) {
+        const config = {
+            valid: {
+                header: validTableHeader,
+                body: validTableBody,
+                empty: emptyValidPreview
+            },
+            invalid: {
+                header: invalidTableHeader,
+                body: invalidTableBody,
+                empty: emptyInvalidPreview
+            },
+            duplicate: {
+                header: duplicateTableHeader,
+                body: duplicateTableBody,
+                empty: emptyDuplicatePreview
+            }
+        }[type];
+
+        config.header.innerHTML = "";
+        config.body.innerHTML = "";
+
+        if (!rows.length) {
+            config.empty.classList.remove("hidden");
+            return;
+        }
+
+        config.empty.classList.add("hidden");
+
+        const columns = Object.keys(rows[0]);
+
+        columns.forEach(function(column) {
+            const th = document.createElement("th");
+            th.textContent = column;
+            config.header.appendChild(th);
+        });
+
+        rows.forEach(function(row) {
+            const tr = document.createElement("tr");
+
+            if (row.import_status === "INVALID") {
+                tr.classList.add("invalid-row");
+            }
+
+            if (row.import_status === "DUPLIKAT") {
+                tr.classList.add("duplicate-row");
+            }
+
+            columns.forEach(function(column) {
+                const td = document.createElement("td");
+                const value = row[column] ?? "";
+
+                if (column === "import_status") {
+                    const badge = document.createElement("span");
+                    badge.classList.add("status-badge");
+
+                    if (value === "BARU") {
+                        badge.classList.add("status-baru");
+                    } else if (value === "INVALID") {
+                        badge.classList.add("status-invalid");
+                    } else if (value === "DUPLIKAT") {
+                        badge.classList.add("status-duplikat");
+                    }
+
+                    badge.textContent = value;
+                    td.appendChild(badge);
+                } else {
+                    td.textContent = value;
+                }
+
+                tr.appendChild(td);
+            });
+
+            config.body.appendChild(tr);
+        });
+    }
+
+    confirmButton.addEventListener("click", async function() {
+        if (!selectedFile || !previewData) {
+            showError("Preview belum tersedia. Silakan upload file lagi.");
+            return;
+        }
+
+        if (previewData.new_data <= 0) {
+            showError("Tidak ada data valid yang dapat diimport.");
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `Import ${previewData.new_data} data valid ke PostgreSQL?\n\n` +
+            `Data invalid dan duplikat tidak akan dimasukkan.`
+        );
+
+        if (!confirmed) return;
+
+        hideMessages();
+
+        importLoading.classList.remove("hidden");
+        confirmButton.disabled = true;
+        uploadButton.disabled = true;
+
+        try {
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+
+            const response = await fetch("/admin/import/confirm", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(getApiError(data));
+            }
+
+            showSuccess(
+                `Import berhasil. ${data.imported} data dimasukkan ke database. ` +
+                `${data.skipped} data tidak dimasukkan karena invalid/duplikat.`
+            );
+
+            confirmButton.classList.add("hidden");
+
+            actionInfo.textContent =
+                `${data.imported} data berhasil disimpan ke PostgreSQL.`;
+
+        } catch (error) {
+            showError(error.message);
+            confirmButton.disabled = false;
+        } finally {
+            importLoading.classList.add("hidden");
+            uploadButton.disabled = false;
+        }
+    });
+
+    fileInput.addEventListener("change", function() {
+        selectedFile = null;
+        previewData = null;
+
+        result.classList.add("hidden");
+        confirmButton.classList.add("hidden");
+
+        hideMessages();
+    });
+</script>
+</body>
+</html>

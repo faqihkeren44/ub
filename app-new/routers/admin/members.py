@@ -108,7 +108,7 @@ def member_detail(
     photo_url = None
 
     if member.photo:
-        photo_url = get_public_url(member.photo)
+        photo_url = get_public_url(member.photo, "member-photo")
 
     is_registration = (
         member.member_status == models.MemberStatus.PENDING

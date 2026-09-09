@@ -24,11 +24,26 @@
         </ol>
         
         <div class="checkbox-container">
-            <input type="checkbox" id="agree">
-            <label for="agree">Saya bersedia memenuhi ketentuan-ketentuan dan persyaratan yang ada</label>
+            <input type="checkbox" id="privacy-agree" disabled>
+            <p>Saya telah membaca dan menyetujui kebijakan privasi 
+            <a href="/privacy_policy" target="_blank" id="privacy-link">
+                Kebijakan Privasi Koperasi UB Mandiri Sejahtera
+            </a>
+            </p>
+        </div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="requirement-agree">
+            <label for="requirement-agree">Saya bersedia memenuhi ketentuan-ketentuan dan persyaratan yang ada</label>
         </div>
 
         <p id="agree-error" class="error-message"></p>
+
+        <button type="button" class="btn-primary">
+            <a href="/privacy_policy" target="_blank" id="privacy-link" style="color: white;">
+                Kebijakan dan Privasi
+            </a>
+        </button>
 
         <button type="button" id="btn-next" class="btn-login btn-disabled">
             Lanjut
@@ -36,28 +51,84 @@
     </div>
     
     <script>
-        const checkbox = document.getElementById("agree");
+        const privacyCheckbox = document.getElementById("privacy-agree");
+        const requirementCheckbox = document.getElementById("requirement-agree");
+        const privacyLink = document.getElementById("privacy-link");
         const button = document.getElementById("btn-next");
         const error = document.getElementById("agree-error");
 
-        checkbox.addEventListener("change", () => {
+        // Cek apakah user sudah mengunjungi privacy policy
+        const privacyVisited =
+            sessionStorage.getItem("privacy_policy_visited") === "true";
 
+        if (privacyVisited) {
+            privacyCheckbox.disabled = false;
+        }
+
+
+        // Ketika link privacy diklik
+        privacyLink.addEventListener("click", () => {
+            sessionStorage.setItem(
+                "privacy_policy_visited",
+                "true"
+            );
+
+            privacyCheckbox.disabled = false;
+        });
+
+
+        // Cek status checkbox
+        function checkAgreement() {
             error.textContent = "";
 
-            if (checkbox.checked) {
+            const privacyAgreed = privacyCheckbox.checked;
+            const requirementAgreed = requirementCheckbox.checked;
+
+            if (privacyAgreed && requirementAgreed) {
                 button.classList.remove("btn-disabled");
                 button.classList.add("btn-enabled");
             } else {
                 button.classList.remove("btn-enabled");
                 button.classList.add("btn-disabled");
             }
-        });
+        }
 
+
+        privacyCheckbox.addEventListener(
+            "change",
+            checkAgreement
+        );
+
+        requirementCheckbox.addEventListener(
+            "change",
+            checkAgreement
+        );
+
+
+        // Tombol Lanjut
         button.addEventListener("click", () => {
 
-            if (!checkbox.checked) {
+            const privacyVisited =
+                sessionStorage.getItem("privacy_policy_visited") === "true";
+
+            if (!privacyVisited) {
                 error.textContent =
-                    "Harap centang persetujuan terlebih dahulu.";
+                    "Silakan baca Kebijakan Privasi terlebih dahulu.";
+
+                return;
+            }
+
+            if (!privacyCheckbox.checked) {
+                error.textContent =
+                    "Silakan menyetujui Kebijakan Privasi terlebih dahulu.";
+
+                return;
+            }
+
+            if (!requirementCheckbox.checked) {
+                error.textContent =
+                    "Silakan menyetujui ketentuan dan persyaratan terlebih dahulu.";
+
                 return;
             }
 
